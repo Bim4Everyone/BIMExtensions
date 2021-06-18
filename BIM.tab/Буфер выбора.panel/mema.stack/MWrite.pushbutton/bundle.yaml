@@ -1,0 +1,16 @@
+title:
+  ru: Перезаписать
+  en_us: Write
+
+tooltip:
+  ru: >-
+    Перезаписывает в память проекта выделенные элементы.
+    
+    Работает как кнопки MC и M+ в калькуляторе. Память сохраняется для каждого проекта. Каждый проект имеет свою память, которая записывается в %appdata%/pyRevit директорию как *.pym файлы.
+  en_us: >-
+    Clear memory and Append current selection
+    
+    Works like the MC and M+ button in a calculator. This is a project-dependent memory. Every project has its own selection memory saved in %appdata%/pyRevit folder as *.pym files
+  
+context: selection
+help_url: "https://www.youtube.com/watch?v=pAM-ARIXXLw"

@@ -1,0 +1,12 @@
+title:
+  ru: Пакетная печать
+  en_us: Batch Print
+
+tooltip:
+  ru: Выводит в pdf все спецификации с учетом их размеров
+  en_us: Export to pdf View Schedules with considering sizes
+
+assembly: RevitBatchPrint.dll
+command_class: BatchPrintCommand
+
+author: dosymep

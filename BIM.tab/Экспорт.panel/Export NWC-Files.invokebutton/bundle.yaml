@@ -1,0 +1,12 @@
+title:
+  ru: Экспорт NWC-файлов
+  en_us: Export NWC-Files
+
+tooltip:
+  ru: Экспортирует 3D вид Navisworks из Revit
+  en_us: Exports Nаvisworks 3D view from Revit
+
+assembly: RevitServerFolders.dll
+command_class: ExportNwcFileCommand
+
+author: dosymep

@@ -1,0 +1,15 @@
+title:
+  ru: Очистить
+  en_us: Clear
+
+tooltip:
+  ru: >-
+    Очищает память проекта.
+    
+    Работает как кнопка MC в калькуляторе. Память сохраняется для каждого проекта. Каждый проект имеет свою память, которая записывается в %appdata%/pyRevit директорию как *.pym файлы.
+  en_us: >-
+    Clears selection from memory
+    
+    Works like the MC button in a calculator. This is a project-dependent memory. Every project has its own selection memory saved in %appdata%/pyRevit folder as *.pym files
+  
+help_url: "https://www.youtube.com/watch?v=pAM-ARIXXLw"
