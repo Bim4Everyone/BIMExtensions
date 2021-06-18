@@ -1,0 +1,44 @@
+{
+    "extensions": [{
+			"builtin": "True",
+            "default_enabled": "True",
+            "type": "lib",
+            "rocket_mode_compatible": "True",
+            "name": "BIM4Everyone",
+            "description": "BIM4Everyone",
+            "author": "dosymep",
+            "author_profile": "https://github.com/dosymep",
+            "url": "https://github.com/dosymep/BIM4Everyone",
+            "website": "https://www.youtube.com/channel/UC6fDdMZy6_jUKhOIp2FK2qQ",
+            "image": "",
+            "dependencies": []
+        },
+		{
+            "builtin": "True",
+            "default_enabled": "True",
+            "type": "extension",
+            "rocket_mode_compatible": "True",
+            "name": "01.BIM",
+            "description": "BIM",
+            "author": "dosymep",
+            "author_profile": "https://github.com/dosymep/",
+            "url": "https://github.com/dosymep/BIMExtensions",
+            "website": "https://github.com/dosymep/BIMExtensions",
+            "image": "",
+            "dependencies": ["BIM4Everyone"]
+        },
+		{
+            "builtin": "False",
+            "default_enabled": "False",
+            "type": "extension",
+            "rocket_mode_compatible": "True",
+            "name": "02.AR",
+            "description": "Архитектура",
+            "author": "dosymep",
+            "author_profile": "https://github.com/dosymep/",
+            "url": "https://github.com/dosymep/ARExtensions",
+            "website": "https://github.com/dosymep/ARExtensions",
+            "image": "",
+            "dependencies": ["BIM4Everyone"]
+        }]
+}
