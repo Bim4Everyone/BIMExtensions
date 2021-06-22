@@ -1,0 +1,12 @@
+title:
+  ru: Копирование стандартов
+  en_us: Copy Standarts
+
+tooltip:
+  ru: Копирует стандарты по определенным шаблонам.
+  en_us: Copies standatrs by templates.
+
+assembly: RevitCopyStandarts.dll
+command_class: CopyStandartsRevitCommand
+
+author: dosymep
