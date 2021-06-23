@@ -1,6 +1,6 @@
 title:
-  ru: Экспорт NWC-файлов
-  en_us: Export NWC-Files
+  ru: "Экспорт\nNWC-файлов"
+  en_us: "Export\nNWC-Files"
 
 tooltip:
   ru: Экспортирует 3D вид Navisworks из Revit
