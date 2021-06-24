@@ -1,10 +1,12 @@
 # -*- coding: utf-8 -*-
 from collections import namedtuple
-from customcollections import DefaultOrderedDict
 
 from pyrevit import revit, DB
+from pyrevit.compat import safe_strtype
 from pyrevit import forms
 from pyrevit import script
+from pyrevit import coreutils
+from pyrevit.coreutils import pyutils
 
 
 __context__ = 'selection'
@@ -27,11 +29,11 @@ def is_calculable_param(param):
 
     if param.StorageType == DB.StorageType.Integer:
         val_str = param.AsValueString()
-        if val_str and unicode(val_str).lower().isdigit():
+        if val_str and safe_strtype(val_str).lower().isdigit():
             return True
 
     return False
-
+    
 
 def calc_param_total(element_list, param_name):
     sum_total = 0.0
@@ -89,9 +91,21 @@ def output_param_total(element_list, param_def):
 
     print('Значение по параметру: {}\n\n'.format(param_def.name))
     if param_def.type in formatter_funcs.keys():
-        formatter_funcs[param_def.type](total_value)
+        outputstr = formatter_funcs[param_def.type](total_value)
     else:
-        print('{}\n'.format(total_value))
+        outputstr = '{}\n'.format(total_value)
+    print(outputstr)
+
+
+def output_breakdown(element_list, param_def):
+    for element in element_list:
+        total_value = calc_param_total([element], param_def.name)
+
+        if param_def.type in formatter_funcs.keys():
+            outputstr = formatter_funcs[param_def.type](total_value)
+        else:
+            outputstr = '{}\n'.format(total_value)
+        print('{}\n{}'.format(output.linkify(element.Id), outputstr))
 
 
 def process_options(element_list):
@@ -127,9 +141,9 @@ def process_options(element_list):
         return {'{} <{}>'.format(x.name, x.type): x
                 for x in all_shared_params}
 
-
+  
 def process_sets(element_list):
-    el_sets = DefaultOrderedDict(list)
+    el_sets = pyutils.DefaultOrderedDict(list)
 
     # add all elements as first set, for totals of all elements
     el_sets['Все выбранные элементы'].extend(element_list)
@@ -172,3 +186,6 @@ if options:
                 output.print_md('### Итого для: {}'.format(type_name))
                 output_param_total(element_set, selected_option)
                 output.insert_divider()
+                #output.print_md('#### Breakdown:')
+                #output_breakdown(element_set, selected_option)
+                #output.insert_divider(level='##')  
