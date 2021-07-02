@@ -24,19 +24,25 @@ def __selfinit__(script_cmp, ui_button_cmp, __rvt__):
         
     if __rvt__.Application.Language == LanguageType.English_USA:
         user_config.user_locale = 'en_us'
+
+    LoadPlatformSettings()
+
+
+def LoadPlatformSettings():
+    sharedParamsPath = None
+    if user_config.has_section("PlatformSettings"):
+        sharedParamsPath = user_config.get_section("PlatformSettings").get_option("SharedParamsPath")
     
-    sharedParamsPath = user_config.get_section("PlatformSettings").get_option("SharedParamsPath")
     SharedParamsConfig.LoadInstance(sharedParamsPath)
+
 
 def OpenPlatrormSettings():
     settings = PlatformSettings.PlatformSettingsCommand()
     result = settings.Execute(EXEC_PARAMS.command_data)
 
     if result:
-        user_config.reload()
-        
-        sharedParamsPath = user_config.get_section("PlatformSettings").get_option("SharedParamsPath")
-        SharedParamsConfig.LoadInstance(sharedParamsPath)
+        user_config.reload()    
+        LoadPlatformSettings()
         
         logger = script.get_logger()
         results = script.get_results()
