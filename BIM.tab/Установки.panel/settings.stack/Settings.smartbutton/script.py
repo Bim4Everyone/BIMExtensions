@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-
 import clr
 clr.AddReference('PlatformSettings.dll')
 clr.AddReference('dosymep.Bim4Everyone.dll')
@@ -18,7 +17,7 @@ import PlatformSettings
 def __selfinit__(script_cmp, ui_button_cmp, __rvt__):
     user_config.auto_update = True
     user_config.check_updates = True
-    user_config.save_changes();
+    user_config.save_changes()
     
     if __rvt__.Application.Language == LanguageType.Russian:
         user_config.user_locale = 'ru'
@@ -31,7 +30,7 @@ def __selfinit__(script_cmp, ui_button_cmp, __rvt__):
 
 def OpenPlatrormSettings():
     settings = PlatformSettings.PlatformSettingsCommand()
-    result = settings.Execute(EXEC_PARAMS.command_data);
+    result = settings.Execute(EXEC_PARAMS.command_data)
 
     if result:
         user_config.reload()
