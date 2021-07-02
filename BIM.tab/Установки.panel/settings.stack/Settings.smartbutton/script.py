@@ -2,6 +2,7 @@
 
 import clr
 clr.AddReference('PlatformSettings.dll')
+clr.AddReference('dosymep.Bim4Everyone.dll')
 
 from pyrevit import EXEC_PARAMS
 from pyrevit import script
@@ -10,6 +11,7 @@ from pyrevit.loader import sessionmgr
 from pyrevit.loader import sessioninfo
 from pyrevit.userconfig import user_config
 from Autodesk.Revit.ApplicationServices import LanguageType
+from dosymep.Bim4Everyone.SharedParams import SharedParamsConfig
 
 import PlatformSettings
 
@@ -23,6 +25,9 @@ def __selfinit__(script_cmp, ui_button_cmp, __rvt__):
         
     if __rvt__.Application.Language == LanguageType.English_USA:
         user_config.user_locale = 'en_us'
+    
+    sharedParamsPath = user_config.get_section("PlatformSettings").get_option("SharedParamsPath")
+    SharedParamsConfig.LoadInstance(sharedParamsPath)
 
 def OpenPlatrormSettings():
     settings = PlatformSettings.PlatformSettingsCommand()
@@ -30,6 +35,9 @@ def OpenPlatrormSettings():
 
     if result:
         user_config.reload()
+        
+        sharedParamsPath = user_config.get_section("PlatformSettings").get_option("SharedParamsPath")
+        SharedParamsConfig.LoadInstance(sharedParamsPath)
         
         logger = script.get_logger()
         results = script.get_results()
