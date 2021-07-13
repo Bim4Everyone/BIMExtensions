@@ -1,0 +1,9 @@
+title:
+  ru: "Получить\nидентификатор элемента"
+  en_us: "Get\nelement id"
+
+tooltip:
+  ru: Отображает идентификатор элемента связанного документа.
+  en_us: Shows linked document's element id.
+
+author: dosymep
