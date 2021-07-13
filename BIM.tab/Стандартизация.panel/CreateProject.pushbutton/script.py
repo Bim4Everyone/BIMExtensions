@@ -3,8 +3,8 @@
 import clr
 clr.AddReference("System.Windows.Forms")
 
-from System.Windows.Forms import MessageBox, SaveFileDialog, DialogResult, MessageBoxButtons, MessageBoxIcon
-from Autodesk.Revit.DB import FilteredElementCollector, BuiltInCategory, Transaction, RevitLinkType, ElementId
+from System.Windows.Forms import *
+from Autodesk.Revit.DB import *
 
 templateFilePath = "T:\\Проектный институт\\Отдел стандартизации BIM и RD\\BIM-Ресурсы\\5-Надстройки\\Шаблоны и настройки\\Test\\Пустой.rte"
 
@@ -24,4 +24,7 @@ def GetFilePath():
 fileName = GetFilePath()
 if(fileName):
     document = application.NewProjectDocument(templateFilePath)
-    document = document.SaveAs(fileName)
+    document.SaveAs(fileName, SaveAsOptions(OverwriteExistingFile=True))
+    document.Close(False)
+
+    __revit__.OpenAndActivateDocument(fileName)
