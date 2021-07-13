@@ -1,4 +1,8 @@
 # -*- coding: utf-8 -*-
+import clr
+clr.AddReference("PresentationCore")
+
+from System.Windows import *
 
 from Autodesk.Revit.DB import *
 from Autodesk.Revit.UI import *
@@ -15,7 +19,9 @@ try:
     linkedDocument = next(iter(linkedDocuments), None)
     if linkedDocument:
         linkedElement = linkedDocument.GetElement(selectedElement.LinkedElementId)
-        print "{title} {elementId}".format(title=linkedDocument.Title, elementId=linkedElement.Id)
+
+        Clipboard.SetText(linkedElement.Id.ToString());
+        print "{title}.rvt ID: {elementId}".format(title=linkedDocument.Title, elementId=linkedElement.Id)
     else:
         print "Не был найден элемент в связанных файлах."
 except OperationCanceledException:
