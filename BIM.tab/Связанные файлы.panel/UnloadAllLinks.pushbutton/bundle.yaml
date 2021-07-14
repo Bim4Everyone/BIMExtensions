@@ -1,0 +1,9 @@
+title:
+  ru: "Выгрузить\nсвязанные файлы"
+  en_us: "Unload\n file links"
+
+tooltip:
+  ru: Выгружает связанные файлы.
+  en_us: Unloads file links.
+
+author: dosymep

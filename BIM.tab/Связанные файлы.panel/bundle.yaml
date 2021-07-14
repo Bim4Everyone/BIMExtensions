@@ -1,0 +1,7 @@
+layout:
+    - LinkedElementId
+    - ----
+    - AddRevitLinks
+    - RemoveUnloadedLinks
+    - ----
+    - UnloadAllLinks

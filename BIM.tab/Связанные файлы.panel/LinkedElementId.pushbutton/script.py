@@ -9,6 +9,8 @@ from Autodesk.Revit.UI import *
 from Autodesk.Revit.UI.Selection import *
 from Autodesk.Revit.Exceptions import *
 
+from pyrevit import forms
+
 document = __revit__.ActiveUIDocument.Document
 uiDocument = __revit__.ActiveUIDocument
 
@@ -23,6 +25,6 @@ try:
         Clipboard.SetText(linkedElement.Id.ToString());
         print "{title}.rvt ID: {elementId}".format(title=linkedDocument.Title, elementId=linkedElement.Id)
     else:
-        print "Не был найден элемент в связанных файлах."
+        forms.alert("Не был найден элемент в связанных файлах.", title="Сообщение")
 except OperationCanceledException:
     pass
