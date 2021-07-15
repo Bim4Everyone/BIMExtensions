@@ -37,10 +37,10 @@ def CreateRevitLinks(selectedFiles):
             with Transaction(document) as transaction:
                 transaction.Start("Связывание файла " + Path.GetFileName(fileNamePath))
                 
-                try:
+                try:                    
                     linkFile = ModelPathUtils.ConvertUserVisiblePathToModelPath(fileNamePath)
-        
-                    linkOptions = RevitLinkOptions(False)
+                    
+                    linkOptions = RevitLinkOptions(True)
                     linkLoadResult = RevitLinkType.Create(document, linkFile, linkOptions)
 
                     revitLinkInstance = RevitLinkInstance.Create(document, linkLoadResult.ElementId, ImportPlacement.Shared)
