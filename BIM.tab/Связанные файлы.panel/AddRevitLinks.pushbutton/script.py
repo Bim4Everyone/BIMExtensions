@@ -36,7 +36,7 @@ def CreateRevitLinks(selectedFiles):
         for fileName, fileNamePath in selectedFiles.items():
             with Transaction(document) as transaction:
                 transaction.Start("Связывание файла " + Path.GetFileName(fileNamePath))
-            
+                
                 try:
                     linkFile = ModelPathUtils.ConvertUserVisiblePathToModelPath(fileNamePath)
         
@@ -44,18 +44,19 @@ def CreateRevitLinks(selectedFiles):
                     linkLoadResult = RevitLinkType.Create(document, linkFile, linkOptions)
 
                     revitLinkInstance = RevitLinkInstance.Create(document, linkLoadResult.ElementId, ImportPlacement.Shared)
-                    revitLinkType = document.GetElement(revitLinkInstance.GetTypeId());
+                    
+                    revitLinkType = document.GetElement(revitLinkInstance.GetTypeId())
                     revitLinkType.Parameter[BuiltInParameter.WALL_ATTR_ROOM_BOUNDING].Set(1)
-        
-                    transaction.Commit();
+
+                    transaction.Commit()
                 except InvalidOperationException:
                     transaction.RollBack()
-                    errorList.append(Path.GetFileName(fileNamePath) + ": Файл имеет другую систему координат.")
-     
+                    errorList.append(Path.GetFileName(fileNamePath))
+        
         transactionGroup.Assimilate()
 
-        if errorList:
-            forms.alert("Следующие файлы не были привязаны:\r\n - " + "\r\n - ".join(errorList), title="Сообщение")
+    if errorList:
+        forms.alert("Файлы с другой системой координат:\r\n - " + "\r\n - ".join(errorList), title="Предупреждение")
 
 
 selectedFiles = forms.pick_file(files_filter="Revit files (*.rvt)|*.rvt", multi_file=True, title="Выберите Revit файлы")
