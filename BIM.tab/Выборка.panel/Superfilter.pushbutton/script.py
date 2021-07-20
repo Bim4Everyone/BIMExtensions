@@ -124,6 +124,12 @@ class QuickSelectWindow(forms.WPFWindow):
 			if el.Category.Name in selected_cats:
 				returned_els.append(el.Id)
 
+		if self.cb_current_view.IsChecked:
+			document = __revit__.ActiveUIDocument.Document
+			activeViewId = __revit__.ActiveUIDocument.Document.ActiveView.Id
+			activeViewElementsIds = FilteredElementCollector(document, activeViewId).ToElementIds()
+			returned_els = [x for x in returned_els if x in activeViewElementsIds]
+				
 		if len(returned_els) > 0:
 			__revit__.ActiveUIDocument.Selection.SetElementIds(List[DB.ElementId](returned_els))
 			self.Close()

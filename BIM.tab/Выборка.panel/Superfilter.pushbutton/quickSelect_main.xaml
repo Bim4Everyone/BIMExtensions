@@ -41,6 +41,7 @@
     </Window.Resources>
     <GroupBox  Header="Выберите категории элементов" Margin="10,22,10,20" BorderThickness="1" BorderBrush="#FF514B4B"  FontWeight="Bold" >
         <StackPanel Margin="10,10,0,0" Orientation="Vertical" >
+			<CheckBox x:Name="cb_current_view" Content="Сделать выборку по текущему виду" />
             <StackPanel Margin="10,10,0,0" Orientation="Horizontal" Height="470">
                 <Border BorderBrush="#dedede" BorderThickness="1,1" >
 
@@ -69,8 +70,6 @@
             <StackPanel Orientation="Horizontal" >
                 <Button Content="Выбрать элементы" Margin="30,10,0,0" Width="175" Height="30" Click="select_els" />
                 <Button Content="К списку параметров >>>" Margin="50,10,0,0" Width="175" Height="30" Click="select_cats" />
-
-
             </StackPanel>
 
         </StackPanel>
