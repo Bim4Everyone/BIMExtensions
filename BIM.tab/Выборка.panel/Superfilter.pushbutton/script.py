@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-
 import os.path as op
 import os
 import sys
@@ -62,11 +61,12 @@ app = __revit__.Application
 class QuickSelectWindow(forms.WPFWindow):
 	def __init__(self, xaml_file_name,**kwargs):
 		forms.WPFWindow.__init__(self, xaml_file_name)
+		self.cb_current_view.IsEnabled = __revit__.ActiveUIDocument.Document.ActiveView != None
         
 		self._init_psettings = None        
 		cats = kwargs.get('list', None)        
-		self.elments =  kwargs.get('Elements', None)        
-		self.list_cats.ItemsSource  = cats
+		self.elments = kwargs.get('Elements', None)        
+		self.list_cats.ItemsSource = cats
 
 	def fun_cat(self,cat_checked,cat_status):
 
@@ -76,22 +76,22 @@ class QuickSelectWindow(forms.WPFWindow):
 		i = 0
 		expanded_cats = []
 		cats = self.list_cats
-		if len(cats.SelectedItems)>0:
+		if len(cats.SelectedItems) > 0:
 			for cat in cats.SelectedItems:
 				cat.cat_state = cat_status
 
 		for cat in cats.ItemsSource:
 			container = cats.ItemContainerGenerator.ContainerFromItem(cat)
-			child_0 =  VisualTreeHelper.GetChild(container,0)
-			child_1 =  VisualTreeHelper.GetChild(child_0,0)
-			dataTemplate =  child_1.ContentTemplate
+			child_0 = VisualTreeHelper.GetChild(container,0)
+			child_1 = VisualTreeHelper.GetChild(child_0,0)
+			dataTemplate = child_1.ContentTemplate
 			i += 1
 			cat_checkBox = dataTemplate.FindName("cat_checkBox",child_1)
 			if cat_checkBox.IsChecked == cat_checked:
 				cat.cat_state = cat_status
 
-		pos_scroller =  self.myScroll.VerticalOffset
-		self.list_cats.ItemsSource  = []
+		pos_scroller = self.myScroll.VerticalOffset
+		self.list_cats.ItemsSource = []
 		self.list_cats.ItemsSource = all_cats
 		self.myScroll.ScrollToVerticalOffset(pos_scroller)
 
@@ -123,8 +123,8 @@ class QuickSelectWindow(forms.WPFWindow):
 		for el in self.elments:
 			if el.Category.Name in selected_cats:
 				returned_els.append(el.Id)
-		
-		if len(returned_els)>0:
+
+		if len(returned_els) > 0:
 			__revit__.ActiveUIDocument.Selection.SetElementIds(List[DB.ElementId](returned_els))
 			self.Close()
 		else:
@@ -149,7 +149,7 @@ class QuickSelectWindow(forms.WPFWindow):
 				output = pyrevit.output.get_output()
 				output.close()
 		else:
-			#forms.alert('ОШИБКА!!... Выделите нужные категории')
+			#forms.alert('ОШИБКА!!...  Выделите нужные категории')
 			MessageBox.Show("Выделите нужные категории !!","ОШИБКА!")
 
 	def cancel(self,sender,args):
@@ -162,7 +162,7 @@ class PrintSheetsWindow(forms.WPFWindow):
 		forms.WPFWindow.__init__(self, xaml_file_name)
 		self._init_psettings = None
 		cats = kwargs.get('list', None)
-		self.list_cats.ItemsSource  = cats
+		self.list_cats.ItemsSource = cats
 		self.and_checked = False
 	@property
 	def selected_doc(self):
@@ -201,7 +201,7 @@ class PrintSheetsWindow(forms.WPFWindow):
 		i = 0
 		expanded_cats = []
 		cats = self.list_cats
-		if len(cats.SelectedItems)>0:
+		if len(cats.SelectedItems) > 0:
 			for cat in cats.SelectedItems:
 				cat.cat_state = cat_status
 				for par in cat.paramters:
@@ -211,9 +211,9 @@ class PrintSheetsWindow(forms.WPFWindow):
 
 		for cat in cats.ItemsSource:
 			container = cats.ItemContainerGenerator.ContainerFromItem(cat)
-			child_0 =  VisualTreeHelper.GetChild(container,0)
-			child_1 =  VisualTreeHelper.GetChild(child_0,0)
-			dataTemplate =  child_1.ContentTemplate
+			child_0 = VisualTreeHelper.GetChild(container,0)
+			child_1 = VisualTreeHelper.GetChild(child_0,0)
+			dataTemplate = child_1.ContentTemplate
 			cat_exp = dataTemplate.FindName("cat_expander",child_1)
 			if cat_exp.IsExpanded == True:
 				expanded_cats.append(i)
@@ -226,8 +226,8 @@ class PrintSheetsWindow(forms.WPFWindow):
 					for el in par.elements:
 						el.el_state = cat_status
 
-		pos_scroller =  self.myScroll.VerticalOffset
-		self.list_cats.ItemsSource  = []
+		pos_scroller = self.myScroll.VerticalOffset
+		self.list_cats.ItemsSource = []
 		self.list_cats.ItemsSource = all_cats
 		# reset the expanded categories
 		cats = self.list_cats
@@ -236,9 +236,9 @@ class PrintSheetsWindow(forms.WPFWindow):
 		self.list_cats.UpdateLayout()
 		for cat in cats.ItemsSource:
 			container = cats.ItemContainerGenerator.ContainerFromItem(cat)
-			child_0 =  VisualTreeHelper.GetChild(container,0)
-			child_1 =  VisualTreeHelper.GetChild(child_0,0)
-			dataTemplate =  child_1.ContentTemplate
+			child_0 = VisualTreeHelper.GetChild(container,0)
+			child_1 = VisualTreeHelper.GetChild(child_0,0)
+			dataTemplate = child_1.ContentTemplate
 			cat_exp = dataTemplate.FindName("cat_expander",child_1)
 			if i in expanded_cats:
 				cat_exp.IsExpanded = True
@@ -270,9 +270,9 @@ class PrintSheetsWindow(forms.WPFWindow):
 		self.list_cats.UpdateLayout()
 		for cat in cats.ItemsSource:
 			cat_container = cats.ItemContainerGenerator.ContainerFromItem(cat)
-			child_0 =  VisualTreeHelper.GetChild(cat_container,0)
-			child_1 =  VisualTreeHelper.GetChild(child_0,0)
-			dataTemplate =  child_1.ContentTemplate
+			child_0 = VisualTreeHelper.GetChild(cat_container,0)
+			child_1 = VisualTreeHelper.GetChild(child_0,0)
+			dataTemplate = child_1.ContentTemplate
 			cat_exp = dataTemplate.FindName("cat_expander",child_1)
 			if cat_exp.IsExpanded == True:
 				list_pars = dataTemplate.FindName("list_pars",child_1)
@@ -281,7 +281,7 @@ class PrintSheetsWindow(forms.WPFWindow):
 				checked_pars = 0
 				none_pars = 0
 				cat.cat_state = False
-				if len(list_pars.SelectedItems) >0:
+				if len(list_pars.SelectedItems) > 0:
 					for par in list_pars.SelectedItems:
 						par.par_state = checked
 						for el in par.elements:
@@ -293,13 +293,13 @@ class PrintSheetsWindow(forms.WPFWindow):
 					list_pars.UpdateLayout()
 					for par in list_pars.ItemsSource:
 						par_container = list_pars.ItemContainerGenerator.ContainerFromItem(par)
-						child_0 =  VisualTreeHelper.GetChild(par_container,0)
-						child_1 =  VisualTreeHelper.GetChild(child_0,0)
-						dataTemplate =  child_1.ContentTemplate
+						child_0 = VisualTreeHelper.GetChild(par_container,0)
+						child_1 = VisualTreeHelper.GetChild(child_0,0)
+						dataTemplate = child_1.ContentTemplate
 						par_checkBox = dataTemplate.FindName("par_checkBox",child_1)
 						par_exp = dataTemplate.FindName("par_expander",child_1)
 						if par_exp.IsExpanded == True:
-							expanded_pars.append(i*10+j)
+							expanded_pars.append(i * 10 + j)
 						if par_checkBox.IsChecked == True:
 							checked_pars += 1
 							par.par_state = True
@@ -325,8 +325,8 @@ class PrintSheetsWindow(forms.WPFWindow):
 					cat.cat_state = None
 
 			i += 1
-		pos_scroller =  self.myScroll.VerticalOffset
-		self.list_cats.ItemsSource  = []
+		pos_scroller = self.myScroll.VerticalOffset
+		self.list_cats.ItemsSource = []
 		self.list_cats.ItemsSource = all_cats
 		# reset the expanded categories
 		all_cats = self.list_cats.ItemsSource 
@@ -335,9 +335,9 @@ class PrintSheetsWindow(forms.WPFWindow):
 		self.list_cats.UpdateLayout()
 		for cat in cats.ItemsSource:
 			cat_container = cats.ItemContainerGenerator.ContainerFromItem(cat)
-			child_0 =  VisualTreeHelper.GetChild(cat_container,0)
-			child_1 =  VisualTreeHelper.GetChild(child_0,0)
-			dataTemplate =  child_1.ContentTemplate
+			child_0 = VisualTreeHelper.GetChild(cat_container,0)
+			child_1 = VisualTreeHelper.GetChild(child_0,0)
+			dataTemplate = child_1.ContentTemplate
 			cat_exp = dataTemplate.FindName("cat_expander",child_1)
 			if i in expanded_cats:
 				cat_exp.IsExpanded = True
@@ -346,11 +346,11 @@ class PrintSheetsWindow(forms.WPFWindow):
 				list_pars.UpdateLayout()
 				for par in list_pars.ItemsSource:
 					par_container = list_pars.ItemContainerGenerator.ContainerFromItem(par)
-					child_0 =  VisualTreeHelper.GetChild(par_container,0)
-					child_1 =  VisualTreeHelper.GetChild(child_0,0)
-					dataTemplate =  child_1.ContentTemplate
+					child_0 = VisualTreeHelper.GetChild(par_container,0)
+					child_1 = VisualTreeHelper.GetChild(child_0,0)
+					dataTemplate = child_1.ContentTemplate
 					par_exp = dataTemplate.FindName("par_expander",child_1)
-					if i*10+j in expanded_pars:
+					if i * 10 + j in expanded_pars:
 						par_exp.IsExpanded = True
 					j += 1
 			i += 1
@@ -380,9 +380,9 @@ class PrintSheetsWindow(forms.WPFWindow):
 			self.list_cats.UpdateLayout()
 			for cat in cats.ItemsSource:
 				cat_container = cats.ItemContainerGenerator.ContainerFromItem(cat)
-				child_0 =  VisualTreeHelper.GetChild(cat_container,0)
-				child_1 =  VisualTreeHelper.GetChild(child_0,0)
-				dataTemplate =  child_1.ContentTemplate
+				child_0 = VisualTreeHelper.GetChild(cat_container,0)
+				child_1 = VisualTreeHelper.GetChild(child_0,0)
+				dataTemplate = child_1.ContentTemplate
 				cat_expander = dataTemplate.FindName("cat_expander",child_1)
 				if cat_expander.IsExpanded:
 					return True
@@ -396,9 +396,9 @@ class PrintSheetsWindow(forms.WPFWindow):
 			cats = self.list_cats
 			for cat in cats.ItemsSource:
 				cat_container = cats.ItemContainerGenerator.ContainerFromItem(cat)
-				child_0 =  VisualTreeHelper.GetChild(cat_container,0)
-				child_1 =  VisualTreeHelper.GetChild(child_0,0)
-				dataTemplate =  child_1.ContentTemplate
+				child_0 = VisualTreeHelper.GetChild(cat_container,0)
+				child_1 = VisualTreeHelper.GetChild(child_0,0)
+				dataTemplate = child_1.ContentTemplate
 				cat_expander = dataTemplate.FindName("cat_expander",child_1)
 				if cat_expander.IsExpanded:
 					list_pars = dataTemplate.FindName("list_pars",child_1)
@@ -408,9 +408,9 @@ class PrintSheetsWindow(forms.WPFWindow):
 					for par in list_pars.ItemsSource:
 						ret_par_elements = []
 						par_container = list_pars.ItemContainerGenerator.ContainerFromItem(par)
-						child_0 =  VisualTreeHelper.GetChild(par_container,0)
-						child_1 =  VisualTreeHelper.GetChild(child_0,0)
-						dataTemplate =  child_1.ContentTemplate
+						child_0 = VisualTreeHelper.GetChild(par_container,0)
+						child_1 = VisualTreeHelper.GetChild(child_0,0)
+						dataTemplate = child_1.ContentTemplate
 						par_expander = dataTemplate.FindName("par_expander",child_1)
 						if par_expander.IsExpanded:
 							return True
@@ -431,9 +431,9 @@ class PrintSheetsWindow(forms.WPFWindow):
 		self.list_cats.UpdateLayout()
 		for cat in cats.ItemsSource:
 			cat_container = cats.ItemContainerGenerator.ContainerFromItem(cat)
-			child_0 =  VisualTreeHelper.GetChild(cat_container,0)
-			child_1 =  VisualTreeHelper.GetChild(child_0,0)
-			dataTemplate =  child_1.ContentTemplate
+			child_0 = VisualTreeHelper.GetChild(cat_container,0)
+			child_1 = VisualTreeHelper.GetChild(child_0,0)
+			dataTemplate = child_1.ContentTemplate
 			cat_exp = dataTemplate.FindName("cat_expander",child_1)
 			if cat_exp.IsExpanded == True:
 				list_pars = dataTemplate.FindName("list_pars",child_1)
@@ -444,17 +444,17 @@ class PrintSheetsWindow(forms.WPFWindow):
 				list_pars.UpdateLayout()
 				for par in list_pars.ItemsSource:
 					par_container = list_pars.ItemContainerGenerator.ContainerFromItem(par)
-					child_0 =  VisualTreeHelper.GetChild(par_container,0)
-					child_1 =  VisualTreeHelper.GetChild(child_0,0)
-					dataTemplate =  child_1.ContentTemplate
+					child_0 = VisualTreeHelper.GetChild(par_container,0)
+					child_1 = VisualTreeHelper.GetChild(child_0,0)
+					dataTemplate = child_1.ContentTemplate
 					par_checkBox = dataTemplate.FindName("par_checkBox",child_1)
 					par_exp = dataTemplate.FindName("par_expander",child_1)
 					par.par_state = False
 					if par_exp.IsExpanded == True:
-						expanded_pars.append(i*10+j)
+						expanded_pars.append(i * 10 + j)
 						checked_els = 0
 						list_els = dataTemplate.FindName("list_els",child_1)
-						if len(list_els.SelectedItems) >0:
+						if len(list_els.SelectedItems) > 0:
 							for el in list_els.SelectedItems:
 								el.el_state = checked
 							for el in list_els.ItemsSource:
@@ -464,9 +464,9 @@ class PrintSheetsWindow(forms.WPFWindow):
 							list_els.UpdateLayout()
 							for el in list_els.ItemsSource:
 								par_container = list_els.ItemContainerGenerator.ContainerFromItem(el)
-								child_0 =  VisualTreeHelper.GetChild(par_container,0)
-								child_1 =  VisualTreeHelper.GetChild(child_0,0)
-								dataTemplate =  child_1.ContentTemplate
+								child_0 = VisualTreeHelper.GetChild(par_container,0)
+								child_1 = VisualTreeHelper.GetChild(child_0,0)
+								dataTemplate = child_1.ContentTemplate
 								el_checkBox = dataTemplate.FindName("el_checkBox",child_1)
 								if el_checkBox.IsChecked == True:
 									checked_els += 1
@@ -476,7 +476,7 @@ class PrintSheetsWindow(forms.WPFWindow):
 						if checked_els == len(list_els.ItemsSource):
 							par.par_state = True
 							checked_pars += 1
-						elif checked_els >0:
+						elif checked_els > 0:
 							par.par_state = None
 							par_None += 1
 
@@ -492,8 +492,8 @@ class PrintSheetsWindow(forms.WPFWindow):
 					cat.cat_state = None
 
 			i += 1
-		pos_scroller =  self.myScroll.VerticalOffset
-		self.list_cats.ItemsSource  = []
+		pos_scroller = self.myScroll.VerticalOffset
+		self.list_cats.ItemsSource = []
 		self.list_cats.ItemsSource = all_cats
 		# reset the expanded categories
 		all_cats = self.list_cats.ItemsSource 
@@ -502,9 +502,9 @@ class PrintSheetsWindow(forms.WPFWindow):
 		cats.UpdateLayout()
 		for cat in cats.ItemsSource:
 			cat_container = cats.ItemContainerGenerator.ContainerFromItem(cat)
-			child_0 =  VisualTreeHelper.GetChild(cat_container,0)
-			child_1 =  VisualTreeHelper.GetChild(child_0,0)
-			dataTemplate =  child_1.ContentTemplate
+			child_0 = VisualTreeHelper.GetChild(cat_container,0)
+			child_1 = VisualTreeHelper.GetChild(child_0,0)
+			dataTemplate = child_1.ContentTemplate
 			cat_exp = dataTemplate.FindName("cat_expander",child_1)
 			if i in expanded_cats:
 				cat_exp.IsExpanded = True
@@ -513,11 +513,11 @@ class PrintSheetsWindow(forms.WPFWindow):
 				list_pars.UpdateLayout()
 				for par in list_pars.ItemsSource:
 					par_container = list_pars.ItemContainerGenerator.ContainerFromItem(par)
-					child_0 =  VisualTreeHelper.GetChild(par_container,0)
-					child_1 =  VisualTreeHelper.GetChild(child_0,0)
-					dataTemplate =  child_1.ContentTemplate
+					child_0 = VisualTreeHelper.GetChild(par_container,0)
+					child_1 = VisualTreeHelper.GetChild(child_0,0)
+					dataTemplate = child_1.ContentTemplate
 					par_exp = dataTemplate.FindName("par_expander",child_1)
-					if i*10+j in expanded_pars:
+					if i * 10 + j in expanded_pars:
 						par_exp.IsExpanded = True
 					j += 1
 			i += 1
@@ -540,9 +540,9 @@ class PrintSheetsWindow(forms.WPFWindow):
 
 		for cat in cats.ItemsSource:
 			cat_container = cats.ItemContainerGenerator.ContainerFromItem(cat)
-			child_0 =  VisualTreeHelper.GetChild(cat_container,0)
-			child_1 =  VisualTreeHelper.GetChild(child_0,0)
-			dataTemplate =  child_1.ContentTemplate
+			child_0 = VisualTreeHelper.GetChild(cat_container,0)
+			child_1 = VisualTreeHelper.GetChild(child_0,0)
+			dataTemplate = child_1.ContentTemplate
 			cat_checkBox = dataTemplate.FindName("cat_checkBox",child_1)
 			if cat_checkBox.IsChecked == True:
 				for el in cat.cat_els:
@@ -556,9 +556,9 @@ class PrintSheetsWindow(forms.WPFWindow):
 				for par in list_pars.ItemsSource:
 					ret_par_elements = []
 					par_container = list_pars.ItemContainerGenerator.ContainerFromItem(par)
-					child_0 =  VisualTreeHelper.GetChild(par_container,0)
-					child_1 =  VisualTreeHelper.GetChild(child_0,0)
-					dataTemplate =  child_1.ContentTemplate
+					child_0 = VisualTreeHelper.GetChild(par_container,0)
+					child_1 = VisualTreeHelper.GetChild(child_0,0)
+					dataTemplate = child_1.ContentTemplate
 					par_checkBox = dataTemplate.FindName("par_checkBox",child_1)
 					if par_checkBox.IsChecked == True:
 						for el in par.ret_elements:
@@ -568,9 +568,9 @@ class PrintSheetsWindow(forms.WPFWindow):
 						list_els.UpdateLayout()
 						for el in list_els.ItemsSource:
 							par_container = list_els.ItemContainerGenerator.ContainerFromItem(el)
-							child_0 =  VisualTreeHelper.GetChild(par_container,0)
-							child_1 =  VisualTreeHelper.GetChild(child_0,0)
-							dataTemplate =  child_1.ContentTemplate
+							child_0 = VisualTreeHelper.GetChild(par_container,0)
+							child_1 = VisualTreeHelper.GetChild(child_0,0)
+							dataTemplate = child_1.ContentTemplate
 							el_checkBox = dataTemplate.FindName("el_checkBox",child_1)
 							if el_checkBox.IsChecked == True:
 								for e in par.ret_elements:
@@ -579,7 +579,7 @@ class PrintSheetsWindow(forms.WPFWindow):
 											ret_par_elements.append(e.Id)
 					
 
-					if len(ret_par_elements)==0:
+					if len(ret_par_elements) == 0:
 						continue
 
 					if self.and_checked:
@@ -602,9 +602,8 @@ class PrintSheetsWindow(forms.WPFWindow):
 				for el in ret_pars_elements:
 					if not el in returned_els:
 						returned_els.Add(el)
-				
 
-		if len(returned_els)>0:
+		if len(returned_els) > 0:
 			__revit__.ActiveUIDocument.Selection.SetElementIds(List[DB.ElementId](returned_els))
 			self.Close()
 		else:
@@ -622,7 +621,7 @@ class PrintSheetsWindow(forms.WPFWindow):
 
 	def cancel(self,sender,args):
 		output = pyrevit.output.get_output()
-		output.close()	
+		output.close()
 		self.Close()
 
 	def MyMouseWheelV(self,sender,args):
@@ -713,7 +712,7 @@ class element(object):
 		self.par_value = ''
 		if obj.LookupParameter(par.Definition.Name):
 		 	self.par_value = obj.LookupParameter(par.Definition.Name).AsString()
-			if self.par_value ==None:
+			if self.par_value == None:
 				self.par_value = obj.LookupParameter(par.Definition.Name).AsValueString()
 		self.el_state = False
 
@@ -794,7 +793,7 @@ def loadCategories(first_load):
 
 	list_cats = [category1(cat) for cat in categories]
 	sorted_cats = sorted(list_cats, key= lambda x:x.cat_Name)
-	QuickSelectWindow('quickSelect_main.xaml',list = sorted_cats, Elements = els_hasCat ).ShowDialog()
+	QuickSelectWindow('quickSelect_main.xaml',list = sorted_cats, Elements = els_hasCat).ShowDialog()
 
 def main():
 	loadCategories(True)
