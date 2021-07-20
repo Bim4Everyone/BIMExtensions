@@ -32,7 +32,7 @@ class TabelsConverter(object):
 		self.__currentRow = 1
 		self.__currentColumn = 1
 		self.package = self.__createPackage()
-		self.__currentWorksheet =  self.package.Workbook.Worksheets.Add(FilterString(view.Name))
+		self.__currentWorksheet = self.package.Workbook.Worksheets.Add(FilterString(view.Name))
 		self.__exportToExcel()
 
 	def __createPackage(self):
@@ -47,8 +47,8 @@ class TabelsConverter(object):
 		sectionData = self.__data.GetSectionData(SectionType.Body)
 		numberOfColumns = sectionData.NumberOfColumns
 		for columnNumber in range(numberOfColumns):
-			columnWidth = sectionData.GetColumnWidthInPixels(columnNumber)/6
-			self.__currentWorksheet.Column(columnNumber+1).Width = columnWidth
+			columnWidth = sectionData.GetColumnWidthInPixels(columnNumber) / 6
+			self.__currentWorksheet.Column(columnNumber + 1).Width = columnWidth
 
 	def __exportSection(self, sectionType):
 		sectionData = self.__data.GetSectionData(sectionType)
@@ -58,10 +58,10 @@ class TabelsConverter(object):
 		firstRow = sectionData.FirstRowNumber 
 		firstColumn = sectionData.FirstColumnNumber
 
-		for rowNumber in range(firstRow, firstRow+numberOfRows):
+		for rowNumber in range(firstRow, firstRow + numberOfRows):
 			rowHeight = sectionData.GetRowHeightInPixels(rowNumber)
 			self.__currentWorksheet.Row(self.__currentRow).Height = rowHeight
-			for columnNumber in range(firstColumn, firstColumn+numberOfColumns):
+			for columnNumber in range(firstColumn, firstColumn + numberOfColumns):
 				self.__exportCell(rowNumber, columnNumber, sectionType)
 				self.__currentColumn += 1
 			self.__currentRow += 1
@@ -81,14 +81,14 @@ class TabelsConverter(object):
 			excelCell.Value = text
 
 			splitText = text.split(",")
-			if len(splitText)<3:
+			if len(splitText) < 3:
 				# print "may digit"
 				if all(map(lambda x: x.isdigit(), splitText)):
 					excelCell.Value = float(".".join(splitText))
 					if len(splitText) == 1:
 						excelCell.Style.Numberformat.Format = "0"
 					else:
-						excelCell.Style.Numberformat.Format = "0." + "0"*len(splitText[1])
+						excelCell.Style.Numberformat.Format = "0." + "0" * len(splitText[1])
 					# print "DIGIT!!"
 
 			excelCell.Style.Font.Bold = cellStyle.IsFontBold
@@ -106,7 +106,7 @@ class TabelsConverter(object):
 			else:
 				excelCell.Style.HorizontalAlignment = Style.ExcelHorizontalAlignment.Right
 
-			verticalAlignment =  cellStyle.FontVerticalAlignment 
+			verticalAlignment = cellStyle.FontVerticalAlignment 
 			if verticalAlignment == VerticalAlignmentStyle.Top:
 				excelCell.Style.VerticalAlignment = Style.ExcelVerticalAlignment.Top
 			elif verticalAlignment == VerticalAlignmentStyle.Middle:
@@ -114,7 +114,8 @@ class TabelsConverter(object):
 			else:
 				excelCell.Style.VerticalAlignment = Style.ExcelVerticalAlignment.Bottom
 			
-			# param = self.__view.Document.GetElement(sectionData.GetCellParamId(row, column))
+			# param = self.__view.Document.GetElement(sectionData.GetCellParamId(row,
+			# column))
 			# if param:
 			# 	if isinstance(param, Parameter):
 			# 		print "-- {} - {}".format(param.Definition.Name, param.StorageType)
@@ -124,7 +125,8 @@ class TabelsConverter(object):
 			rowRange = mergetCell.Bottom - row
 			columnRange = mergetCell.Right - column
 			if rowRange > 0 or columnRange > 0:
-				# print "Merge {},{} - {},{}".format(rowNumber, columnNumber, mergetCell.Bottom, mergetCell.Right)
+				# print "Merge {},{} - {},{}".format(rowNumber, columnNumber,
+				# mergetCell.Bottom, mergetCell.Right)
 				self.__currentWorksheet.Cells[self.__currentRow, self.__currentColumn, self.__currentRow + rowRange, self.__currentColumn + columnRange].Merge = True
 
 
@@ -151,18 +153,17 @@ view = doc.ActiveView
 
 viewSchedules = FilteredElementCollector(doc).OfClass(ViewSchedule).ToElements()
 items = [CheckBoxOption(x) for x in viewSchedules]
-items = sorted(items, key=lambda item: item.name)   
+items = sorted(items, key=lambda item: item.name)
 res = forms.SelectFromList.show(items, button_name='Выбрать', multiselect=True)
 if res is None:
 	raise SystemExit(1)
-res = [x for x in res if x.state]
+
 # print len(items)
 # print len([x for x in res if x.state])
 # saveFileDialog = SaveFileDialog()
-# saveFileDialog.Filter = "xlsx files (*.xlsx)|*.xlsx|All files (*.*)|*.*"  
-# saveFileDialog.FilterIndex = 1 
-# saveFileDialog.RestoreDirectory = True 
-
+# saveFileDialog.Filter = "xlsx files (*.xlsx)|*.xlsx|All files (*.*)|*.*"
+# saveFileDialog.FilterIndex = 1
+# saveFileDialog.RestoreDirectory = True
 folderBrowserDialog = FolderBrowserDialog()
 folderBrowserDialog.Description = "Выберите папку для сохранения спецификаций."
 folderBrowserDialog.ShowNewFolderButton = True
@@ -172,6 +173,7 @@ if folderBrowserDialog.ShowDialog() == DialogResult.OK:
 	folderName = folderBrowserDialog.SelectedPath
 	# fileName = saveFileDialog.FileName
 	# fileInfo = FileInfo(fileName)
+
 	for item in res:
 		fileInfo = FileInfo(folderName + "\\" + FilterString(item.name) + ".xlsx")
 
@@ -183,4 +185,3 @@ if folderBrowserDialog.ShowDialog() == DialogResult.OK:
 		except:
 			print "Не удалось сохранить спецификацию '{}'".format(item.name)
 		package.Dispose()
-
