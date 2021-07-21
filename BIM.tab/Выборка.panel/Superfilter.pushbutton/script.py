@@ -30,7 +30,7 @@ from Autodesk.Revit.DB import DetailNurbSpline, CurveElement, ElementTransformUt
 							  TransactionGroup, Transaction, FilteredElementCollector, \
 							  ElementId, BuiltInCategory, FamilyInstance, ViewDuplicateOption, \
 							  ViewSheet, FamilySymbol, Viewport, DetailEllipse, DetailArc, TextNote, \
-							  ScheduleSheetInstance,Element,FilteredElementCollector,ViewSheetSet,SelectionFilterElement
+							  ScheduleSheetInstance,Element,FilteredElementCollector,ViewSheetSet,SelectionFilterElement,BuiltInParameter
 from Autodesk.Revit.Creation import ItemFactoryBase
 from Autodesk.Revit.UI.Selection import PickBoxStyle
 from Autodesk.Revit.UI import RevitCommandId, PostableCommand
@@ -127,7 +127,10 @@ class QuickSelectWindow(forms.WPFWindow):
 		if self.cb_current_view.IsChecked:
 			document = __revit__.ActiveUIDocument.Document
 			activeViewId = __revit__.ActiveUIDocument.Document.ActiveView.Id
-			activeViewElementsIds = FilteredElementCollector(document, activeViewId).ToElementIds()
+			activeViewElements = FilteredElementCollector(document, activeViewId).ToElements()
+			activeViewElements = [ element for element in activeViewElements if element.Parameter[BuiltInParameter.WALL_HEIGHT_TYPE] != None and element.Parameter[BuiltInParameter.WALL_HEIGHT_TYPE].AsElementId() == ElementId.InvalidElementId ]
+			
+			activeViewElementsIds = [ element.Id for element in activeViewElements ]
 			returned_els = [x for x in returned_els if x in activeViewElementsIds]
 				
 		if len(returned_els) > 0:
