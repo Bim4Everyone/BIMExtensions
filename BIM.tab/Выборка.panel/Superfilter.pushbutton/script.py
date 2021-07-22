@@ -62,7 +62,9 @@ class QuickSelectWindow(forms.WPFWindow):
 	def __init__(self, xaml_file_name,**kwargs):
 		forms.WPFWindow.__init__(self, xaml_file_name)
 		self.cb_current_view.IsEnabled = __revit__.ActiveUIDocument.Document.ActiveView != None
-        
+		if self.cb_current_view.IsEnabled:
+			self.cb_current_view.IsChecked = True
+
 		self._init_psettings = None        
 		cats = kwargs.get('list', None)        
 		self.elments = kwargs.get('Elements', None)        
@@ -131,7 +133,7 @@ class QuickSelectWindow(forms.WPFWindow):
 
 			activeViewElements = FilteredElementCollector(document, activeViewId).ToElements()
 			activeViewElements = [ element for element in activeViewElements if element.LevelId != ElementId.InvalidElementId and document.GetElement(element.LevelId).Name == activeViewName ]
-			
+
 			activeViewElementsIds = [ element.Id for element in activeViewElements ]
 			returned_els = [x for x in returned_els if x in activeViewElementsIds]
 				
