@@ -132,7 +132,7 @@ class QuickSelectWindow(forms.WPFWindow):
 			activeViewName = __revit__.ActiveUIDocument.Document.ActiveView.Name
 
 			activeViewElements = FilteredElementCollector(document, activeViewId).ToElements()
-			activeViewElements = [ element for element in activeViewElements if element.LevelId != ElementId.InvalidElementId and document.GetElement(element.LevelId).Name == activeViewName ]
+			activeViewElements = [ element for element in activeViewElements if element.LevelId == ElementId.InvalidElementId or (element.LevelId != ElementId.InvalidElementId and document.GetElement(element.LevelId).Name == activeViewName) ]
 
 			activeViewElementsIds = [ element.Id for element in activeViewElements ]
 			returned_els = [x for x in returned_els if x in activeViewElementsIds]
@@ -153,6 +153,7 @@ class QuickSelectWindow(forms.WPFWindow):
 		for cat in cats.ItemsSource:
 			if cat.cat_state == True:
 				selected_cats.append(cat.cat_Name)
+
 		list_cats = [category(cat,self.elments) for cat in selected_cats]
 		if len(selected_cats) > 0:
 			self.Close()
