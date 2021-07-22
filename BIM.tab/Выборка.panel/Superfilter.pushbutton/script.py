@@ -127,8 +127,10 @@ class QuickSelectWindow(forms.WPFWindow):
 		if self.cb_current_view.IsChecked:
 			document = __revit__.ActiveUIDocument.Document
 			activeViewId = __revit__.ActiveUIDocument.Document.ActiveView.Id
+			activeViewName = __revit__.ActiveUIDocument.Document.ActiveView.Name
+
 			activeViewElements = FilteredElementCollector(document, activeViewId).ToElements()
-			activeViewElements = [ element for element in activeViewElements if element.Parameter[BuiltInParameter.WALL_HEIGHT_TYPE] != None and element.Parameter[BuiltInParameter.WALL_HEIGHT_TYPE].AsElementId() == ElementId.InvalidElementId ]
+			activeViewElements = [ element for element in activeViewElements if element.LevelId != ElementId.InvalidElementId and document.GetElement(element.LevelId).Name == activeViewName ]
 			
 			activeViewElementsIds = [ element.Id for element in activeViewElements ]
 			returned_els = [x for x in returned_els if x in activeViewElementsIds]
