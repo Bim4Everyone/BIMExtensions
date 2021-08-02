@@ -14,3 +14,8 @@ tooltip:
     
   en_us: >-
     Creates copy selected views.
+    
+assembly: RevitCopyViews.dll
+command_class: CopyViewCommand
+
+autor: dosymep
