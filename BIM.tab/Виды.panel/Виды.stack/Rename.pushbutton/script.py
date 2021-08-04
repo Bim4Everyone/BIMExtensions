@@ -205,14 +205,14 @@ for selection in selections:
 		if res['action']:
 			if res['suffix_checked']:
 				temp_name = newName[::-1]
-				temp_name = temp_name[temp_name.index(' ')+1:]
+				temp_name = temp_name[temp_name.index("_")+1:]
 				newName = temp_name[::-1]
 			if res['suffix']:
-				newName += ' ' + res['suffix']
+				newName += '_' + res['suffix']
 			if res['prefix_checked']:
-				newName = newName[newName.index(' ')+1:]
+				newName = newName[newName.index('_')+1:]
 			if res['prefix']:
-				newName = res['prefix'] + ' ' + newName
+				newName = res['prefix'] + '_' + newName
 		else:
 			if res['old_name']:
 				drop = newName.partition(res['old_name'])
