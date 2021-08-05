@@ -1,0 +1,7 @@
+title:
+  ru: Обновить номер вида на листах и фрагментах
+  en_us: Update view number on sheets and fragments
+
+tooltip:
+  ru: Обновляет атрибут "Номер Вида" на листах и фрагментах.
+  en_us: Updates attribute "Detail Number on sheets and fragments".
