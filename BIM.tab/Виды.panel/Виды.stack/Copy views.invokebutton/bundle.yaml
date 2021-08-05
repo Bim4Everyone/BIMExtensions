@@ -3,17 +3,8 @@ title:
   en_us: Copy views
 
 tooltip:
-  ru: >-
-    Создает копию выделенных видов.
-    
-    В поле "Префикс" вводится сокращение фамилии пользователя.
-    
-    В поле "Назначение" выбирается/вводится назначение вида.
-    	
-    В поле "Суффикс" вводится текст суффикса.
-    
-  en_us: >-
-    Creates copy selected views.
+  ru: Создает копию выделенных видов.
+  en_us: Creates copy selected views.
     
 assembly: RevitCopyViews.dll
 command_class: CopyViewCommand

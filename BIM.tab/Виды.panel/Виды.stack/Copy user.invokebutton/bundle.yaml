@@ -1,0 +1,12 @@
+title:
+  ru: Новый пользователь
+  en_us: New user
+
+tooltip:
+  ru: Копирует выделенные виды для пользователя.
+  en_us: Copies selected views for user.
+
+assembly: RevitCopyViews.dll
+command_class: CopyUserCommand
+
+author: dosymep
