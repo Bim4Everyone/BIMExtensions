@@ -2,6 +2,7 @@
 
 import clr
 clr.AddReference("dosymep.Revit.dll")
+clr.AddReference("dosymep.Bim4Everyone.dll")
 
 import dosymep.Revit
 clr.ImportExtensions(dosymep.Revit)
@@ -11,6 +12,8 @@ from itertools import groupby
 from System.Collections.Generic import List
 from Autodesk.Revit.DB import *
 
+from dosymep.Bim4Everyone.Templates import ProjectParameters
+
 from pyrevit import script
 from pyrevit import forms
 
@@ -18,6 +21,7 @@ output = script.get_output()
 output.set_title("dosymep (Обновление номера вида)")
 output.center()
 
+application = __revit__.Application
 document = __revit__.ActiveUIDocument.Document
 
 
@@ -29,11 +33,15 @@ class Section(object):
 
     @property
     def SheetNumber(self):
-        return self.Sheet.SheetNumber.split("-").pop()
+        return self.Sheet.SheetNumber if self.IsFullName else self.Sheet.SheetNumber.split("-").pop()
 
     @property
     def ViewNumber(self):
         return self.Section.GetParamValueOrDefault("_Номер Вида на Листе")
+
+    @property
+    def IsFullName(self):
+        return self.Section.GetParamValueOrDefault("_Полный Номер Листа")
 
     @property
     def DetailNumber(self):
