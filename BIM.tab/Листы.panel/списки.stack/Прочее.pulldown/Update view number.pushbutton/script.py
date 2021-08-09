@@ -44,7 +44,14 @@ class Section(object):
         return self.Section.GetParamValueOrDefault("_Полный Номер Листа")
 
     @property
+    def WithoutListNumber(self):
+        return self.Section.GetParamValueOrDefault("_Без Номера Листа")
+
+    @property
     def DetailNumber(self):
+        if self.WithoutListNumber:
+            return self.ViewNumber
+
         return "{} ({})".format(self.ViewNumber, self.SheetNumber)
 
     def UpdateParam(self):
