@@ -215,8 +215,7 @@ for selection in selections:
 				newName = res['prefix'] + '_' + newName
 		else:
 			if res['old_name']:
-				drop = newName.partition(res['old_name'])
-				newName = drop[0] + res['new_name'] + drop[2]
+				newName = newName.replace(res['old_name'], res['new_name'])
 			
 		selection.Name = newName
 		
