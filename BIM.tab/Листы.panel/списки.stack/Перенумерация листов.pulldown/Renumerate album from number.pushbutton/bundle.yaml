@@ -1,0 +1,9 @@
+title:
+  ru: Нумерация с номера
+  en_us: Numerate from number
+
+tooltip:
+  ru: Перенумеровывает выбранные листы, начиная с введенного номера.
+  en_us: Numerates selected sheets, starts from number.
+
+author: dosymep

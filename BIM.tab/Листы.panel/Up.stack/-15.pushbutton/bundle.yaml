@@ -1,0 +1,9 @@
+title:
+  ru: -15
+  en_us: -15
+
+tooltip:
+  ru: Перемещает лист/группу листов вниз в списке альбома.
+  en_us: Moves a sheet/group of sheets down in the album list.
+
+author: dosymep
