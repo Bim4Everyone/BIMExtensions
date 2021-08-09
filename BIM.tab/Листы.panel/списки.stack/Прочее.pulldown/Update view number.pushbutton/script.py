@@ -125,6 +125,8 @@ def show_alert(title, table_columns, table_data, exit_script=True):
 
 
 def update_view_number():
+    ProjectParameters.Create(application).SetupNumerateViewsOnSheet(document)
+
     view_sheets = FilteredElementCollector(document).OfClass(ViewSheet).ToElements()
     view_sections = [section for sheet in view_sheets
                      for section in Section.GetViewSections(sheet)]
