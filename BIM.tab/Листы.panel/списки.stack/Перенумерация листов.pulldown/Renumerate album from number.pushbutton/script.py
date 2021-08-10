@@ -12,13 +12,15 @@ result = forms.ask_for_string(
     title='Автонумерация'
 )
 
-if isinstance(result, int):
-    if result:
-        order_view = OrderViewSheetModel(DocumentRepository(__revit__), int(result))
 
-        order_view.LoadSelectedViewSheets()
-        order_view.CheckUniquesNames()
+if result:
+    if result.isdigit():
+        if result:
+            order_view = OrderViewSheetModel(DocumentRepository(__revit__), int(result))
 
-        order_view.OrderViewSheets()
-else:
-    print "Было введено не число."
+            order_view.LoadSelectedViewSheets()
+            order_view.CheckUniquesNames()
+
+            order_view.OrderViewSheets()
+    else:
+        print "Было введено не число."
