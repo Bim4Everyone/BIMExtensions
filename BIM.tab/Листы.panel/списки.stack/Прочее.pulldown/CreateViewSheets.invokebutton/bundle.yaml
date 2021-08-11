@@ -1,10 +1,10 @@
 title:
-  ru: "Создать листы"
-  en_us: "Create sheets"
+  ru: Менеджер листов (MVP)
+  en_us: Sheet Manager (MVP)
 
 tooltip:
-  ru: Создает листы
-  en_us: Creates sheets
+  ru: Пока что может только создавать листы
+  en_us: Can only create sheets
 
 assembly: RevitCreateViewSheet.dll
 command_class: CreateViewSheetCommand
