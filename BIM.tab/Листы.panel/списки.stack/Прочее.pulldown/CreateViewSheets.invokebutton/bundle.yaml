@@ -1,0 +1,12 @@
+title:
+  ru: "Создать листы"
+  en_us: "Create sheets"
+
+tooltip:
+  ru: Создает листы
+  en_us: Creates sheets
+
+assembly: RevitCreateViewSheet.dll
+command_class: CreateViewSheetCommand
+
+author: dosymep
