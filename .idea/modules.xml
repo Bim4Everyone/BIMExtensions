@@ -3,6 +3,7 @@
   <component name="ProjectModuleManager">
     <modules>
       <module fileurl="file://$PROJECT_DIR$/.idea/01.BIM.extension.iml" filepath="$PROJECT_DIR$/.idea/01.BIM.extension.iml" />
+      <module fileurl="file://$PROJECT_DIR$/../BIM4Everyone.lib/.idea/BIM4Everyone.lib.iml" filepath="$PROJECT_DIR$/../BIM4Everyone.lib/.idea/BIM4Everyone.lib.iml" />
     </modules>
   </component>
 </project>
