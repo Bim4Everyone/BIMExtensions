@@ -75,7 +75,8 @@ class SelectLevelFrom(forms.TemplateUserInputWindow):
 
         self.response = {'start': self.start.Text,
                          'prefix': self.prefix.Text,
-                         'suffix': self.suffix.Text}
+                         'suffix': self.suffix.Text,
+                         'isReverse': self.isReverse.IsChecked}
         self.Close()
 
 
@@ -178,13 +179,16 @@ if not res:
     raise SystemExit(1)
 if not res['start']:
     raise SystemExit(1)
+
 PREFIX = res['prefix']
 SUFFIX = res['suffix']
+IS_REVERSE = res['isReverse']
 
 LENGTH = len(selections)
 NAME = res['start']
 result = []
 IS_DIGIT = NAME.isdigit()
+
 if not IS_DIGIT:
     CHARACTERS = [
         "А",
@@ -301,6 +305,9 @@ if big_45 > less_45:
     selections.sort(key=lambda x: x.getRangeX())
 else:
     selections.sort(key=lambda x: x.getRangeY())
+
+if IS_REVERSE:
+    flip = not flip
 
 if flip:
     result = flipList(result)
