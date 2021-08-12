@@ -10,7 +10,9 @@ from pyrevit.loader import sessionmgr
 from pyrevit.loader import sessioninfo
 from pyrevit.userconfig import user_config
 from Autodesk.Revit.ApplicationServices import LanguageType
+
 from dosymep.Bim4Everyone.SharedParams import SharedParamsConfig
+from dosymep.Bim4Everyone.ProjectParams import ProjectParamsConfig
 
 import PlatformSettings
 
@@ -30,10 +32,20 @@ def __selfinit__(script_cmp, ui_button_cmp, __rvt__):
 
 def LoadPlatformSettings():
     sharedParamsPath = None
+    projectParamsPath = None
     if user_config.has_section("PlatformSettings"):
-        sharedParamsPath = user_config.get_section("PlatformSettings").get_option("SharedParamsPath")
+        try:
+            sharedParamsPath = user_config.get_section("PlatformSettings").get_option("SharedParamsPath")
+        except:
+            pass
+            
+        try:
+            projectParamsPath = user_config.get_section("PlatformSettings").get_option("ProjectParamsPath")
+        except:
+            pass
     
     SharedParamsConfig.LoadInstance(sharedParamsPath)
+    ProjectParamsConfig.LoadInstance(projectParamsPath)
 
 
 def OpenPlatrormSettings():
