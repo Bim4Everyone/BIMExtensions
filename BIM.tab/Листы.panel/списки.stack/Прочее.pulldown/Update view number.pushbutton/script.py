@@ -6,6 +6,7 @@ clr.AddReference("dosymep.Bim4Everyone.dll")
 
 import dosymep.Revit
 clr.ImportExtensions(dosymep.Revit)
+clr.ImportExtensions(dosymep.Bim4Everyone)
 
 from itertools import groupby
 
@@ -13,6 +14,7 @@ from System.Collections.Generic import List
 from Autodesk.Revit.DB import *
 
 from dosymep.Bim4Everyone.Templates import ProjectParameters
+from dosymep.Bim4Everyone.ProjectParams import ProjectParamsConfig
 
 from pyrevit import script
 from pyrevit import forms
@@ -37,19 +39,19 @@ class Section(object):
 
     @property
     def ViewNumber(self):
-        return self.Section.GetParamValueOrDefault("_Номер Вида на Листе")
+        return self.Section.GetParamValueOrDefault(ProjectParamsConfig.Instance.ViewNumberOnSheet)
 
     @property
     def IsFullName(self):
-        return self.Section.GetParamValueOrDefault("_Полный Номер Листа")
+        return self.Section.GetParamValueOrDefault(ProjectParamsConfig.Instance.WithFullSheetNumber)
 
     @property
     def WithoutListNumber(self):
-        return self.Section.GetParamValueOrDefault("_Без Номера Листа")
+        return self.Section.GetParamValueOrDefault(ProjectParamsConfig.Instance.WithSheetNumber)
 
     @property
     def DetailNumber(self):
-        if self.WithoutListNumber:
+        if not self.WithoutListNumber:
             return self.ViewNumber
 
         return "{} ({})".format(self.ViewNumber, self.SheetNumber)
@@ -125,7 +127,10 @@ def show_alert(title, table_columns, table_data, exit_script=True):
 
 
 def update_view_number():
-    ProjectParameters.Create(application).SetupNumerateViewsOnSheet(document)
+    project_parameters = ProjectParameters.Create(application)
+    project_parameters.SetupRevitParams(document, ProjectParamsConfig.Instance.ViewNumberOnSheet,
+                                        ProjectParamsConfig.Instance.WithFullSheetNumber, ProjectParamsConfig.Instance.WithSheetNumber)
+
 
     view_sheets = FilteredElementCollector(document).OfClass(ViewSheet).ToElements()
     view_sections = [section for sheet in view_sheets
