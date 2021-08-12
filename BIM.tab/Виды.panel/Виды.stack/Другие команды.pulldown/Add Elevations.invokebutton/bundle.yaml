@@ -1,0 +1,12 @@
+title:
+  ru: Добавить отметки
+  en_us: Add elevations
+
+tooltip:
+  ru: Добавляет отметки этажа к выделенным видам.
+  en_us: Adds elevations to selected views.
+    
+assembly: RevitCopyViews.dll
+command_class: AddElevationCommand
+
+autor: dosymep
