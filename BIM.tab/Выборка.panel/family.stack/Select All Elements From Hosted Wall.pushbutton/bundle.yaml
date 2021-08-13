@@ -1,0 +1,11 @@
+title:
+  ru: Эл. основы
+  en_us: Foundation elements
+
+tooltip:
+  ru: Выбрает все элементы, размещенные на выбранной основе.
+  en_us: Selects all elements on selected foundation.
+
+context: selection
+
+autor: dosymep

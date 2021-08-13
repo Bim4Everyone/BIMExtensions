@@ -8,11 +8,6 @@ from pyrevit.framework import Controls
 from pyrevit.coreutils import Timer
 
 
-__context__ = 'selection'
-__doc__ = 'Выделяет все экземпляры всех типоразмеров выбранного семейства.'
-__title__ = 'Экземпляры семейства'
-
-
 class Option(object):
     def __init__(self, obj, state=False):
         self.state = state

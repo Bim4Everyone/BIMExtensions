@@ -8,9 +8,6 @@ doc = __revit__.ActiveUIDocument.Document
 uidoc = __revit__.ActiveUIDocument
 error_collector = {}
 
-__title__ = 'Элементы основы'
-__context__ = 'Selection'
-__doc__ = 'Выбреет все элементы, размещенные на выбранной основе'
 selection =  __revit__.ActiveUIDocument.Selection.GetElementIds()
 temp = FilteredElementCollector(doc).OfClass(FamilyInstance).ToElements()
 wallsweeps = FilteredElementCollector(doc).OfClass(WallSweep).ToElements()

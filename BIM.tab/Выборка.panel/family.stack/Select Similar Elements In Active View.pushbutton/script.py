@@ -3,10 +3,6 @@ from pyrevit.framework import List
 from pyrevit import revit, DB
 
 
-__context__ = 'selection'
-__doc__ = 'Выделяет все экземпляры всех семейств выбранной категории.'
-__title__ = 'Экземпляры категории'
-
 cl = DB.FilteredElementCollector(revit.doc, revit.activeview.Id)\
        .WhereElementIsNotElementType()\
        .ToElementIds()
