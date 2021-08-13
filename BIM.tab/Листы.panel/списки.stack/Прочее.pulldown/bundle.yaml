@@ -1,6 +1,7 @@
 layout:
   - CreateViewSheets
   - Update view number
+  - SignSheet
   - Copy Selected Legends To Open Documents.
   - CвойстваЛиста
   - Duplicate Selected Detail Views As Legends
