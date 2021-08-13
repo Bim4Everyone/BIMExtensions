@@ -1,15 +1,14 @@
 layout:
-  - CreateViewSheets
+  - Copy Selected Viewports To Selected Sheets
   - Update view number
   - SignSheet
+  - Копирование листов
   - Copy Selected Legends To Open Documents.
-  - CвойстваЛиста
   - Duplicate Selected Detail Views As Legends
   - Duplicate Selected Legends As Detail Views
   - Move Selected Viewports To Selected Sheet
   - Set Crop Region To Selected Shape
   - Жуки
-  - Копирование листов
-  - Создание легенды по плану этажа
   - Схема разрез
   - Схема фасад
+  - Создание легенды по плану этажа
