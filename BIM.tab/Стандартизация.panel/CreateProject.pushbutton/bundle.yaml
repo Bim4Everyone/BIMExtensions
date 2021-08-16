@@ -1,9 +1,0 @@
-title:
-  ru: "Создать\n пустой проект"
-  en_us: "Create\nempty project"
-
-tooltip:
-  ru: Создает пустой проект на основе шаблона.
-  en_us: Creates empty project by template.
-
-author: dosymep
