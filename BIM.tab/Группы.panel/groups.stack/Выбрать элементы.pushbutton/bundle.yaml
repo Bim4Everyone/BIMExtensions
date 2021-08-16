@@ -1,0 +1,10 @@
+title:
+  ru: Выбрать элементы
+  en_us: Select elements
+
+tooltip:
+  ru: Выделяет все элементы, находящиеся в выбранных группах.
+  en_us: Selects all elements in selected groups.
+
+context: selection
+author: dosymep
