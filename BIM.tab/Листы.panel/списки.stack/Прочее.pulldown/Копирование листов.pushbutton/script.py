@@ -345,10 +345,10 @@ class ViewSheetDuplicater:
                     if len(duplicatedViewName) > len(viewName):
                         duplicatedView.Name
                     try:
-                        duplicatedView.SetParamValue("Назначение вида", self.purpose)
+                        duplicatedView.SetParamValue(ProjectParamsConfig.Instance.ViewGroup, self.purpose)
                     except:
                         duplicatedView.ViewTemplateId = ElementId(-1)
-                        duplicatedView.SetParamValue("Назначение вида", self.purpose)
+                        duplicatedView.SetParamValue(ProjectParamsConfig.Instance.ViewGroup, self.purpose)
 
                     duplicatedViewport = Viewport.Create(self.doc,
                                                          duplicatedSheet.Id,
@@ -372,7 +372,7 @@ class ViewSheetDuplicater:
         views = FilteredElementCollector(self.doc).OfCategory(BuiltInCategory.OST_Views).ToElements()
         purpose = []
         for view in views:
-            param = view.GetParamValueOrDefault("Назначение вида")
+            param = view.GetParamValueOrDefault(ProjectParamsConfig.Instance.ViewGroup)
             if param not in purpose:
                 purpose.append(param)
         return purpose
