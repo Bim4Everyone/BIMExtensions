@@ -19,13 +19,12 @@ FileName = doc.Title
 
 TempFilePath = op.join(EXTENSIONS_DEFAULT_DIR, FileName)
 
-try:
+if doc.IsFamilyDocument:
 	doc.SaveAs(TempFilePath)
 	os.remove(FilePath)
 	doc.SaveAs(FilePath)
 	os.remove(TempFilePath)
-except Exception as e:
-	print e
+
 # fileContent = ''
 # filePath = ''
 # openFileDialog = OpenFileDialog()
