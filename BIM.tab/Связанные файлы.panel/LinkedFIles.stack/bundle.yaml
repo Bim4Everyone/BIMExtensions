@@ -1,5 +1,4 @@
 layout:
     - AddRevitLinks
     - RemoveUnloadedLinks
-    - ----
     - UnloadAllLinks
