@@ -1,0 +1,9 @@
+title:
+  ru: "Проверка\nстен по осям"
+  en_us: "Checking\nwalls along the axes"
+
+tooltip:
+  ru: Проверяет параллельность осям и ровность расстояния до осей.
+  en_us: Checks the parallelism of the axes and the evenness of the distance to the axes.
+
+author: dosymep

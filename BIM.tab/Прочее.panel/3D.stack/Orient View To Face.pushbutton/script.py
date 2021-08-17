@@ -1,13 +1,7 @@
-# -*- coding: utf-8 -*-
-
 from pyrevit import HOST_APP
 from pyrevit import revit, DB, UI
 from pyrevit import forms
 
-
-#__helpurl__ = 'https://www.youtube.com/watch?v=pIjDd4dZng0'
-__doc__ = 'Ориентирует направление вида перпендикулярно выбраной грани.'
-__title__ = 'Ориентировать вид по грани'
 
 def reorient():
     face = revit.pick_face()
@@ -32,16 +26,16 @@ def reorient():
             sp = DB.SketchPlane.Create(revit.doc, base_plane)
 
             # orient the 3D view looking at the sketchplane
-            revit.activeview.OrientTo(normal_vec.Negate())
+            revit.active_view.OrientTo(normal_vec.Negate())
             # set the sketchplane to active
             revit.uidoc.ActiveView.SketchPlane = sp
 
         revit.uidoc.RefreshActiveView()
 
 
-curview = revit.activeview
+curview = revit.active_view
 
-if isinstance(curview, DB.View3D) and curview.IsSectionBoxActive:
+if isinstance(curview, DB.View3D):
     reorient()
 else:
-    forms.alert('Для работы этого инструмента нужно открыть 3D вид.')
+    forms.alert('You must be on a 3D view for this tool to work.')

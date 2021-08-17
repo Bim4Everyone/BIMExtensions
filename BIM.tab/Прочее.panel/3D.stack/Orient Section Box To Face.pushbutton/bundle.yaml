@@ -1,0 +1,7 @@
+title:
+  ru: "."
+  en_us: "."
+
+tooltip:
+  ru: Выравнивает границу 3D вида по выбраной грани.
+  en_us: Aligns the section box of the current 3D view to selected face.

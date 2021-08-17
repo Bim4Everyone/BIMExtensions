@@ -12,7 +12,7 @@ from pyrevit.coreutils import pyutils
 __context__ = 'selection'
 __doc__ = 'Выберите элементы сумму параметров которых нужно найти. Нажмите эту кнопку и выберите параметр для суммирования.'
 
-__title__ = 'Суммирование\nпараметров'
+__title__ = '.'
 
 
 selection = revit.get_selection()

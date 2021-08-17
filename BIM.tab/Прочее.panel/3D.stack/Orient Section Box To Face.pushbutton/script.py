@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """Aligns the section box of the current 3D view to selected face."""
 
 from pyrevit.framework import Math
@@ -6,11 +5,7 @@ from pyrevit import revit, DB, UI
 from pyrevit import forms
 
 
-__title__ = 'Ориентировать границу 3D вида'
-#__helpurl__ = 'https://www.youtube.com/watch?v=b050tpp4vCE&t=42s'
-__doc__ = 'Выравнивает границу 3D вида по выбраной грани'
-
-curview = revit.activeview
+curview = revit.active_view
 
 
 def orientsectionbox(view):
@@ -42,6 +37,6 @@ def orientsectionbox(view):
 if isinstance(curview, DB.View3D) and curview.IsSectionBoxActive:
     orientsectionbox(curview)
 elif isinstance(curview, DB.View3D) and not curview.IsSectionBoxActive:
-    forms.alert("На активном виде не включена граница 3D вида")
+    forms.alert("The section box for View3D isn't active.")
 else:
-    forms.alert('Для работы этого инструмента нужно открыть 3D вид.')
+    forms.alert('You must be on a 3D view for this tool to work.')

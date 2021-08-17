@@ -1,0 +1,7 @@
+title:
+  ru: "."
+  en_us: "."
+  
+tooltip:
+  ru: Ориентирует направление вида перпендикулярно выбраной грани.
+  en_us: Reorients the current 3D view camera, perpendicular to the selected face. This tool will set a sketch plane over the selected face for 3d drawing.

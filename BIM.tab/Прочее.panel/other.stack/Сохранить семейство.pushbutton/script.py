@@ -12,7 +12,7 @@ uidoc = __revit__.ActiveUIDocument
 doc = __revit__.ActiveUIDocument.Document
 app = doc.Application
 import os
-__title__ = 'Сохранить\nсемейство'
+__title__ = '.'
 FilePath = doc.PathName
 FileName = doc.Title
 #FilePath = FilePath[:FilePath.rindex(FileName)]
