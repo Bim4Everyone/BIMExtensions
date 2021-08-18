@@ -3,7 +3,7 @@ from pyrevit.framework import List
 from pyrevit import revit, DB
 
 
-cl = DB.FilteredElementCollector(revit.doc, revit.activeview.Id)\
+cl = DB.FilteredElementCollector(revit.doc, revit.active_view.Id)\
        .WhereElementIsNotElementType()\
        .ToElementIds()
 

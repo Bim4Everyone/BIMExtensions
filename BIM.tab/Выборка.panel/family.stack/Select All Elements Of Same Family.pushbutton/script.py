@@ -7,6 +7,15 @@ from pyrevit import revit, DB, UI, forms
 from pyrevit.framework import Controls
 from pyrevit.coreutils import Timer
 
+import clr
+clr.AddReference("dosymep.Revit.dll")
+clr.AddReference("dosymep.Bim4Everyone.dll")
+
+from Autodesk.Revit.DB import BuiltInParameter
+
+import dosymep
+clr.ImportExtensions(dosymep.Revit)
+clr.ImportExtensions(dosymep.Bim4Everyone)
 
 class Option(object):
     def __init__(self, obj, state=False):
@@ -127,39 +136,40 @@ if len(selection)>0 and len(LEVEL)>0:
         if isinstance(el, Wall):
             
             family = el.WallType.FamilyName
-            wallSet = [x for x in DB.FilteredElementCollector(revit.doc).OfClass(Wall).ToElements() if x.WallType.FamilyName == family and revit.doc.GetElement(x.LevelId).Name in LEVEL and x.LookupParameter('Базовая зависимость')]
+            wallSet = [x for x in DB.FilteredElementCollector(revit.doc).OfClass(Wall).ToElements() if x.WallType.FamilyName == family and revit.doc.GetElement(x.LevelId).Name in LEVEL and x.GetParamValueOrDefault(BuiltInParameter.WALL_BASE_CONSTRAINT)]
             
             #break
             for wall in wallSet:
                 matchlist.append(wall.Id)
-        else: 
-            family = el.Symbol.Family
-            symbolIdSet = family.GetFamilySymbolIds()
-            
-            for symid in symbolIdSet:
-                cl = DB.FilteredElementCollector(revit.doc)\
-                        .WherePasses(DB.FamilyInstanceFilter(revit.doc, symid))\
-                        .ToElements()
-                for el in cl:
-                    level = revit.doc.GetElement(el.LevelId)
-                    host = el.Host
-                    if level:
-                        if level.Name in LEVEL:
-                            matchlist.append(el.Id)
-                    elif host:
-                        host
-                        if host:
-                            level = revit.doc.GetElement(host.LevelId)
-                            if level:
-                                if level.Name in LEVEL:
-                                    matchlist.append(el.Id)
-                    else:
-                        matchlist = matchlist + list(cl)
-                        break
-                    
+        else:
+            if hasattr(el, "Symbol"):
+                family = el.Symbol.Family
+                symbolIdSet = family.GetFamilySymbolIds()
 
-        
-        
+                for symid in symbolIdSet:
+                    cl = DB.FilteredElementCollector(revit.doc)\
+                            .WherePasses(DB.FamilyInstanceFilter(revit.doc, symid))\
+                            .ToElements()
+
+                    for el in cl:
+                        level = revit.doc.GetElement(el.LevelId)
+                        host = el.Host
+
+                        if level:
+                            if level.Name in LEVEL:
+                                matchlist.append(el.Id)
+                        elif host:
+                            host
+                            if host:
+                                level = revit.doc.GetElement(host.LevelId)
+                                if level:
+                                    if level.Name in LEVEL:
+                                        matchlist.append(el.Id)
+                        else:
+                            matchlist = matchlist + list(cl)
+                            break
+
+
     selection.set_to(matchlist)
 
     
