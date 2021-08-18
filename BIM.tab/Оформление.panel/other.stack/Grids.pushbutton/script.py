@@ -142,7 +142,7 @@ class GridElementContainer:
 def addChar(lst):
     if lst:
         res = lst[::]
-        if res[-1] + 1 < len(CHARACTERS):
+        if res[-1] + 1 <= len(CHARACTERS):
             res[-1] += 1
             return res
         else:
@@ -212,7 +212,7 @@ if not IS_DIGIT:
         "Ш",
         "Э",
         "Ю",
-        "Я"
+        "Я",
     ]
     CHARACTERS_DICT = {
         "А": 1,
@@ -236,7 +236,7 @@ if not IS_DIGIT:
         "Ш": 19,
         "Э": 20,
         "Ю": 21,
-        "Я": 22
+        "Я": 22,
     }
 
     if len(NAME) > 3:
@@ -250,13 +250,13 @@ if not IS_DIGIT:
             raise SystemExit(1)
 
     START_NUMBER = [CHARACTERS_DICT[x] for x in START_NAME]
-
     temp = START_NUMBER[::]
 
     for i in range(LENGTH):
         n = ''
-        for i in temp:
-            n += CHARACTERS[i - 1]
+        for index in temp:
+            n += CHARACTERS[index - 1]
+
         result.append(n)
         temp = addChar(temp)
 else:
