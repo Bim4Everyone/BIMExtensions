@@ -5,5 +5,7 @@
     <orderEntry type="jdk" jdkName="IronPython 2.7" jdkType="Python SDK" />
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="module" module-name="BIM4Everyone.lib" />
+    <orderEntry type="module" module-name="00.Admin.extension" />
+    <orderEntry type="module" module-name="02.AR.extension" />
   </component>
 </module>
