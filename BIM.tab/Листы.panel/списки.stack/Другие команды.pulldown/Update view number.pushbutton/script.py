@@ -51,13 +51,17 @@ class Section(object):
 
     @property
     def DetailNumber(self):
+        if not self.ViewNumber:
+            return None
+
         if not self.WithoutListNumber:
             return self.ViewNumber
 
         return "{} ({})".format(self.ViewNumber, self.SheetNumber)
 
     def UpdateParam(self):
-        self.Section.SetParamValue(BuiltInParameter.VIEWPORT_DETAIL_NUMBER, self.DetailNumber)
+        if self.DetailNumber:
+            self.Section.SetParamValue(BuiltInParameter.VIEWPORT_DETAIL_NUMBER, self.DetailNumber)
 
     @staticmethod
     def GetViewSections(sheet):
@@ -116,10 +120,10 @@ def show_duplicates_sections(view_sections):
     if duplicate_sections:
         table_columns = get_table_columns()
         table_data = get_table_data(duplicate_sections)
-        show_alert("Найдено дублирование значений атрибута \"Номер вида\".", table_columns, table_data)
+        show_alert("Найдено дублирование значений атрибута \"Номер вида\".", table_columns, table_data, True)
 
 
-def show_alert(title, table_columns, table_data, exit_script=True):
+def show_alert(title, table_columns, table_data, exit_script=False):
     output.print_table(title=title, columns=table_columns, table_data=table_data)
 
     if exit_script:
