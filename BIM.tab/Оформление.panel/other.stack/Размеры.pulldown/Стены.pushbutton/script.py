@@ -1,47 +1,20 @@
 # -*- coding: utf-8 -*-
-import os.path as op
-import os
-import sys
-from abc import abstractmethod
 
 import clr
-import math
-
 clr.AddReference('System')
 clr.AddReference("System.Windows.Forms")
-from System.Windows.Forms import MessageBox
-from System.Collections.Generic import List
+
+import math
+from abc import abstractmethod
+
+from System.Collections.Generic import *
 from Autodesk.Revit.DB import *
-
-from Autodesk.Revit.Creation import ItemFactoryBase
-from Autodesk.Revit.UI.Selection import PickBoxStyle
-from Autodesk.Revit.UI import RevitCommandId, PostableCommand
-
-from System import Type
-
-'''
-print dir(DocumentManager)
-doc = DocumentManager.Instance.CurrentDBDocument
-uidoc=DocumentManager.Instance.CurrentUIApplication.ActiveUIDocument
-uiapp=DocumentManager.Instance.CurrentUIApplication
-app = uiapp.Application
-view = doc.ActiveView
-'''
-doc = __revit__.ActiveUIDocument.Document
-uidoc = __revit__.ActiveUIDocument
-app = __revit__.Application
-view = __revit__.ActiveUIDocument.ActiveGraphicalView
-view = doc.ActiveView
-
-geometryOptions = Options()
-geometryOptions.ComputeReferences = True
-geometryOptions.View = view
-
-EPS = 1E-9
-GRAD_EPS = math.radians(0.01)
 
 
 class Utils:
+    def __init__(self):
+        pass
+
     @staticmethod
     def det(a, b, c, d):
         return a * d - b * c
@@ -52,30 +25,31 @@ class Utils:
 
     @staticmethod
     def intersect_1(a, b, c, d):
-        if (a > b):
+        if a > b:
             a, b = b, a
-        if (c > d):
+        if c > d:
             c, d = d, c
+
         return max(a, c) <= min(b, d)
 
     @staticmethod
     def intersect(a, b, c, d):
-        A1 = a.Y - b.Y
-        B1 = b.X - a.X
-        C1 = -A1 * a.X - B1 * a.Y
-        A2 = c.Y - d.Y
-        B2 = d.X - c.X
-        C2 = -A2 * c.X - B2 * c.Y
-        zn = Utils.det(A1, B1, A2, B2)
-        if (zn != 0):
-            x = -Utils.det(C1, B1, C2, B2) * 1. / zn
-            y = -Utils.det(A1, C1, A2, C2) * 1. / zn
+        a1 = a.Y - b.Y
+        b1 = b.X - a.X
+        c1 = -a1 * a.X - b1 * a.Y
+        a2 = c.Y - d.Y
+        b2 = d.X - c.X
+        c2 = -a2 * c.X - b2 * c.Y
+        zn = Utils.det(a1, b1, a2, b2)
+        if zn != 0:
+            x = -Utils.det(c1, b1, c2, b2) * 1. / zn
+            y = -Utils.det(a1, c1, a2, c2) * 1. / zn
             return Utils.between(a.X, b.X, x) and Utils.between(a.Y, b.Y, y) and Utils.between(c.X, d.X,
                                                                                                x) and Utils.between(c.Y,
                                                                                                                     d.Y,
                                                                                                                     y)
         else:
-            return Utils.det(A1, C1, A2, C2) == 0 and Utils.det(B1, C1, B2, C2) == 0 and Utils.intersect_1(a.X, b.X,
+            return Utils.det(a1, c1, a2, c2) == 0 and Utils.det(b1, c1, b2, c2) == 0 and Utils.intersect_1(a.X, b.X,
                                                                                                            c.X,
                                                                                                            d.X) and Utils.intersect_1(
                 a.Y, b.Y, c.Y, d.Y)
@@ -98,9 +72,20 @@ class Utils:
         angle = abs(a.AngleTo(b) - math.pi / 2)
         return GRAD_EPS > angle or Utils.isEqualAngle(angle, math.pi)
 
+    @staticmethod
+    def GetDistance(line, point):
+        return abs((line.End.Y - line.Start.Y) * point.X
+                   - (line.End.X - line.Start.X) * point.Y
+                   + line.End.X * line.Start.Y
+                   - line.End.Y * line.Start.X) \
+               / math.sqrt((line.End.Y - line.Start.Y) ** 2
+                           + (line.End.X - line.Start.X) ** 2)
+
+
 class CashedPlane:
     def __init__(self, reference):
         self.Reference = reference
+
 
 class CashedElement:
     def __init__(self, element):
@@ -122,33 +107,58 @@ class CashedElement:
         pass
 
     @abstractmethod
-    def GetNormalFaces(self, cashedLine):
+    def GetNormalFaces(self, cashed_line):
         pass
 
     @staticmethod
-    def GetFacesByGeometry(geometryInstance):
-        if isinstance(geometryInstance, Solid):
-            return geometryInstance.Faces
+    def GetFacesByGeometry(geometry_instance):
+        if isinstance(geometry_instance, Solid):
+            return geometry_instance.Faces
 
-        if isinstance(geometryInstance, GeometryElement):
-            return [f for g in geometryInstance if isinstance(g, Solid)
-                    for f in g.Faces]
+        if isinstance(geometry_instance, GeometryElement):
+            return [f for g in geometry_instance if isinstance(g, Solid)
+                    for f in CashedElement.GetFacesByGeometry(g)]
 
         return []
 
-    def IsIntersect(self, cashedLine):
-        return any([Utils.intersect(cashedLine.Start, cashedLine.End, line[0], line[1]) for line in self.Lines])
+    def IsIntersect(self, cashed_line):
+        return any([Utils.intersect(cashed_line.Start, cashed_line.End, line[0], line[1]) for line in self.Lines])
 
-    def HasCylindricalFace(self):
-        return bool([f for f in self.GetFaces() if isinstance(f, CylindricalFace)])
-
-    def GetNormalReferences(self, cashedLine):
-        return [f.Reference for f in self.GetNormalFaces(cashedLine)]
+    def GetNormalReferences(self, cashed_line):
+        return [f.Reference for f in self.GetNormalFaces(cashed_line)]
 
 
 class CashedLine(CashedElement):
-    def __init__(self, detailLine):
-        CashedElement.__init__(self, detailLine)
+    def __init__(self, detail_line):
+        CashedElement.__init__(self, detail_line)
+
+        self.Curve = None
+        self.Direction = None
+
+        self.Start = None
+        self.End = None
+
+    def GetFaces(self):
+        pass
+
+    def GetNormalFaces(self, cashed_line):
+        return []
+
+
+class CashedGrid(CashedLine):
+    def __init__(self, grid):
+        CashedLine.__init__(self, grid)
+
+        self.Curve = self.Element.Curve
+        self.Direction = self.Curve.Direction
+
+        self.Start = self.Curve.Tessellate()[0]
+        self.End = self.Curve.Tessellate()[1]
+
+
+class CashedDetailLine(CashedLine):
+    def __init__(self, detail_line):
+        CashedLine.__init__(self, detail_line)
 
         self.Curve = self.Element.Location.Curve
         self.Direction = self.Curve.Direction
@@ -156,21 +166,19 @@ class CashedLine(CashedElement):
         self.Start = self.Curve.Tessellate()[0]
         self.End = self.Curve.Tessellate()[1]
 
-    def GetFaces(self):
-        return []
-
 
 class CashedWall(CashedElement):
     def __init__(self, wall):
         CashedElement.__init__(self, wall)
+        self.Direction = self.Element.Orientation
 
     def GetFaces(self):
         geometry = self.Element.get_Geometry(geometryOptions)
         return CashedElement.GetFacesByGeometry(geometry)
 
-    def GetNormalFaces(self, cashedLine):
+    def GetNormalFaces(self, cashed_line):
         return [f for f in self.GetFaces()
-                if Utils.isParallel(f.FaceNormal, cashedLine.Direction)]
+                if Utils.isParallel(f.FaceNormal, cashed_line.Direction)]
 
 
 class CashedColumn(CashedElement):
@@ -187,7 +195,7 @@ class CashedColumn(CashedElement):
 
         return faces
 
-    def GetNormalFaces(self, cashedLine):
+    def GetNormalFaces(self, cashed_line):
         refs = []
         refs.extend(self.Element.GetReferences(FamilyInstanceReferenceType.NotAReference))
         refs.extend(self.Element.GetReferences(FamilyInstanceReferenceType.Left))
@@ -201,86 +209,64 @@ class CashedColumn(CashedElement):
 
         planes = [(ref, SketchPlane.Create(doc, ref).GetPlane()) for ref in refs]
         return [CashedPlane(ref) for ref, plane in planes
-                if Utils.isParallel(plane.Normal, cashedLine.Direction)]
+                if Utils.isParallel(plane.Normal, cashed_line.Direction)]
 
 
-def GetCashedElements(compareLine):
-    cashed_elements = []
-    for element in elements:
-        cashedElement = None
-        if isinstance(element, Wall):
-            cashedElement = CashedWall(element)
-        elif isinstance(element, FamilyInstance):
-            cashedElement = CashedColumn(element)
-
-        if cashedElement.IsIntersect(compareLine):
-            cashed_elements.append(cashedElement)
-
-    return cashed_elements
-
-
-def GetReferences(compareLine, compareFaces):
-    references = ReferenceArray()
-    for index, face in enumerate(compareFaces):
-        faceDistance = face.Project(compareLine.Start).Distance
-
-        if IsEqualDistance(index, faceDistance, compareLine, compareFaces):
-            references.Append(face.Reference)
-
-    return references
-
-
-def IsEqualDistance(index, faceDistance, compareLine, compareFaces):
-    for compareFace in compareFaces[index + 1:]:
-        compareFaceDistance = compareFace.Project(compareLine.Start).Distance
-
-        if Utils.isEqual(faceDistance, compareFaceDistance):
-            return False
-
-    return True
-
-
-def GetNormalReferences(compareLine):
+def get_normal_references(compare_line):
     references = []
     for element in elements:
-        cashedElement = None
+        cashed_element = None
         if isinstance(element, Wall):
-            cashedElement = CashedWall(element)
+            cashed_element = CashedWall(element)
         elif isinstance(element, FamilyInstance):
-            cashedElement = CashedColumn(element)
+            cashed_element = CashedColumn(element)
 
-        if cashedElement.IsIntersect(compareLine):
-            references.extend(cashedElement.GetNormalReferences(compareLine))
+        if cashed_element.IsIntersect(compare_line):
+            references.extend(cashed_element.GetNormalReferences(compare_line))
 
     return references
 
 
-filterCategories = List[BuiltInCategory]([BuiltInCategory.OST_Walls,
-                                          BuiltInCategory.OST_Columns,
-                                          BuiltInCategory.OST_StructuralColumns])
+def create_dimensions():
+    with Transaction(doc, "Размеры") as transaction:
+        transaction.Start()
+
+        for selected_line in detail_lines:
+            main_line = CashedDetailLine(selected_line)
+            normal_references = get_normal_references(main_line)
+
+            if len(normal_references) > 0:
+                array = ReferenceArray()
+                for normal_ref in normal_references:
+                    array.Append(normal_ref)
+
+                new_line = Line.CreateBound(main_line.Start, main_line.End)
+                doc.Create.NewDimension(view, new_line, array)
+                doc.Delete(selected_line.Id)
+
+        transaction.Commit()
+
+
+doc = __revit__.ActiveUIDocument.Document
+uidoc = __revit__.ActiveUIDocument
+view = doc.ActiveView
+
+geometryOptions = Options()
+geometryOptions.ComputeReferences = True
+geometryOptions.View = view
+
+EPS = 1E-9
+GRAD_EPS = math.radians(0.01)
+
+filter_categories = List[BuiltInCategory]([BuiltInCategory.OST_Walls,
+                                           BuiltInCategory.OST_Columns,
+                                           BuiltInCategory.OST_StructuralColumns])
 
 elements = FilteredElementCollector(doc, view.Id) \
-    .WherePasses(ElementMulticategoryFilter(filterCategories)) \
+    .WherePasses(ElementMulticategoryFilter(filter_categories)) \
     .ToElements()
 
 selection = uidoc.Selection.GetElementIds()
-detailLines = [doc.GetElement(i) for i in selection if isinstance(doc.GetElement(i), DetailLine)]
-elemIds = List[ElementId]()
+detail_lines = [doc.GetElement(i) for i in selection if isinstance(doc.GetElement(i), DetailLine)]
 
-with Transaction(doc, "Размеры") as transaction:
-    transaction.Start()
-
-    for detailLine in detailLines:
-        compareLine = CashedLine(detailLine)
-        references = GetNormalReferences(compareLine)
-
-        if len(references) > 0:
-            array = ReferenceArray()
-            for ref in references:
-                array.Append(ref)
-
-            line = Line.CreateBound(compareLine.Start, compareLine.End)
-            curve = doc.Create.NewDimension(view, line, array)
-            doc.Delete(detailLine.Id)
-
-    transaction.Commit()
+create_dimensions()
