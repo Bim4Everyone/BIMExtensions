@@ -1,22 +1,4 @@
 # -*- coding: utf-8 -*-
-import os.path as op
-import os
-import sys
-import clr
-import math
-
-clr.AddReference('System')
-clr.AddReference("System.Windows.Forms")
-from System.Windows.Forms import MessageBox
-from System.Collections.Generic import List
-from Autodesk.Revit.DB import Group, ViewSchedule, CopyPasteOptions, ElementTransformUtils, XYZ, UnitUtils, \
-    DisplayUnitType, Line, Reference, ReferenceArray, FilteredElementCollector, DimensionType, Options, Transaction, \
-    TransactionGroup, ElementId, Wall, ElementIntersectsSolidFilter, ElementIntersectsElementFilter, Solid, \
-    SetComparisonResult, CylindricalFace, Grid, CategoryType, LogicalOrFilter, ElementFilter, ElementCategoryFilter, \
-    DetailLine
-from Autodesk.Revit.Creation import ItemFactoryBase
-from Autodesk.Revit.UI.Selection import PickBoxStyle
-from Autodesk.Revit.UI import RevitCommandId, PostableCommand, TaskDialog
 
 import clr
 clr.AddReference("dosymep.Revit.dll")
@@ -26,33 +8,23 @@ import dosymep
 clr.ImportExtensions(dosymep.Revit)
 clr.ImportExtensions(dosymep.Bim4Everyone)
 
+import math
+from abc import abstractmethod
+
+from pyrevit import forms
+from pyrevit import script
+
+from System.Collections.Generic import *
+from Autodesk.Revit.DB import *
+
 from dosymep.Bim4Everyone.Templates import ProjectParameters
 from dosymep.Bim4Everyone.SharedParams import SharedParamsConfig
 from dosymep.Bim4Everyone.ProjectParams import ProjectParamsConfig
 
-'''
-print dir(DocumentManager)
-doc = DocumentManager.Instance.CurrentDBDocument
-uidoc=DocumentManager.Instance.CurrentUIApplication.ActiveUIDocument
-uiapp=DocumentManager.Instance.CurrentUIApplication
-app = uiapp.Application
-view = doc.ActiveView
-'''
-doc = __revit__.ActiveUIDocument.Document
-uidoc = __revit__.ActiveUIDocument
-app = __revit__.Application
-view = __revit__.ActiveUIDocument.ActiveGraphicalView
-view = doc.ActiveView
-
-geometryOptions = Options()
-geometryOptions.ComputeReferences = True
-geometryOptions.View = view
-
-EPS = 1E-9
-GRAD_EPS = math.radians(0.0000001)
-
-
 class Utils:
+    def __init__(self):
+        pass
+
     @staticmethod
     def det(a, b, c, d):
         return a * d - b * c
@@ -63,30 +35,31 @@ class Utils:
 
     @staticmethod
     def intersect_1(a, b, c, d):
-        if (a > b):
+        if a > b:
             a, b = b, a
-        if (c > d):
+        if c > d:
             c, d = d, c
+
         return max(a, c) <= min(b, d)
 
     @staticmethod
     def intersect(a, b, c, d):
-        A1 = a.Y - b.Y
-        B1 = b.X - a.X
-        C1 = -A1 * a.X - B1 * a.Y
-        A2 = c.Y - d.Y
-        B2 = d.X - c.X
-        C2 = -A2 * c.X - B2 * c.Y
-        zn = Utils.det(A1, B1, A2, B2)
-        if (zn != 0):
-            x = -Utils.det(C1, B1, C2, B2) * 1. / zn
-            y = -Utils.det(A1, C1, A2, C2) * 1. / zn
+        a1 = a.Y - b.Y
+        b1 = b.X - a.X
+        c1 = -a1 * a.X - b1 * a.Y
+        a2 = c.Y - d.Y
+        b2 = d.X - c.X
+        c2 = -a2 * c.X - b2 * c.Y
+        zn = Utils.det(a1, b1, a2, b2)
+        if zn != 0:
+            x = -Utils.det(c1, b1, c2, b2) * 1. / zn
+            y = -Utils.det(a1, c1, a2, c2) * 1. / zn
             return Utils.between(a.X, b.X, x) and Utils.between(a.Y, b.Y, y) and Utils.between(c.X, d.X,
                                                                                                x) and Utils.between(c.Y,
                                                                                                                     d.Y,
                                                                                                                     y)
         else:
-            return Utils.det(A1, C1, A2, C2) == 0 and Utils.det(B1, C1, B2, C2) == 0 and Utils.intersect_1(a.X, b.X,
+            return Utils.det(a1, c1, a2, c2) == 0 and Utils.det(b1, c1, b2, c2) == 0 and Utils.intersect_1(a.X, b.X,
                                                                                                            c.X,
                                                                                                            d.X) and Utils.intersect_1(
                 a.Y, b.Y, c.Y, d.Y)
@@ -101,8 +74,7 @@ class Utils:
 
     @staticmethod
     def isParallel(a, b):
-        angle = abs(a.AngleTo(b))
-        # print angle
+        angle = a.AngleTo(b)
         return GRAD_EPS > angle or Utils.isEqualAngle(angle, math.pi)
 
     @staticmethod
@@ -110,226 +82,234 @@ class Utils:
         angle = abs(a.AngleTo(b) - math.pi / 2)
         return GRAD_EPS > angle or Utils.isEqualAngle(angle, math.pi)
 
+    @staticmethod
+    def GetDistance(line, point):
+        distance =  abs((line.End.Y - line.Start.Y) * point.X
+                   - (line.End.X - line.Start.X) * point.Y
+                   + line.End.X * line.Start.Y
+                   - line.End.Y * line.Start.X) \
+               / math.sqrt((line.End.Y - line.Start.Y) ** 2
+                           + (line.End.X - line.Start.X) ** 2)
 
-class CashLine:
-    def __init__(self, object):
-        self.object = object
-        self.line = self.object.Location.Curve
-        self.start = self.line.Tessellate()[0]
-        self.end = self.line.Tessellate()[1]
-        self.id = self.object.Id
-
-        self.direction = self.line.Direction
+        return UnitUtils.ConvertFromInternalUnits(distance, DisplayUnitType.DUT_MILLIMETERS)
 
 
-class CashWall:
-    def __init__(self, obj):
-        self.object = obj
-        self.box = self.object.BoundingBox[view]
-        self.start = self.box.Min
-        self.end = self.box.Max
-        self.id = self.object.Id
-        self.pairs = []
-        self.pairs.append([self.start, XYZ(self.start.X, self.end.Y, 0)])
-        self.pairs.append([self.start, XYZ(self.end.X, self.start.Y, 0)])
-        self.pairs.append([self.end, XYZ(self.start.X, self.end.Y, 0)])
-        self.pairs.append([self.end, XYZ(self.end.X, self.start.Y, 0)])
+class CashedReference:
+    def __init__(self, reference):
+        self.Reference = reference
 
-        self.curve = self.object.Location.Curve
 
-        self.orientation = obj.Orientation
+class CashedElement:
+    def __init__(self, element):
+        self.Element = element
+        self.ElementId = element.Id
 
-        geometry = self.object.get_Geometry(geometryOptions)
-        self.faces = []
-        for geometryElement in geometry:
-            if isinstance(geometryElement, Solid):
-                for geomFace in geometryElement.Faces:
-                    self.faces.append(geomFace)
+        self.BoundingBox = element.BoundingBox[view]
+        self.Max = self.BoundingBox.Max
+        self.Min = self.BoundingBox.Min
 
-    def isIntersect(self, line):
-        return any([Utils.intersect(line.start, line.end, x[0], x[1]) for x in self.pairs])
+        self.Lines = []
+        self.Lines.append([self.Min, XYZ(self.Min.X, self.Max.Y, 0)])
+        self.Lines.append([self.Min, XYZ(self.Max.X, self.Min.Y, 0)])
+        self.Lines.append([self.Max, XYZ(self.Min.X, self.Max.Y, 0)])
+        self.Lines.append([self.Max, XYZ(self.Max.X, self.Min.Y, 0)])
 
-    def getNormalReferences(self, line):
-        res = []
+        self.Direction = None
 
-        for face in self.getNormalFaces(line):
-            res.append(face.Reference)
+    def IsNormal(self, cashed_line):
+        if self.Direction:
+            return Utils.isNormal(self.Direction, cashed_line.Direction)
 
-        return res
-
-    def getNormalFaces(self, line):
-        res = []
-
-        for face in self.faces:
-            if face.Intersect(line.line) == SetComparisonResult.Overlap and Utils.isParallel(face.FaceNormal,
-                                                                                             line.direction):
-                res.append(face)
-
-        return res
-
-    def getPoint(self):
-        geometry = self.object.get_Geometry(geometryOptions)
-        self.faces = []
-        for geometryElement in geometry:
-            if isinstance(geometryElement, Solid):
-                return geometryElement.Edges[0].Tessellate()[0]
-
-    def hasCylindricalFace(self):
-        for face in self.faces:
-            if isinstance(face, CylindricalFace):
-                return True
         return False
 
-    def getReferences(self, line):
-        return self.getNormalReferences(line)
+    @abstractmethod
+    def GetNormalFaces(self, cashed_line):
+        pass
+
+    @staticmethod
+    def GetFacesByGeometry(geometry_instance):
+        if isinstance(geometry_instance, Solid):
+            return geometry_instance.Faces
+
+        if isinstance(geometry_instance, GeometryElement):
+            return [f for g in geometry_instance if isinstance(g, Solid)
+                    for f in CashedElement.GetFacesByGeometry(g)]
+
+        return []
+
+    def IsIntersect(self, cashed_line):
+        return any([Utils.intersect(cashed_line.Start, cashed_line.End, line[0], line[1]) for line in self.Lines])
+
+    def GetNormalReferences(self, cashed_line):
+        return [f.Reference for f in self.GetNormalFaces(cashed_line)]
+
+    @property
+    def LocationPoint(self):
+        if isinstance(self.Element.Location, LocationPoint):
+            return self.Element.Location.Point
+        elif isinstance(self.Element.Location, LocationCurve):
+            return self.Element.Location.Curve.Tessellate()[0]
 
 
-class CashGrid:
-    def __init__(self, obj):
-        self.object = obj
-        self.id = self.object.Id
+class CashedLine(CashedElement):
+    def __init__(self, detail_line):
+        CashedElement.__init__(self, detail_line)
 
-        geometry = self.object.Geometry[geometryOptions]
-        lineIterator = geometry.GetEnumerator()
-        lineIterator.MoveNext()
-        self.line = lineIterator.Current
+        self.Curve = None
+        self.Direction = None
 
-        self.line = obj.Curve
-        self.start = self.line.Tessellate()[0]
-        self.end = self.line.Tessellate()[1]
+        self.Start = None
+        self.End = None
 
-        self.orientation = obj.Curve.Direction
-        # print self.orientation
-
-        self.parallelWalls = []
-        self.distanceValidWalls = []
-
-    def getNormalReferences(self, line):
-        res = []
-        directionLine = line.direction
-
-        direction = self.line.Direction
-
-        if Utils.isNormal(directionLine, direction):
-            res.append(self.line.Reference)
-
-        return res
-
-    def isIntersect(self, line):
-        return Utils.intersect(line.start, line.end, self.start, self.end)
-
-    def getReferences(self, line):
-        return self.getNormalReferences(line)
-
-    def getNormalFaces(self, line):
-        res = []
-
-        return res
+    def GetNormalFaces(self, cashed_line):
+        return []
 
 
-def getWallsFromGroup(group):
-    res = []
-    elementIds = group.GetMemberIds()
-    for elementId in elementIds:
-        element = doc.GetElement(elementId)
+class CashedGrid(CashedLine):
+    def __init__(self, grid):
+        CashedLine.__init__(self, grid)
+
+        self.Curve = self.Element.Curve
+        self.Direction = self.Curve.Direction
+
+        self.Start = self.Curve.Tessellate()[0]
+        self.End = self.Curve.Tessellate()[1]
+
+
+class CashedDetailLine(CashedLine):
+    def __init__(self, detail_line):
+        CashedLine.__init__(self, detail_line)
+
+        self.Curve = self.Element.Location.Curve
+        self.Direction = self.Curve.Direction
+
+        self.Start = self.Curve.Tessellate()[0]
+        self.End = self.Curve.Tessellate()[1]
+
+
+class CashedWall(CashedElement):
+    def __init__(self, wall):
+        CashedElement.__init__(self, wall)
+        self.Direction = self.Element.Orientation
+
+    def GetFaces(self):
+        geometry = self.Element.get_Geometry(geometryOptions)
+        return CashedElement.GetFacesByGeometry(geometry)
+
+    def GetNormalFaces(self, cashed_line):
+        return [f for f in self.GetFaces()
+                if Utils.isParallel(f.FaceNormal, cashed_line.Direction)]
+
+class CashedFamilyInstance(CashedElement):
+    def __init__(self, family_instance):
+        CashedElement.__init__(self, family_instance)
+        self.Direction = self.Element.FacingOrientation
+
+    def GetNormalFaces(self, cashed_line):
+        refs = []
+        refs.extend(self.Element.GetReferences(FamilyInstanceReferenceType.NotAReference))
+        refs.extend(self.Element.GetReferences(FamilyInstanceReferenceType.Left))
+        refs.extend(self.Element.GetReferences(FamilyInstanceReferenceType.Right))
+        refs.extend(self.Element.GetReferences(FamilyInstanceReferenceType.Front))
+        refs.extend(self.Element.GetReferences(FamilyInstanceReferenceType.Back))
+        refs.extend(self.Element.GetReferences(FamilyInstanceReferenceType.Bottom))
+        refs.extend(self.Element.GetReferences(FamilyInstanceReferenceType.Top))
+        refs.extend(self.Element.GetReferences(FamilyInstanceReferenceType.StrongReference))
+        refs.extend(self.Element.GetReferences(FamilyInstanceReferenceType.WeakReference))
+
+        planes = [(ref, SketchPlane.Create(doc, ref).GetPlane()) for ref in refs]
+        return [CashedReference(ref) for ref, plane in planes
+                if Utils.isParallel(plane.Normal, cashed_line.Direction)]
+
+    def IsNormal(self, cashed_line):
+        return len(self.GetNormalFaces(cashed_line)) > 0
+
+
+def get_cashed_elements(selection):
+    cashed_elements = []
+    for element in selection:
         if isinstance(element, Wall):
-            res.append(CashWall(element))
+            cashed_elements.append(CashedWall(element))
+        elif isinstance(element, FamilyInstance):
+            cashed_elements.append(CashedFamilyInstance(element))
+
+    groups = [element for element in selection if isinstance(element, Group)]
+    for group in groups:
+        cashed_elements.extend(get_walls_from_group(group))
+
+    return cashed_elements
+
+
+def get_walls_from_group(group):
+    walls = []
+
+    element_ids = group.GetMemberIds()
+    for element_id in element_ids:
+        element = doc.GetElement(element_id)
+        if isinstance(element, Wall):
+            walls.append(CashedWall(element))
         elif isinstance(element, Group):
-            res = res + getWallsFromGroup(element)
+            walls.extend(get_walls_from_group(element))
 
-    return res
-
-
-clr.AddReference('ClassLibrary2')
-from ClassLibrary2 import UserControl1
-
-a = UserControl1()
-result = a.ShowDialog()
-
-if result:
-    scale = float(a.scale.split(' ')[1])
-# print scale
-else:
-    raise (SystemExit(1))
+    return walls
 
 
-# настройка атрибутов
-project_parameters = ProjectParameters.Create(__revit__.Application)
-project_parameters.SetupRevitParams(doc, ProjectParamsConfig.Instance.CheckIsNormalGrid,
-                                         ProjectParamsConfig.Instance.CheckCorrectDistanceGrid)
+def get_scale():
+    values = ["0.1", "1", "10", "20"]
+    response = forms.ask_for_one_item(values, default="0.1", prompt="Точность, мм", title="Задайте точность проверки")
 
-tg = TransactionGroup(doc, "Update")
-tg.Start()
-t = Transaction(doc, "Update Sheet Parmeters")
-t.Start()
+    if response:
+        return float(response)
 
-selection = [doc.GetElement(i) for i in uidoc.Selection.GetElementIds()]
-selectionWalls = [CashWall(i) for i in selection if isinstance(i, Wall)]
-selectionGrids = [CashGrid(i) for i in selection if isinstance(i, Grid)]
+    script.exit()
 
-groups = [i for i in selection if isinstance(i, Group)]
-for group in groups:
-    selectionWalls = selectionWalls + getWallsFromGroup(group)
 
-checklist_1 = []
-checklist_2 = []
+def check_walls():
+    # настройка атрибутов
+    project_parameters = ProjectParameters.Create(__revit__.Application)
+    project_parameters.SetupRevitParams(doc, ProjectParamsConfig.Instance.CheckIsNormalGrid,
+                                             ProjectParamsConfig.Instance.CheckCorrectDistanceGrid)
 
-for grid in selectionGrids:
+    selection = uidoc.GetSelectedElements()
+    if len(list(selection)) == 0:
+        forms.alert("Выберите хотя бы одну ось, стену или колонну.", title="Предупреждение!", footer="dosymep", exitscript=True)
 
-    for wall in selectionWalls:
-        if not isinstance(wall.curve, Line):
-            continue
+    selection_grids = [CashedGrid(selected_element) for selected_element in selection if isinstance(selected_element, Grid)]
+    if len(selection_grids) == 0:
+        forms.alert("Выберите хотя бы одну ось.", title="Предупреждение!", footer="dosymep", exitscript=True)
 
-        if wall not in checklist_1:
-            if Utils.isNormal(grid.orientation, wall.orientation):
-                checklist_1.append(wall)
-                grid.parallelWalls.append(wall)
-                try:
-                    wall.object.SetParamValue(ProjectParamsConfig.Instance.CheckIsNormalGrid, 1)
-                except:
-                    pass
-            else:
-                try:
-                    wall.object.SetParamValue(ProjectParamsConfig.Instance.CheckIsNormalGrid, 0)
-                except:
-                    pass
+    cashed_elements = get_cashed_elements(selection)
+    if len(cashed_elements) == 0:
+        forms.alert("Выберите хотя бы одну стену или колонну.", title="Предупреждение!", footer="dosymep", exitscript=True)
 
-    for wall in grid.parallelWalls:
+    scale = get_scale()
+    with Transaction(doc, "Проверка стен") as t:
+        t.Start()
 
-        if wall.faces:
-            edgePoint = wall.getPoint()
-        else:
-            edgePoint = wall.curve.Tessellate()[0]
+        for cashed_element in cashed_elements:
+            cashed_element.Element.SetParamValue(ProjectParamsConfig.Instance.CheckIsNormalGrid, 0)
+            cashed_element.Element.SetParamValue(ProjectParamsConfig.Instance.CheckCorrectDistanceGrid, 0)
 
-        point = XYZ(edgePoint.X, edgePoint.Y, grid.start.Z)
+        for cashed_grid in selection_grids:
+            normal_walls = [cashed_element for cashed_element in cashed_elements if cashed_element.IsNormal(cashed_grid)]
+            for cashed_element in normal_walls:
+                cashed_element.Element.SetParamValue(ProjectParamsConfig.Instance.CheckIsNormalGrid, 1)
 
-        distance = abs((grid.end.Y - grid.start.Y) * point.X - (
-                    grid.end.X - grid.start.X) * point.Y + grid.end.X * grid.start.Y - grid.end.Y * grid.start.X) / math.sqrt(
-            (grid.end.Y - grid.start.Y) ** 2 + (grid.end.X - grid.start.X) ** 2)
+                distance = Utils.GetDistance(cashed_grid, cashed_element.LocationPoint)
+                cashed_element.Element.SetParamValue(ProjectParamsConfig.Instance.CheckCorrectDistanceGrid, int(round(distance, 5) % scale == 0))
 
-        # a = math.sqrt((grid.end.Y - grid.start.Y)**2 + (grid.end.X - grid.start.X)**2)
-        # b = math.sqrt((grid.end.Y - point.Y)**2 + (grid.end.X - point.X)**2)
-        # c = math.sqrt((grid.start.Y - point.Y)**2 + (grid.start.X - point.X)**2)
-        # p = (a+b+c)/2
-        # s = math.sqrt(p*(p-a)*(p-b)*(p-c))
-        # h = 2*s/a
+        t.Commit()
 
-        distance = UnitUtils.ConvertFromInternalUnits(distance, DisplayUnitType.DUT_MILLIMETERS)
 
-        if wall not in grid.distanceValidWalls:
+doc = __revit__.ActiveUIDocument.Document
+uidoc = __revit__.ActiveUIDocument
+view = doc.ActiveView
 
-            if (round(distance, 5)) % scale > 0:
-                try:
-                    wall.object.SetParamValue(ProjectParamsConfig.Instance.CheckCorrectDistanceGrid, 0)
-                except:
-                    pass
+geometryOptions = Options()
+geometryOptions.View = view
+geometryOptions.ComputeReferences = True
 
-            else:
-                grid.distanceValidWalls.append(wall)
-                try:
-                    wall.object.SetParamValue(ProjectParamsConfig.Instance.CheckCorrectDistanceGrid, 1)
-                except:
-                    pass
+EPS = 1E-9
+GRAD_EPS = math.radians(0.01)
 
-t.Commit()
-tg.Assimilate()
+check_walls()
