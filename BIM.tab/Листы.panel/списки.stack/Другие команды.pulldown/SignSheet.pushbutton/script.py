@@ -11,4 +11,4 @@ clr.ImportExtensions(dosymep.Bim4Everyone)
 from System.Diagnostics import Process
 
 
-Process.Start(r"T:\Проектный институт\Отдел стандартизации BIM и RD\BIM\3. Семейства\Утвержденная библиотека семейств\022_Подписи")
+Process.Start(r"T:\Проектный институт\Отдел стандартизации BIM и RD\BIM-Ресурсы\3-00_Семейства Общие\Подписи")
