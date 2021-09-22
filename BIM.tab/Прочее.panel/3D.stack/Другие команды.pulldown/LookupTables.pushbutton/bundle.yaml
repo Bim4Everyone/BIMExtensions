@@ -1,0 +1,9 @@
+title:
+  ru: "Экспорт\nтаблицы выбора"
+  en_us: "Export\nlookup tables"
+
+tooltip:
+  ru: "Экспортирует таблицы выбора в таблицу Excel (.csv).\nДаная команда решает проблему кодировок русских символов."
+  en_us: "Exports lookup tables to Excel (.csv).\nThis command solves problem with encoding russian symbols."
+
+author: dosymep
