@@ -20,6 +20,7 @@ if doc.IsFamilyDocument:
 	saveOptions.Compact = False
 	saveOptions.OverwriteExistingFile = True
 
+	doc.Save()
 	doc.SaveAs(temp_file_path, saveOptions)
 	try:
 		doc.SaveAs(file_path, saveOptions)
