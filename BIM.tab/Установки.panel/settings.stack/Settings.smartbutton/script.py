@@ -1,8 +1,9 @@
 # -*- coding: utf-8 -*-
+
 import clr
-clr.AddReference('PlatformSettings.dll')
 clr.AddReference('dosymep.Bim4Everyone.dll')
 
+from pyrevit import HOST_APP
 from pyrevit import EXEC_PARAMS
 from pyrevit import script
 from pyrevit import forms
@@ -13,6 +14,14 @@ from Autodesk.Revit.ApplicationServices import LanguageType
 
 from dosymep.Bim4Everyone.SharedParams import SharedParamsConfig
 from dosymep.Bim4Everyone.ProjectParams import ProjectParamsConfig
+
+
+if HOST_APP.version == "2020":
+    clr.AddReference('PlatformSettings.dll')
+elif HOST_APP.version == "2021":
+    clr.AddReference('PlatformSettings_2021.dll')
+elif HOST_APP.version == "2022":
+    clr.AddReference('PlatformSettings_2022.dll')
 
 import PlatformSettings
 
