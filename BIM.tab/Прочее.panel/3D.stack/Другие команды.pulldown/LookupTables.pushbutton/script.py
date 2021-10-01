@@ -8,6 +8,7 @@ from Autodesk.Revit.DB import *
 
 from pyrevit import forms
 from pyrevit import script
+from pyrevit import HOST_APP
 
 
 document = __revit__.ActiveUIDocument.Document
@@ -17,14 +18,22 @@ def generate_column_headers(sizeTable):
     columns = [ "" ]
     for columnIndex in range(1, sizeTable.NumberOfColumns):
         columnHeader = sizeTable.GetColumnHeader(columnIndex)
-            
+
         unitType = "OTHER"
-        if columnHeader.UnitType != UnitType.UT_Undefined:
-            unitType = UnitUtils.GetTypeCatalogString(columnHeader.UnitType)
+        if HOST_APP.is_newer_than(2021):
+            if UnitUtils.IsUnit(columnHeader.GetUnitTypeId()):
+                unitType = UnitUtils.GetTypeCatalogStringForUnit(columnHeader.GetUnitTypeId())
+        else:
+            if columnHeader.UnitType != UnitType.UT_Undefined:
+                unitType = UnitUtils.GetTypeCatalogString(columnHeader.UnitType)
 
         displayUnitType = ""
-        if columnHeader.DisplayUnitType != DisplayUnitType.DUT_UNDEFINED:
-            displayUnitType = UnitUtils.GetTypeCatalogString(columnHeader.DisplayUnitType)                
+        if HOST_APP.is_newer_than(2021):
+            if UnitUtils.IsMeasurableSpec(columnHeader.GetSpecTypeId()):
+                displayUnitType = UnitUtils.GetTypeCatalogStringForSpec(columnHeader.GetSpecTypeId())
+        else:
+            if columnHeader.DisplayUnitType != DisplayUnitType.DUT_UNDEFINED:
+                displayUnitType = UnitUtils.GetTypeCatalogString(columnHeader.DisplayUnitType)
 
         columns.append("{}##{}##{}".format(columnHeader.Name, unitType, displayUnitType))
     
