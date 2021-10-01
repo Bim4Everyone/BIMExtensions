@@ -93,7 +93,7 @@ class Utils:
                            + (line.End.X - line.Start.X) ** 2)
 
         if HOST_APP.is_newer_than(2021):
-            return UnitUtils.ConvertFromInternalUnits(distance, UnitTypeId.Meters)
+            return UnitUtils.ConvertFromInternalUnits(distance, UnitTypeId.Millimeters)
         else:
             return UnitUtils.ConvertFromInternalUnits(distance, DisplayUnitType.DUT_MILLIMETERS)
 
