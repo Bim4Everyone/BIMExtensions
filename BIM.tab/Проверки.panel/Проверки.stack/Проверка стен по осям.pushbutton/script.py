@@ -13,6 +13,7 @@ from abc import abstractmethod
 
 from pyrevit import forms
 from pyrevit import script
+from pyrevit import HOST_APP
 
 from System.Collections.Generic import *
 from Autodesk.Revit.DB import *
@@ -91,7 +92,10 @@ class Utils:
                / math.sqrt((line.End.Y - line.Start.Y) ** 2
                            + (line.End.X - line.Start.X) ** 2)
 
-        return UnitUtils.ConvertFromInternalUnits(distance, DisplayUnitType.DUT_MILLIMETERS)
+        if HOST_APP.is_newer_than(2021):
+            return UnitUtils.ConvertFromInternalUnits(distance, UnitTypeId.Meters)
+        else:
+            return UnitUtils.ConvertFromInternalUnits(distance, DisplayUnitType.DUT_MILLIMETERS)
 
 
 class CashedReference:
