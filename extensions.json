@@ -55,6 +55,20 @@
       "website": "https://github.com/dosymep/ARExtensions",
       "image": "",
       "dependencies": [ "BIM4Everyone" ]
+    },
+    {
+      "builtin": "False",
+      "default_enabled": "False",
+      "type": "extension",
+      "rocket_mode_compatible": "True",
+      "name": "04.OV-VK",
+      "description": "ОВиВК",
+      "author": "dosymep",
+      "author_profile": "https://github.com/dosymep/",
+      "url": "https://github.com/dosymep/OV-VKExtensions",
+      "website": "https://github.com/dosymep/OV-VKExtensions",
+      "image": "",
+      "dependencies": [ "BIM4Everyone" ]
     }
   ]
 }
