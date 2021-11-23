@@ -12,6 +12,7 @@ from pyrevit import EXEC_PARAMS
 from pyrevit.userconfig import user_config
 from Autodesk.Revit.ApplicationServices import LanguageType
 
+from dosymep.Bim4Everyone.Schedules import SchedulesConfig
 from dosymep.Bim4Everyone.KeySchedules import KeySchedulesConfig
 from dosymep.Bim4Everyone.SystemParams import SystemParamsConfig
 from dosymep.Bim4Everyone.SharedParams import SharedParamsConfig
@@ -50,6 +51,7 @@ def load_platform_settings():
     shared_params_path = get_config_path("PlatformSettings", "SharedParamsPath")
     project_params_path = get_config_path("PlatformSettings", "ProjectParamsPath")
 
+    SchedulesConfig.LoadInstance("")
     KeySchedulesConfig.LoadInstance("")
     SystemParamsConfig.LoadInstance(HOST_APP.language)
     SharedParamsConfig.LoadInstance(shared_params_path)
