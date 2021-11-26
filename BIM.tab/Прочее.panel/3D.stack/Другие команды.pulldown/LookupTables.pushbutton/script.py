@@ -21,16 +21,16 @@ def generate_column_headers(sizeTable):
 
         unitType = "OTHER"
         if HOST_APP.is_newer_than(2021):
-            if UnitUtils.IsUnit(columnHeader.GetUnitTypeId()):
-                unitType = UnitUtils.GetTypeCatalogStringForUnit(columnHeader.GetUnitTypeId())
+            if UnitUtils.IsMeasurableSpec(columnHeader.GetSpecTypeId()):
+                unitType = UnitUtils.GetTypeCatalogStringForSpec(columnHeader.GetSpecTypeId())
         else:
             if columnHeader.UnitType != UnitType.UT_Undefined:
                 unitType = UnitUtils.GetTypeCatalogString(columnHeader.UnitType)
 
         displayUnitType = ""
         if HOST_APP.is_newer_than(2021):
-            if UnitUtils.IsMeasurableSpec(columnHeader.GetSpecTypeId()):
-                displayUnitType = UnitUtils.GetTypeCatalogStringForSpec(columnHeader.GetSpecTypeId())
+            if UnitUtils.IsUnit(columnHeader.GetUnitTypeId()):
+                displayUnitType = UnitUtils.GetTypeCatalogStringForUnit(columnHeader.GetUnitTypeId())
         else:
             if columnHeader.DisplayUnitType != DisplayUnitType.DUT_UNDEFINED:
                 displayUnitType = UnitUtils.GetTypeCatalogString(columnHeader.DisplayUnitType)
