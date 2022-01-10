@@ -1,20 +1,18 @@
 # -*- coding: utf-8 -*-
-import os.path as op
-import os
-import sys
+
 import clr
 clr.AddReference('System')
 clr.AddReference('System.Drawing')
 clr.AddReference('System.IO')
 clr.AddReference("System.Windows.Forms")
 clr.AddReference("EPPlus")
+
 from System.IO import FileInfo
-from System.Windows.Forms import MessageBox, SaveFileDialog, DialogResult, FolderBrowserDialog 
-from System.Drawing import Color as C_Color
-from System.Collections.Generic import List 
-from Autodesk.Revit.DB import Parameter, SectionType, ViewScheduleExportOptions, HorizontalAlignmentStyle, VerticalAlignmentStyle, ViewSchedule, FilteredElementCollector, SharedParameterElement
-from OfficeOpenXml import ExcelPackage, Style
+from OfficeOpenXml import *
+from Autodesk.Revit.DB import *
+
 from pyrevit import forms
+from pyrevit import script
 
 def FilterString(obj):
 	res = obj
@@ -152,37 +150,27 @@ app = __revit__.Application
 view = __revit__.ActiveUIDocument.ActiveGraphicalView 
 view = doc.ActiveView
 
-viewSchedules = FilteredElementCollector(doc).OfClass(ViewSchedule).ToElements()
+viewSchedules = FilteredElementCollector(doc)\
+	.OfClass(ViewSchedule)\
+	.ToElements()
+
 items = [CheckBoxOption(x) for x in viewSchedules]
 items = sorted(items, key=lambda item: item.name)
+
 res = forms.SelectFromList.show(items, button_name='Выбрать', multiselect=True)
-if res is None:
-	raise SystemExit(1)
+if not res:
+	script.exit()
 
-# print len(items)
-# print len([x for x in res if x.state])
-# saveFileDialog = SaveFileDialog()
-# saveFileDialog.Filter = "xlsx files (*.xlsx)|*.xlsx|All files (*.*)|*.*"
-# saveFileDialog.FilterIndex = 1
-# saveFileDialog.RestoreDirectory = True
-folderBrowserDialog = FolderBrowserDialog()
-folderBrowserDialog.Description = "Выберите папку для сохранения спецификаций."
-folderBrowserDialog.ShowNewFolderButton = True
-
-# if saveFileDialog.ShowDialog() == DialogResult.OK:
-if folderBrowserDialog.ShowDialog() == DialogResult.OK:
-	folderName = folderBrowserDialog.SelectedPath
-	# fileName = saveFileDialog.FileName
-	# fileInfo = FileInfo(fileName)
-
+folder_name = forms.pick_folder(title="Выберите папку для сохранения спецификаций")
+if folder_name:
 	for item in res:
-		fileInfo = FileInfo(folderName + "\\" + FilterString(item.name) + ".xlsx")
+		fileInfo = FileInfo(folder_name + "\\" + FilterString(item.name) + ".xlsx")
 
 		converter = TabelsConverter(item.obj)
-		package = converter.package
-		try:
-			package.SaveAs(fileInfo)
-			package.Save()
-		except:
-			print "Не удалось сохранить спецификацию '{}'".format(item.name)
-		package.Dispose()
+		with converter.package as package:
+			try:
+				package.SaveAs(fileInfo)
+				package.Save()
+			except Exception as ex:
+				print "Не удалось сохранить спецификацию '{}'".format(item.name)
+				print "Исключение '{}'".format(ex)
