@@ -298,7 +298,7 @@ class ViewSheetDuplicater:
         sorted_sheets = []
         albums = [x.speech_album for x in list_sheets]
         speech_albums = list_albums(albums)
-        grouped_sheets = GroupByParameter(list_sheets, func=lambda x: x.speech_album)
+        grouped_sheets = GroupByParameter(list_sheets, func=lambda x: x.sheet_album)
         for album in speech_albums:
             ll = sorted(grouped_sheets[album], key=lambda x: sort_fun(x.Number))
             for z in ll:
