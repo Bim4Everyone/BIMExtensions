@@ -120,7 +120,7 @@ lvls = FilteredElementCollector(revit.doc).OfClass(Level)
 ops = [Option(x) for x in lvls] 
 ops.sort(key=lambda x: x.elevation)
 res = SelectLevelFrom.show(ops,
-                button_name='Рассчитать')
+                button_name='ОК', title="Выберите уровни")
 
 LEVEL = []
 if res:
