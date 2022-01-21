@@ -2,3 +2,6 @@ layout:
     - Copy user
     - Add Elevations
     - Update Elevations
+    - Copy Selected Legends To Open Documents
+    - Duplicate Selected Detail Views As Legends
+    - Duplicate Selected Legends As Detail Views
