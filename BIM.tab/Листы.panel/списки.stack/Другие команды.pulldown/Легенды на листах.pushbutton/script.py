@@ -15,18 +15,9 @@ clr.ImportExtensions(dosymep.Bim4Everyone)
 
 from dosymep.Bim4Everyone.SharedParams import *
 
-
 import re
 from System.Windows.Data import CollectionViewSource,PropertyGroupDescription
 from System.Windows.Media import VisualTreeHelper
-
-__title__ = 'Легенды на листах'
-__doc__ = """
-Копирует или обновляет легенды на листах.
-1. Перед запуском скрипта надо открыть лист с легендами, которые надо скопировать.
-2. После запуска скрипта в открывшемся окне надо выбрать листы, на которые будут скопированы (или обновлены) легенды.
-3. Затем на листе надо выбрать нужные легенды и нажать «Готово» в левом верхнем углу.
-"""
 
 
 doc = __revit__.ActiveUIDocument.Document

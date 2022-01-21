@@ -3,12 +3,6 @@ from pyrevit.framework import List
 from pyrevit import revit, DB, UI
 from pyrevit import forms
 
-
-__doc__ = 'Создайте линиями аннотации замкнутый контур, который '\
-          'будет служить областью подрезки для вида. За тем выберите этот контур и '\
-          'вид для обрезки и нажмите на кнопку.'
-__title__ = 'Задать область подрезки'
-
 # note: no needs to check for curves in polygon.
 # currently it takes a straight line between the start and end point.
 # (no errors so far)

@@ -8,20 +8,9 @@ clr.AddReference('MathNet.Numerics')
 clr.AddReference('Xceed.Wpf.Toolkit')
 clr.AddReference('System')
 clr.AddReference("System.Windows.Forms")
-from System.Windows.Forms import MessageBox
-from System.Collections.Generic import List 
-from Autodesk.Revit.DB import Transform, Arc, Line, ViewDuplicateOption ,ViewType, View, FilteredElementCollector, DimensionType, Transaction, TransactionGroup, ElementId, BuiltInCategory, Grid, InstanceVoidCutUtils, FamilySymbol, FamilyInstanceFilter, Wall, XYZ, WallType
-from Autodesk.Revit.Creation import ItemFactoryBase
-from System.Windows.Forms import MessageBox
-from pyrevit import revit
-from pyrevit import forms
-from pyrevit.framework import Controls
-from math import sqrt, acos, asin, sin
 
+from Autodesk.Revit.DB import *
 from ImageConverter import UserControl1
-
-__title__ = 'Создание жука по плану этажа'
-
 
 doc = __revit__.ActiveUIDocument.Document
 uidoc = __revit__.ActiveUIDocument

@@ -1,0 +1,7 @@
+title:
+  ru: Перенести вид на другой лист
+  en_us: Move view to another sheet
+
+tooltip:
+  ru: Открывает список листов для выбора листа в который требуется перенести вид. Запустите эту команду и выберите лист назначения. Затем выберите интересующий вид и нажмите кнопку "Готово".
+  en_us: Opens the list of sheets to select the sheet to which you want to transfer the view. Run this command and select the destination sheet. Then select the view you are interested in and click the "Finish" button.

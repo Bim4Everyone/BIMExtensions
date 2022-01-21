@@ -58,10 +58,6 @@ from pyrevit import forms
 from pyrevit import script
 
 
-__doc__ = 'Открывает список листов для выбора листа в который требуется перенести вид. Запустите эту команду и выберите лист назначения'\
-          '. Затем выберите интересующий вид и нажмите кнопку "Готово"'
-__title__ = 'Перенести вид на другой лист'
-
 selViewports = []
 
 dest_sheet = forms.select_sheets(title='Select Target Sheets',

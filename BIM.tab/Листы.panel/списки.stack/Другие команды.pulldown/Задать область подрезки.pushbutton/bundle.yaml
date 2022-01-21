@@ -1,0 +1,7 @@
+title:
+  ru: Задать область подрезки
+  en_us: Set crop area
+
+tooltip:
+  ru: Создайте линиями аннотации замкнутый контур, который будет служить областью подрезки для вида. За тем выберите этот контур и вид для обрезки и нажмите на кнопку.
+  en_us: Create a closed loop with the annotation lines to serve as the crop region for the view. Then select this outline and view to crop and click on the button.

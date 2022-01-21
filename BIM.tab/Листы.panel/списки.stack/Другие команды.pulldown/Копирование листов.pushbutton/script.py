@@ -16,19 +16,8 @@ clr.AddReference("System.Windows.Forms")
 clr.AddReference("dosymep.Revit.dll")
 clr.AddReference("dosymep.Bim4Everyone.dll")
 
-from System.IO import FileInfo
-from System.Windows.Forms import MessageBox, SaveFileDialog, DialogResult
 from System.Collections.Generic import List
-from Autodesk.Revit.DB import DetailNurbSpline, CurveElement, ElementTransformUtils, \
-    DetailLine, View, ViewDuplicateOption, XYZ, LocationPoint, \
-    TransactionGroup, Transaction, FilteredElementCollector, \
-    ElementId, BuiltInCategory, FamilyInstance, ViewDuplicateOption, \
-    ViewSheet, FamilySymbol, Viewport, DetailEllipse, DetailArc, TextNote, \
-    ScheduleSheetInstance
-from Autodesk.Revit.Creation import ItemFactoryBase
-from Autodesk.Revit.UI.Selection import PickBoxStyle
-from Autodesk.Revit.UI import RevitCommandId, PostableCommand
-from pyrevit import script
+from Autodesk.Revit.DB import *
 
 import re
 from System.Windows.Data import CollectionViewSource, PropertyGroupDescription
@@ -42,18 +31,13 @@ from dosymep.Bim4Everyone.Templates import ProjectParameters
 from dosymep.Bim4Everyone.SharedParams import SharedParamsConfig
 from dosymep.Bim4Everyone.ProjectParams import ProjectParamsConfig
 
+
 doc = __revit__.ActiveUIDocument.Document
 uidoc = __revit__.ActiveUIDocument
 app = __revit__.Application
 view = __revit__.ActiveUIDocument.ActiveGraphicalView
 view = doc.ActiveView
 
-__title__ = 'Копирование листов'
-__doc__ = '''
-Копирует листы вместе с видами, размещенными на листах.
-
-Запустите скрипт, выберите в окне нужные листы и нажмите «Копировать».
-'''
 
 def sort_fun(str):
     num = [int(x) for x in re.findall(r'\d+', str)]

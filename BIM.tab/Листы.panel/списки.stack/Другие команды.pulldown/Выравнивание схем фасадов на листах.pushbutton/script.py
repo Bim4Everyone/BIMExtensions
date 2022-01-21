@@ -3,13 +3,6 @@ from pyrevit import revit, DB, UI
 from pyrevit import forms
 from pyrevit import script
 
-
-__title__ = 'Выравнивание схем разреза'
-
-__doc__ = 'Открывает список листов для выбора тех, в которых требуется обновить/скопировать легенды.\nЗапустите эту команду и выберите листы назначения'\
-          '. Затем выберите одну или несколько легенд и нажмите кнопку "Готово"'
-
-
 logger = script.get_logger()
 
 
@@ -29,7 +22,7 @@ def update_if_placed(vport, exst_vps):
     for exst_vp in exst_vps:
         nameParam = exst_vp.LookupParameter("Имя вида")
         if nameParam:
-            if "схема разрез" in nameParam.AsString().lower():
+            if "схема фасад" in nameParam.AsString().lower():
                 exst_vp.SetBoxCenter(vport.GetBoxCenter())
                 #exst_vp.ChangeTypeId(vport.GetTypeId())
                 return True
@@ -70,7 +63,7 @@ if selSheets and len(selSheets) > 0:
                 for vp in selected_vps:
                     nameParam = vp.LookupParameter("Имя вида")
                     if nameParam:
-                        if "схема разрез" not in nameParam.AsString().lower():
+                        if "схема фасад" not in nameParam.AsString().lower():
                             # forms.alert('Выбрана легенда, не являющаяся жуком.')
                             continue
 
