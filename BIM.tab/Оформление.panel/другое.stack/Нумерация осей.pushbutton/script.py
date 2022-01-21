@@ -16,9 +16,6 @@ from Autodesk.Revit.Creation import ItemFactoryBase
 from pyrevit import forms
 from pyrevit.framework import Controls
 
-__title__ = 'Перенумерация осей'
-
-
 class SelectLevelFrom(forms.TemplateUserInputWindow):
     xaml_source = op.join(op.dirname(__file__), 'MainWindow.xaml')
 
