@@ -48,8 +48,6 @@ from pyrevit import revit, DB, UI
 from pyrevit import script
 from pyrevit import forms
 
-__title__ = 'Преобразовать чертежный вид в легенду'
-__doc__ = 'Преобразовывает выбранные чертежные виды в легенды.'
 logger = script.get_logger()
 
 
