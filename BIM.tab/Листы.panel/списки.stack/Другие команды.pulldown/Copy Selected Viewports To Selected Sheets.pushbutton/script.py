@@ -99,7 +99,3 @@ if selSheets and len(selSheets) > 0:
                                                             sht.Id,
                                                             vp.ScheduleId,
                                                             vp.Point)
-    else:
-        forms.alert('Хотябы одна легенда должна быть выбрана.')
-else:
-    forms.alert('Хотябы один лист должен быть выбран.')
