@@ -24,7 +24,7 @@ if not open_docs:
 legends = forms.select_views(
     title='Выберите чертежные виды',
     filterfunc=lambda x: x.ViewType == DB.ViewType.Legend,
-    use_selection=True)
+    use_selection=False)
 
 if legends:
     for dest_doc in open_docs:
