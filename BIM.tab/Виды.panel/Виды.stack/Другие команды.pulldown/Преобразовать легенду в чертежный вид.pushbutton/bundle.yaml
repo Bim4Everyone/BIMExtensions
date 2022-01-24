@@ -3,5 +3,5 @@ title:
   en_us: Convert legend to drawing view
 
 tooltip:
-  ru: Преобразовывает выбранные легенды в чертежные виды.
-  en_us: Converts selected legends to drawing views.
+  ru: Преобразовывает выбранные в диспетчере проекта чертежные виды в легенды.
+  en_us: Converts drawing views selected in the Project Browser to legends.

@@ -3,8 +3,14 @@ title:
   en_us: Copy views
 
 tooltip:
-  ru: Создает копию выделенных видов.
-  en_us: Creates copy selected views.
+  ru: >-
+    Копирует виды и легенды, выбранные в диспетчере проекта.
+
+    Листы и спецификации с помощью скрипта скопировать нельзя.
+  en_us: >-
+    Copies the views and legends selected in the Project Browser.
+
+    Sheets and BOMs cannot be copied using a script.
     
 assembly: RevitCopyViews.dll
 command_class: CopyViewCommand

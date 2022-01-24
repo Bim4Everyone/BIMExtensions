@@ -3,5 +3,15 @@ title:
   en_us: Copy legends to project
 
 tooltip:
-  ru: Копирует выбранные легенды в другой открытый проект.
-  en_us: Copies the selected legends to another open project.
+  ru: >-
+    Копирует легенды в другой открытый проект.
+    В целевом проекте должна быть создана как минимум одна легенда!
+
+    1. Запустите скрипт, выберите проект, в который хотите скопировать легенды.
+    2. В открывшемся окне, выберите легенды для копирования.
+  en_us: >-
+    Copies legends to another open project.
+    At least one legend must be created in the target project!
+
+    1. Run the script, select the project you want to copy the legends to.
+    2. In the window that opens, select the legends to copy.

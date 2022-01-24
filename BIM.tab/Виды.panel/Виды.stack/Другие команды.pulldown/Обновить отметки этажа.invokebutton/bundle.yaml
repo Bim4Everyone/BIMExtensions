@@ -3,8 +3,8 @@ title:
   en_us: Update level elevations
 
 tooltip:
-  ru: Обновляет отметки этажа у выделенных видов.
-  en_us: Updates elevations for selected views.
+  ru: Обновляет отметки этажа на основе актуальных отметок уровней для всех видов, у которых стоит отметка.
+  en_us: Updates the floor elevations based on the current elevations for all views that have an elevation.
     
 assembly: RevitCopyViews.dll
 command_class: UpdateElevationCommand

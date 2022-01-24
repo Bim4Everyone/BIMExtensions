@@ -3,8 +3,14 @@ title:
   en_us: New user
 
 tooltip:
-  ru: Копирует выделенные виды для пользователя.
-  en_us: Copies selected views for user.
+  ru: >-
+    Создаёт виды для нового пользователя.
+
+    Виды создаются через копирование видов, начинающихся с "User_".
+  en_us: >-
+    Creates views for a new user.
+
+    Views are created by copying views starting with "User_".
 
 assembly: RevitCopyViews.dll
 command_class: CopyUserCommand
