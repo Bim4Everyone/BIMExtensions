@@ -1,0 +1,10 @@
+title:
+  ru: Удалить неразмещенные
+  en_us: Remove unplaced
+
+tooltip:
+  ru: Выделяет все элементы, находящиеся в группах.
+  en_us: Selects all elements in groups.
+
+context: selection
+author: dosymep
