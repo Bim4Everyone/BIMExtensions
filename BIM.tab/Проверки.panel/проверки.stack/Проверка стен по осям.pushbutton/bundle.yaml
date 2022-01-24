@@ -1,0 +1,39 @@
+title:
+  ru: >-
+    Проверка
+    
+    стен по осям
+  en_us: >- 
+    Checking
+    
+    walls along the axes
+
+tooltip:
+  ru: >-
+    Проверка расстояния между стенами и осями и параллельности стен относительно осей.
+
+    
+    1. Выберите на виде стены для проверки и оси, относительно которых будет проходить проверка.
+    
+    2. Запустите скрипт и в открывшемся окне настройте точность проверки.
+    
+    3. Результаты проверки записываются в параметры стен:
+      -Пров_Ортогональность Осям
+      -Пров_Ровно от Оси.
+    
+    4. Для удобного просмотра результатов на вид можно добавить фильтр «Проверка-Стены Ровность от Оси».
+  en_us: >-
+    Checking the distance between the walls and the axes and the parallelism of the walls with respect to the axes.
+
+
+     1. In the view, select the wall to be tested and the axes to be tested against.
+
+     2. Run the script and in the window that opens, configure the scan accuracy.
+
+     3. The results of the check are recorded in the parameters of the walls:
+       -Пров_Ортогональность Осям
+       -Пров_Ровно от Оси.
+
+     4. For convenient viewing of the results in the view, you can add the filter "Проверка-Стены Ровность от Оси".
+
+author: dosymep

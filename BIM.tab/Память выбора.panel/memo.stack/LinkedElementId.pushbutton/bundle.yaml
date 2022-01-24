@@ -1,9 +1,0 @@
-title:
-  ru: "ID"
-  en_us: "ID"
-
-tooltip:
-  ru: Отображает идентификатор элемента связанного документа.
-  en_us: Shows linked document's element id.
-
-author: dosymep

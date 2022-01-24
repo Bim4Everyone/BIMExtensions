@@ -1,13 +1,10 @@
 title:
   ru: Выделить
-  en_us: Read
+  en_us: MRead
 
 tooltip:
-  ru: >-
-    Добавляет выбранные элементы в память проекта.
-    
-    Работает как кнопка MR в калькуляторе. Память сохраняется для каждого проекта. Каждый проект имеет свою память, которая записывается в %appdata%/pyRevit директорию как *.pym файлы.
-  en_us: >-
+  ru: Выделяет в проекте элементы, находящиеся в памяти в данный момент. Работает как кнопка MR в калькуляторе.
+en_us: >-
     Read selection from memory
     
     Works like the MR button in a calculator. This is a project-dependent memory. Every project has its own selection memory saved in %appdata%/pyRevit folder as *.pym files
