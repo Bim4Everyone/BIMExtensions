@@ -1,0 +1,10 @@
+title:
+  ru: Выбрать все экземпляры групп
+  en_us: Select all group instances
+
+tooltip:
+  ru: Выделяет все элементы, относящиеся к выбранным группам.
+  en_us: Selects all elements belonging to the selected groups.
+
+context: selection
+author: dosymep
