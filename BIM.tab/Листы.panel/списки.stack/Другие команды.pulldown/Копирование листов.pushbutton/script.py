@@ -71,7 +71,7 @@ class SheetOption(object):
         self.state = state
         self.name = "{} - {}".format(obj.SheetNumber, obj.Name)
         self.Number = obj.SheetNumber
-        self.speech_album = obj.GetParamValueOrDefault(SharedParamsConfig.Instance.AlbumBlueprints)
+        self.sheet_album = obj.GetParamValueOrDefault(SharedParamsConfig.Instance.AlbumBlueprints)
 
         self.obj = obj
 
@@ -100,7 +100,7 @@ class SelectLists(forms.WPFWindow):
 
         for i in kwargs['views']:
             self.purpose.AddText(i)
-        for i in kwargs['speech_albums']:
+        for i in kwargs['sheet_albums']:
             self.sp_albums.AddText(i)
         # self._verify_context()
         self._list_options()
@@ -227,14 +227,14 @@ class SelectLists(forms.WPFWindow):
             purpose = ""
 
         if self.sp_albums.Text:
-            speech_album = self.sp_albums.Text
+            sheet_album = self.sp_albums.Text
         else:
-            speech_album = ""
+            sheet_album = ""
         self.response = {"copyViews": copyViews,
                          "suffix": suffix,
                          "prefix": prefix,
                          "purpose": purpose,
-                         "speech_album": speech_album,
+                         "sheet_album": sheet_album,
                          "sheets": sheets}
         self.Close()
 
@@ -247,13 +247,13 @@ class ViewSheetDuplicater:
             .ToElements()
 
         views = self.GetViewPurposeList()
-        speech_albums = self.GetSpeechAlbumList()
+        sheet_albums = self.GetSheetAlbumList()
         window = SelectLists('SelectLists.xaml',
                              title="Копировние Листов",
                              button_name="Копировать",
                              list=self.list_shts(),
                              views=views,
-                             speech_albums=speech_albums)
+                             sheet_albums=sheet_albums)
         window.ShowDialog()
 
         if hasattr(window, 'response'):
@@ -262,7 +262,7 @@ class ViewSheetDuplicater:
             self.prefix = res["prefix"]
             self.suffix = res["suffix"]
             self.copyViews = res["copyViews"]
-            self.speech_album = res["speech_album"]
+            self.sheet_album = res["sheet_album"]
             for item in res["sheets"]:
                 sheet = item.obj
                 sheetId = sheet.Id
@@ -280,16 +280,16 @@ class ViewSheetDuplicater:
 
         list_sheets = [SheetOption(sh) for sh in sheets]
         sorted_sheets = []
-        albums = [x.speech_album for x in list_sheets]
-        speech_albums = list_albums(albums)
+        albums = [x.sheet_album for x in list_sheets]
+        sheet_albums = list_albums(albums)
         grouped_sheets = GroupByParameter(list_sheets, func=lambda x: x.sheet_album)
-        for album in speech_albums:
+        for album in sheet_albums:
             ll = sorted(grouped_sheets[album], key=lambda x: sort_fun(x.Number))
             for z in ll:
                 sorted_sheets.append(z)
 
         view = CollectionViewSource.GetDefaultView(sorted_sheets)
-        groupDescription = PropertyGroupDescription('speech_album')
+        groupDescription = PropertyGroupDescription('sheet_album')
         view.GroupDescriptions.Add(groupDescription)
         return view
 
@@ -301,7 +301,7 @@ class ViewSheetDuplicater:
 
         duplicatedSheet = ViewSheet.Create(doc, titleType if titleType else ElementId.InvalidElementId)
         duplicatedSheet.Name = sheet.Name
-        duplicatedSheet.SetParamValue(SharedParamsConfig.Instance.AlbumBlueprints, self.speech_album)
+        duplicatedSheet.SetParamValue(SharedParamsConfig.Instance.AlbumBlueprints, self.sheet_album)
         if self.copyViews:
             for viewport in viewports:
                 viewportTypeId = viewport.GetTypeId()
@@ -361,17 +361,17 @@ class ViewSheetDuplicater:
                 purpose.append(param)
         return purpose
 
-    def GetSpeechAlbumList(self):
+    def GetSheetAlbumList(self):
         sheets = FilteredElementCollector(doc) \
             .OfClass(ViewSheet) \
             .ToElements()
-        speechAlbumList = []
+        sheet_album_list = []
         for sh in sheets:
             if sh.GetParamValueOrDefault(SharedParamsConfig.Instance.AlbumBlueprints):
                 param = sh.GetParamValueOrDefault(SharedParamsConfig.Instance.AlbumBlueprints)
-                if param not in speechAlbumList:
-                    speechAlbumList.append(param)
-        return speechAlbumList
+                if param not in sheet_album_list:
+                    sheet_album_list.append(param)
+        return sheet_album_list
 
     def _GetTitleType(self, sheetId):
         collector = FilteredElementCollector(self.doc)
