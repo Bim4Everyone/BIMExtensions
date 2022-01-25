@@ -40,7 +40,9 @@ view = doc.ActiveView
 
 
 project_params = ProjectParameters.Create(app)
-project_params.SetupRevitParam(doc, SharedParamsConfig.Instance.AlbumBlueprints)
+project_params.SetupRevitParams(doc,
+                               ProjectParamsConfig.Instance.ViewGroup,
+                               SharedParamsConfig.Instance.AlbumBlueprints)
 
 
 def sort_fun(str):
