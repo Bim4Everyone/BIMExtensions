@@ -3,8 +3,8 @@ title:
   en_us: Remove unplaced
 
 tooltip:
-  ru: Выделяет все элементы, находящиеся в группах.
-  en_us: Selects all elements in groups.
+  ru: Удаляет из проекта группы, которые нигде не размещены.
+  en_us: Removes groups from the project that are not placed anywhere.
 
 context: selection
 author: dosymep

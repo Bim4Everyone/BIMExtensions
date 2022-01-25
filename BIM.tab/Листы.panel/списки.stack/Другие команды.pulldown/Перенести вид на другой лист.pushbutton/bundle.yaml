@@ -3,5 +3,17 @@ title:
   en_us: Move view to another sheet
 
 tooltip:
-  ru: Открывает список листов для выбора листа в который требуется перенести вид. Запустите эту команду и выберите лист назначения. Затем выберите интересующий вид и нажмите кнопку "Готово".
-  en_us: Opens the list of sheets to select the sheet to which you want to transfer the view. Run this command and select the destination sheet. Then select the view you are interested in and click the "Finish" button.
+  ru: >-
+    Переносит виды, выбранные на листе на лист, выбранный в списке листов.
+
+    1. Перед запуском скрипта откройте лист,  с которого надо перенести виды
+    2. Запустите скрипт
+    3. Затем на листе надо выбрать нужные виды (легенды, спецификации) и нажать «Готово» в левом верхнем
+    4. После этого в окне выберите лист, на который надо перенести виды и нажмите «ОК».
+  en_us: >-
+    Moves the views selected on the sheet to the sheet selected in the list of sheets.
+
+    1. Before running the script, open the sheet from which you want to transfer views
+    2. Run the script
+    3. Then on the sheet you need to select the desired views (legends, specifications) and click "Finish" in the upper left
+    4. After that, in the window, select the sheet to which you want to transfer the views and click "OK".

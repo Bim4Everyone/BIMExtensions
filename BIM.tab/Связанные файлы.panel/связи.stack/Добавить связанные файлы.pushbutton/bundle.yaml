@@ -1,0 +1,15 @@
+title:
+  ru: >-
+    Добавить
+    
+    связанные файлы
+  en_us: >-
+    Add
+    
+    Revit links
+
+tooltip:
+  ru: Добавляет в проект несколько RVT-связей за раз через выбор их в диспетчере проекта.
+  en_us: Adds multiple RVT links to a project at a time by selecting them in the Project Browser.
+
+author: dosymep

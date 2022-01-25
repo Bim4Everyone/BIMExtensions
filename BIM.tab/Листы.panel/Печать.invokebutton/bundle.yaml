@@ -3,8 +3,8 @@ title:
   en_us: Print
 
 tooltip:
-  ru: Выводит в pdf все спецификации с учетом их размеров
-  en_us: Export to pdf View Schedules with considering sizes
+  ru: Сохраняет в PDF выбранные листы с автоматическим подбором размеров листа.
+  en_us: Saves selected sheets to PDF with automatic sheet sizing.
 
 assembly: RevitBatchPrint.dll
 command_class: BatchPrintCommand

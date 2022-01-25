@@ -3,8 +3,12 @@ title:
   en_us: Select elements
 
 tooltip:
-  ru: Выделяет все элементы, находящиеся в выбранных группах.
-  en_us: Selects all elements in selected groups.
+  ru: >-
+    Выделяет все элементы, входящие в выбранные группы.
+    Сначала необходимо выбрать группы на виде, затем запустить скрипт.
+  en_us: >-
+    Selects all elements included in the selected groups.
+    First you need to select the groups in the view, then run the script.
 
 context: selection
 author: dosymep

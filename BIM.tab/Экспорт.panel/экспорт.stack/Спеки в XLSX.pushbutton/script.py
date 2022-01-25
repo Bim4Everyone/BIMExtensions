@@ -140,10 +140,6 @@ class CheckBoxOption:
 	def __str__(self):
 		return self.name
 
-__title__ = 'Спеки в XLSX'
-__description__ = "Выгружает спецификации в Excel документ."
-
-
 doc = __revit__.ActiveUIDocument.Document
 uidoc = __revit__.ActiveUIDocument
 app = __revit__.Application

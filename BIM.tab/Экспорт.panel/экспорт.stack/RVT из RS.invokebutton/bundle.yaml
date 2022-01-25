@@ -1,0 +1,16 @@
+title:
+  ru: RVT из RS
+  en_us: RVT from RS
+
+tooltip:
+  ru: >-
+    Пересохраняет с отсоединением RVT-файлы из Revit Server в указанную папку.
+    Дополнительно можно NWC из пересохраняемых файлов.
+  en_us: >-
+    Resaves detached RVT files from Revit Server to the specified folder.
+    Additionally, you can NWC from resaved files.
+
+assembly: RevitServerFolders.dll
+command_class: ExportRvtFileCommand
+
+author: dosymep

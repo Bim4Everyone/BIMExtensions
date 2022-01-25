@@ -3,8 +3,8 @@ title:
   en_us: Foundation elements
 
 tooltip:
-  ru: Выбрает все элементы, размещенные на выбранной основе.
-  en_us: Selects all elements on selected foundation.
+  ru: Выделяет все экземпляры семейств, размещенных на выбранной основе.
+  en_us: Selects all instances of families hosted on the selected canvas.
 
 context: selection
 

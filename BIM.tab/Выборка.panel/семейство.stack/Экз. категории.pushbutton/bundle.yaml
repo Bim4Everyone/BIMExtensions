@@ -3,8 +3,8 @@ title:
   en_us: Instances of the category
 
 tooltip:
-  ru: Выделяет все экземпляры всех семейств выбранной категории.
-  en_us: Selects all instances of all families in the selected category.
+  ru: Выделяет все экземпляры семейств для категории выбранного экземпляра семейства.
+  en_us: Selects all family instances for the category of the selected family instance.
 
 context: selection
 autor: dosymep

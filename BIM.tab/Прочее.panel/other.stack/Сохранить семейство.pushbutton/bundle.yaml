@@ -1,9 +1,0 @@
-title:
-  ru: "."
-  en_us: "."
-
-tooltip:
-  ru: Сохраняет файл семейства с удалением истории изменений (со сжатием). Файл проекта не пересохраняет.
-  en_us: Saves the family file with deletion of the revision history (with compression). The project file is not overwritten.
-
-author: dosymep

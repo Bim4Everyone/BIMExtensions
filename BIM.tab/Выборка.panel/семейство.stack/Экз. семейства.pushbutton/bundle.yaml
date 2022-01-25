@@ -3,8 +3,8 @@ title:
   en_us: Family instances
 
 tooltip:
-  ru: Выделяет все экземпляры всех типоразмеров выбранного семейства.
-  en_us: Selects all instances of all types of the selected family.
+  ru: Выделяет все экземпляры всех типоразмеров выбранного экземпляра семейства.
+  en_us: Selects all instances of all types of the selected family instance.
 
 context: selection
 autor: dosymep

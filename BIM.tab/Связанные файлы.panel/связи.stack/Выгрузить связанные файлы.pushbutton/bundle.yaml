@@ -1,0 +1,15 @@
+title:
+  ru: >-
+    Выгрузить
+    
+    связанные файлы
+  en_us: >-
+    Unload
+    
+    file links
+
+tooltip:
+  ru: Выгружает из проекта все связанные файлы Revit.
+  en_us: Unloads all associated Revit files from the project.
+
+author: dosymep

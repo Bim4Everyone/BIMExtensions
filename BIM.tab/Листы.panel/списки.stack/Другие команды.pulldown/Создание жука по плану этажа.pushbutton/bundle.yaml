@@ -3,5 +3,13 @@ title:
   en_us: Create a floor plan legend
 
 tooltip:
-  ru: Создает жука по плану этажа.
-  en_us: Creates a floor plan legend.
+  ru: >-
+    Создает легенду-жук на основе плана этажа.
+
+    1. Откройте нужный план этажа.
+    2. Запустите скрипт - все стены, начинающиеся с (Н) на плане этаже преобразуются в линии на легенде.
+  en_us: >-
+    Creates a legend based on the floor plan.
+
+    1. Open the desired floor plan.
+    2. Run the script - all walls starting with (H) on the floor plan are converted to lines on the legend.
