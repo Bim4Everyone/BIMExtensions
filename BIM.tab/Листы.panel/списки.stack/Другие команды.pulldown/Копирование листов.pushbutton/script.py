@@ -39,6 +39,10 @@ view = __revit__.ActiveUIDocument.ActiveGraphicalView
 view = doc.ActiveView
 
 
+project_params = ProjectParameters.Create(app)
+project_params.SetupRevitParam(doc, SharedParamsConfig.Instance.AlbumBlueprints)
+
+
 def sort_fun(str):
     num = [int(x) for x in re.findall(r'\d+', str)]
     if len(num) > 0:
