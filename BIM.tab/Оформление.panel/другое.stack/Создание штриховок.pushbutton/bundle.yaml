@@ -1,34 +1,31 @@
 title:
   ru: Создание штриховок
-  en_us: |-
-    Make
-    Pattern
+  en_us: Make Pattern
+
 tooltip:
   ru: >-
-    Начертите свой узор штриховки в узлах использующих линию детализации, кривые, окружности
-    или эллипсы, или даже цветовые области.
+    Создаёт штриховки по линиям детализации.
     
-    Выделите линии штриховки и кривые и запустите данный инструмент. Дайте название штриховки
-    и нажмите "Create Pattern". Инструмент запросит Вас выбрать границы штриховки. Инструмент будет обрабатывать
-    входные линии, округляя кривые и сплайны более меньшими линиями для нахождения лучших углов для этих линий
-    и сгенерирует штриховку. Он так же считывает штриховки из выделенных залитых областей 
-    и объединит с выделенными линиями детализации.
-    
-    
-    СОВЕТ: Вы можете экспортировать существующие штриховки, если не были выбраны линии.
-    
-    ХИТРОСТЬ: Вы можете преобразовать существующие типы штриховки, выбрав только цветовую область
-    и создав противоположный тип штриховки (выбрав рисунок закрашенной области и создания штриховки модели).
+    1. Создайте на виде эскиз новой штриховки с помощью линий детализации и цветовой области.
+    2. Выберите созданный эскиз.
+    3. Запустите скрипт.
+    4. Введите нужные настройки (имя, тип штриховки).
+    5. Выберите сначала левый нижний, и потом правый верхний угол области создаваемой штриховки. После этого будет создана новая штриховка или обновлена существующая.
   en_us: >-
     Draw your pattern tile in a detail view using detail lines, curves, circles
     or ellipses, or even filled regions
+
     Select the pattern lines and curves and run this tool. Give the pattern a
     name and hit "Create Pattern". The tool asks you to pick the boundary
     corners of the pattern. The tool will process the input lines, approximates
     the curves and splines with smaller lines and finds the best angles for
     these lines and will generate a pattern. It also reads the patterns from
     selected filled regions and will combine with selected detail lines
+
+
     TIP: You can export existing patterns if no lines are selected
+
+
     TRICK: You can convert existing pattern types by selecting a filled region
     only and create the opposite pattern type (selected drafting filled region
     and create model pattern)

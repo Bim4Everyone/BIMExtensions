@@ -1,8 +1,10 @@
-# -*- coding: utf-8 -*-
+"""Create patterns based on AutoCAD .pat standard."""
+#pylint: disable=import-error,invalid-name
 import os.path as op
+import re
 from math import sqrt, pi, sin, cos, degrees
 
-from pyrevit import PyRevitException
+from pyrevit import PyRevitException, HOST_APP
 from pyrevit import framework
 from pyrevit.framework import List
 from pyrevit import coreutils
@@ -16,6 +18,8 @@ logger = coreutils.logger.get_logger(__name__)
 PI = pi
 HALF_PI = PI/2.0
 ZERO_TOL = 5e-06
+
+COORD_RESOLUTION = 16
 
 # 0.5 < MODEL < 848.5 inches, source: http://hatchkit.com.au/faq.php#Tip7
 MAX_MODEL_DOMAIN = 100.0
@@ -31,6 +35,8 @@ ANGLE_CORR_RATIO = 0.01
 
 PAT_SEPARATOR = ', '
 PAT_FILE_TEMPLATE = \
+    ";        Written by \"Make Pattern\" tool for pyRevit\n"                 \
+    ";          http://eirannejad.github.io/pyRevit/\n"                       \
     ";-Date                                   : {date}\n"                     \
     ";-Time                                   : {time}\n"                     \
     ";-pyRevit Version                        : {version}\n"                  \
@@ -40,10 +46,20 @@ PAT_FILE_TEMPLATE = \
     ";%TYPE={type}\n"
 
 
+def round_vector(length):
+    length = length if abs(length) > ZERO_TOL else 0.0
+    return round(length, COORD_RESOLUTION)
+
+
+def flatten_zeros(length):
+    length_str = ('{:.' + str(COORD_RESOLUTION) + 'f}').format(length)
+    return re.sub(r'\.0+$', '.0', length_str)
+
+
 class _PatternPoint:
     def __init__(self, u_point, v_point):
-        self.u = u_point
-        self.v = v_point
+        self.u = round_vector(u_point)
+        self.v = round_vector(v_point)
 
     def __repr__(self):
         return '<_PatternPoint U:{0:.20f} V:{1:.20f}>'.format(self.u, self.v)
@@ -64,7 +80,9 @@ class _PatternPoint:
     def distance_to(self, point):
         return sqrt((point.u - self.u)**2 + (point.v - self.v)**2)
 
-    def rotate(self, origin, angle):
+    def rotate(self, angle, origin=None):
+        # default origin to 0,0 if not set
+        origin = origin or _PatternPoint(0, 0)
         tu = self.u - origin.u
         tv = self.v - origin.v
         self.u = origin.u + (tu*cos(angle) - tv*sin(angle))
@@ -141,9 +159,9 @@ class _PatternLine:
 
         return _PatternPoint(int_point_x, int_point_y)
 
-    def rotate(self, origin, angle):
-        self.start_point.rotate(origin, angle)
-        self.end_point.rotate(origin, angle)
+    def rotate(self, angle, origin=None):
+        self.start_point.rotate(angle, origin=origin)
+        self.end_point.rotate(angle, origin=origin)
 
 
 class _PatternSafeGrid:
@@ -217,10 +235,11 @@ class _PatternSafeGrid:
     @property
     def offset(self):
         if self._angle == 0.0:
-            return self._domain_v * self._offset_direction
+            total_offset = self._domain_v * self._offset_direction
         else:
-            return abs(self._domain_u * sin(self._angle)
-                       / self._v_tiles) * self._offset_direction
+            total_offset = abs(self._domain_u * sin(self._angle)
+                               / self._v_tiles) * self._offset_direction
+        return total_offset
 
     @property
     def shift(self):
@@ -410,7 +429,8 @@ class _PatternGrid:
             self._grid.span, self._grid.offset, self._grid.shift
 
         self.segment_lines = []
-        init_line.rotate(init_line.center_point, self.angle - init_line.angle)
+        init_line.rotate(self.angle - init_line.angle,
+                         origin=init_line.center_point)
         self.segment_lines.append(init_line)
 
     def __repr__(self):
@@ -492,7 +512,8 @@ class _RevitFillGrid:
 
 
 class _RevitPattern:
-    def __init__(self, pat_domain, pat_name, model_pat=True, scale=1.0):
+    def __init__(self, pat_domain, pat_name, model_pat=True,
+                 scale=1.0, rotation=0, flip_u=False, flip_v=False):
         self._domain = pat_domain
         self._pattern_grids = []
         self._input_fillgrids = []
@@ -500,6 +521,9 @@ class _RevitPattern:
         self._name = pat_name
         self._model_pat = model_pat
         self._scale = scale
+        self._rotation = rotation
+        self._flip_u = flip_u
+        self._flip_v = flip_v
 
     def __repr__(self):
         return '<_RevitPattern Name:{} Model:{} Scale:{}>'\
@@ -532,20 +556,55 @@ class _RevitPattern:
         return self._name
 
     def _make_fill_grid(self, pattern_grid):
-        if isinstance(pattern_grid, _RevitFillGrid):
-            rvt_fill_grid = pattern_grid.get_rvt_fillgrid()
+        fg_scale = self._scale
+
+        fg_rotation = self._rotation
+        if (self._flip_u and not self._flip_v) \
+                or (self._flip_v and not self._flip_u):
+            fg_rotation = -fg_rotation
+
+        rvt_fill_grid = DB.FillGrid()
+
+        # determine and set angle
+        if self._flip_u and self._flip_v:
+            rvt_fill_grid.Angle = PI + pattern_grid.angle
+        elif self._flip_u:
+            rvt_fill_grid.Angle = PI - pattern_grid.angle
+        elif self._flip_v:
+            rvt_fill_grid.Angle = -pattern_grid.angle
         else:
-            scale = self._scale
-            rvt_fill_grid = DB.FillGrid()
             rvt_fill_grid.Angle = pattern_grid.angle
-            rvt_fill_grid.Origin = \
-                DB.UV(pattern_grid.origin.u * scale,
-                      pattern_grid.origin.v * scale)
-            rvt_fill_grid.Offset = pattern_grid.offset * scale
-            rvt_fill_grid.Shift = pattern_grid.shift * scale
-            if pattern_grid.segments:
-                scaled_segments = [seg * scale for seg in pattern_grid.segments]
-                rvt_fill_grid.SetSegments(scaled_segments)
+        rvt_fill_grid.Angle += fg_rotation
+
+        # determine and set origin
+        # apply flips
+        origin_u = -pattern_grid.origin.u if self._flip_u \
+            else pattern_grid.origin.u
+        origin_v = -pattern_grid.origin.v if self._flip_v \
+            else pattern_grid.origin.v
+        # apply rotation if any
+        fg_origin = _PatternPoint(origin_u, origin_v)
+        if fg_rotation:
+            fg_origin.rotate(fg_rotation)
+        rvt_fill_grid.Origin = \
+            DB.UV(fg_origin.u * fg_scale, fg_origin.v * fg_scale)
+
+        # determine and set offset
+        if self._flip_u and self._flip_v:
+            rvt_fill_grid.Offset = pattern_grid.offset * fg_scale
+        elif self._flip_u or self._flip_v:
+            rvt_fill_grid.Offset = -pattern_grid.offset * fg_scale
+        else:
+            rvt_fill_grid.Offset = pattern_grid.offset * fg_scale
+
+        # determine and set shift
+        rvt_fill_grid.Shift = pattern_grid.shift * fg_scale
+
+        # build and set segments list
+        if pattern_grid.segments:
+            scaled_segments = \
+                [seg * fg_scale for seg in pattern_grid.segments]
+            rvt_fill_grid.SetSegments(scaled_segments)
 
         return rvt_fill_grid
 
@@ -616,12 +675,15 @@ class _RevitPattern:
                                      type=pat_type)
 
         for pat_grid in self._pattern_grids:
+            # angle, u, v, shift, offset, segments....
             grid_desc = \
-                PAT_SEPARATOR.join([str(degrees(pat_grid.angle)),
-                                    str(pat_grid.origin.u * self._scale),
-                                    str(pat_grid.origin.v * self._scale),
-                                    str(pat_grid.shift * self._scale),
-                                    str(pat_grid.offset * self._scale)])
+                PAT_SEPARATOR.join([
+                    flatten_zeros(
+                        degrees(pat_grid.angle)),
+                    flatten_zeros(pat_grid.origin.u * self._scale),
+                    flatten_zeros(pat_grid.origin.v * self._scale),
+                    flatten_zeros(pat_grid.shift * self._scale),
+                    flatten_zeros(pat_grid.offset * self._scale)])
             grid_desc += PAT_SEPARATOR
             if pat_grid.segments:
                 scaled_segments = []
@@ -630,8 +692,9 @@ class _RevitPattern:
                         seg *= -1
                     scaled_segments.append(seg * self._scale)
 
-                grid_desc += PAT_SEPARATOR.join([str(seg_l)
-                                                 for seg_l in scaled_segments])
+                grid_desc += PAT_SEPARATOR.join(
+                    [flatten_zeros(x) for x in scaled_segments]
+                    )
 
             pattern_desc += grid_desc + '\n'
 
@@ -645,16 +708,19 @@ def _make_filledregion(fillpattern_name, fillpattern_id):
     source_fr = filledregion_types.FirstElement()
     with revit.Transaction('Create Filled Region'):
         new_fr = source_fr.Duplicate(fillpattern_name)
-        new_fr.FillPatternId = fillpattern_id
+        if HOST_APP.is_newer_than(2018):
+            new_fr.ForegroundPatternId = fillpattern_id
+        else:
+            new_fr.FillPatternId = fillpattern_id
 
 
 def _export_pat(revit_pat, export_dir):
     pat_file_contents = revit_pat.get_pat_data()
-    with open(op.join(export_dir,
-                      '{}.pat'.format(
-                          coreutils.cleanup_filename(revit_pat.name)
-                          )), 'w') as pat_file:
-        pat_file.write(pat_file_contents.encode('utf-8').strip())
+    pat_file_name = coreutils.cleanup_filename(revit_pat.name)
+    pat_file_path = op.join(export_dir, '{}.pat'.format(pat_file_name))
+    logger.debug('Exporting pattern to: %s', pat_file_path)
+    with open(pat_file_path, 'w') as pat_file:
+        pat_file.write(pat_file_contents)
 
 
 def _create_fill_pattern(revit_pat, create_filledregion=False):
@@ -668,7 +734,8 @@ def _create_fill_pattern(revit_pat, create_filledregion=False):
                      .format(create_pat_err))
 
 
-def _make_rvt_pattern(pat_name, pat_lines, domain, fillgrids=None, scale=1.0,
+def _make_rvt_pattern(pat_name, pat_lines, domain, fillgrids=None,
+                      scale=1.0, rotation=0, flip_u=False, flip_v=False,
                       model_pattern=True, allow_expansion=False):
     pat_domain = _PatternDomain(domain[0][0],
                                 domain[0][1],
@@ -679,7 +746,15 @@ def _make_rvt_pattern(pat_name, pat_lines, domain, fillgrids=None, scale=1.0,
 
     logger.debug('New pattern domain: {}'.format(pat_domain))
 
-    revit_pat = _RevitPattern(pat_domain, pat_name, model_pattern, scale)
+    revit_pat = _RevitPattern(
+        pat_domain,
+        pat_name,
+        model_pattern,
+        scale,
+        rotation,
+        flip_u,
+        flip_v
+        )
     logger.debug('New revit pattern: {}'.format(revit_pat))
 
     for line_coords in pat_lines:
@@ -699,13 +774,24 @@ def _make_rvt_pattern(pat_name, pat_lines, domain, fillgrids=None, scale=1.0,
     return revit_pat
 
 
-def make_pattern(pat_name, pat_lines, domain,
-                 fillgrids=None, scale=1.0,
+def make_pattern(pat_name, pat_lines, domain, fillgrids=None,
+                 scale=1.0, rotation=0,
+                 flip_u=False, flip_v=False,
                  model_pattern=True, allow_expansion=False,
                  create_filledregion=False):
     revit_pat = \
-        _make_rvt_pattern(pat_name, pat_lines, domain, fillgrids, scale,
-                          model_pattern, allow_expansion)
+        _make_rvt_pattern(
+            pat_name,
+            pat_lines,
+            domain,
+            fillgrids=fillgrids,
+            scale=scale,
+            rotation=rotation,
+            flip_u=flip_u,
+            flip_v=flip_v,
+            model_pattern=model_pattern,
+            allow_expansion=allow_expansion
+            )
     return _create_fill_pattern(revit_pat, create_filledregion)
 
 
@@ -713,6 +799,13 @@ def export_pattern(export_dir, pat_name, pat_lines, domain,
                    fillgrids=None, scale=12.0,
                    model_pattern=True, allow_expansion=False):
     revit_pat = \
-        _make_rvt_pattern(pat_name, pat_lines, domain, fillgrids, scale,
-                          model_pattern, allow_expansion)
+        _make_rvt_pattern(
+            pat_name,
+            pat_lines,
+            domain,
+            fillgrids=fillgrids,
+            scale=scale,
+            model_pattern=model_pattern,
+            allow_expansion=allow_expansion
+            )
     return _export_pat(revit_pat, export_dir)
