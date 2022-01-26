@@ -1,13 +1,15 @@
-# coding=utf-8
-#pylint: disable=E0401,W0613,C0103,C0111
-import sys
+# -*- coding: utf-8 -*-
+
 from pyrevit.framework import List
 from pyrevit import revit, DB
 from pyrevit import script
-from pyrevit import forms
 
+import os.path as op
+from pyrevit.framework import Controls
+from System.Windows.Forms import MessageBox
 
-logger = script.get_logger()
+doc = __revit__.ActiveUIDocument.Document
+app = __revit__.Application
 
 
 class CopyUseDestination(DB.IDuplicateTypeNamesHandler):
@@ -15,85 +17,200 @@ class CopyUseDestination(DB.IDuplicateTypeNamesHandler):
         return DB.DuplicateTypeAction.UseDestinationTypes
 
 
+def error(msg):
+    forms.alert(msg)
+    script.exit()
+
+
+from pyrevit import forms
+
+
+class doc_Option(object):
+    def __init__(self, obj, state=False):
+        self.state = state
+        self.doc = obj
+        self.name = obj.Title
+        self.Title = obj.Title
+
+    def __nonzero__(self):
+        return self.state
+
+    def __str__(self):
+        return self.name
+
+
+class SelectLevelFrom(forms.TemplateUserInputWindow):
+    xaml_source = op.join(op.dirname(__file__), 'SelectFromCheckboxes.xaml')
+
+    def _setup(self, **kwargs):
+        self.checked_only = kwargs.get('checked_only', True)
+        button_name = kwargs.get('button_name', None)
+        if button_name:
+            self.select_b.Content = button_name
+
+        self.list_lb.SelectionMode = Controls.SelectionMode.Extended
+        self.count_projects = kwargs.get('n_projects', 1)
+        self.Height = 550
+        if self.count_projects:
+            self.Height = 250 + 30 * self.count_projects
+
+        self._verify_context()
+        self._list_options()
+
+    def _verify_context(self):
+        new_context = []
+        for item in self._context:
+            if not hasattr(item, 'state'):
+                new_context.append(BaseCheckBoxItem(item))
+            else:
+                new_context.append(item)
+
+        self._context = new_context
+
+    def _list_options(self, checkbox_filter=None):
+        if checkbox_filter:
+            self.checkall_b.Content = 'Check'
+            self.uncheckall_b.Content = 'Uncheck'
+            self.toggleall_b.Content = 'Toggle'
+            checkbox_filter = checkbox_filter.lower()
+            self.list_lb.ItemsSource = \
+                [checkbox for checkbox in self._context
+                 if checkbox_filter in checkbox.name.lower()]
+        else:
+            self.checkall_b.Content = 'Выделить все'
+            self.uncheckall_b.Content = 'Сбросить выделение'
+            self.toggleall_b.Content = 'Инвертировать'
+            self.list_lb.ItemsSource = self._context
+
+    def _set_states(self, state=True, flip=False, selected=False):
+        all_items = self.list_lb.ItemsSource
+        if selected:
+            current_list = self.list_lb.SelectedItems
+        else:
+            current_list = self.list_lb.ItemsSource
+        for checkbox in current_list:
+            if flip:
+                checkbox.state = not checkbox.state
+            else:
+                checkbox.state = state
+
+        # push list view to redraw
+        self.list_lb.ItemsSource = None
+        self.list_lb.ItemsSource = all_items
+
+    def toggle_all(self, sender, args):
+        """Handle toggle all button to toggle state of all check boxes."""
+        self._set_states(flip=True)
+
+    def check_all(self, sender, args):
+        """Handle check all button to mark all check boxes as checked."""
+        self._set_states(state=True)
+
+    def uncheck_all(self, sender, args):
+        """Handle uncheck all button to mark all check boxes as un-checked."""
+        self._set_states(state=False)
+
+    def check_selected(self, sender, args):
+        """Mark selected checkboxes as checked."""
+        self._set_states(state=True, selected=True)
+
+    def uncheck_selected(self, sender, args):
+        """Mark selected checkboxes as unchecked."""
+        self._set_states(state=False, selected=True)
+
+    def button_select(self, sender, args):
+        """Handle select button click."""
+        if self.checked_only:
+            self.response = [x for x in self._context if x.state]
+        else:
+            self.response = self._context
+        self.response = {'docs': self.response}
+        self.Close()
+
+
 # find open documents other than the active doc
-open_docs = forms.select_open_docs(title='Выберите целевые документы')
-if not open_docs:
-    sys.exit(0)
+open_docs = [d for d in revit.docs if not d.IsLinked]
+open_docs.remove(revit.doc)
+if len(open_docs) < 1:
+    error('Открыт всего один проект. '
+          'Должно быть открыто два проекта.')
 
 # get a list of selected legends
-legends = forms.select_views(
-    title='Выберите чертежные виды',
-    filterfunc=lambda x: x.ViewType == DB.ViewType.Legend,
-    use_selection=False)
+selection = [x for x in revit.get_selection()
+             if x.ViewType == DB.ViewType.Legend]
 
-if legends:
-    for dest_doc in open_docs:
-        # get all views and collect names
-        all_graphviews = revit.query.get_all_views(doc=dest_doc)
-        all_legend_names = [revit.query.get_name(x)
-                            for x in all_graphviews
-                            if x.ViewType == DB.ViewType.Legend]
-
-        print('Обработка документа: {0}'.format(dest_doc.Title))
+if len(selection) > 0:
+    o_docs = [doc_Option(doc) for doc in open_docs]
+    res = SelectLevelFrom.show(o_docs, title='Выберите проекты', button_name='Копировать легенды',
+                               n_projects=len(o_docs))
+    if res:
+        docs_2_process = [doc for doc in res['docs'] if doc.state]
+    else:
+        script.exit()
+    for dest_doc in docs_2_process:
+        legends_poject = []
         # finding first available legend view
-        base_legend = revit.query.find_first_legend(doc=dest_doc)
-        if not base_legend:
-            forms.alert('В целевом документе должна быть хотя бы одна легенда.',
-                        exitscript=True)
+        base_legend_view = None
 
+        for v in DB.FilteredElementCollector(dest_doc.doc).OfClass(DB.View):
+            if v.ViewType == DB.ViewType.Legend:
+                legends_poject.append(v.Name)
+                base_legend_view = v
+
+        if base_legend_view is None:
+            error('В проекте "{0}" должна быть как минимум одна легенда.'
+                  .format(dest_doc.Title))
         # iterate over interfacetypes legend views
-        for src_legend in legends:
-            print('\tКопирование: {0}'.format(revit.query.get_name(src_legend)))
+        for srcView in selection:
             # get legend view elements and exclude non-copyable elements
-            view_elements = \
-                DB.FilteredElementCollector(revit.doc, src_legend.Id)\
-                  .ToElements()
+            viewElements = \
+                DB.FilteredElementCollector(revit.doc, srcView.Id) \
+                    .ToElements()
 
-            elements_to_copy = []
-            for el in view_elements:
+            element_list = []
+            for el in viewElements:
                 if isinstance(el, DB.Element) and el.Category:
-                    elements_to_copy.append(el.Id)
-                else:
-                    logger.debug('Skipping element: %s', el.Id)
-            if not elements_to_copy:
-                logger.debug('Skipping empty view: %s',
-                             revit.query.get_name(src_legend))
+                    element_list.append(el.Id)
+
+            if len(element_list) < 1:
+                print('Проверка содержимого {0}. Элементы в легенде не найдены.'
+                      .format(srcView.Title))
                 continue
 
             # start creating views and copying elements
-            with revit.Transaction('Копирование легенд',
-                                   doc=dest_doc):
-                dest_view = dest_doc.GetElement(
-                    base_legend.Duplicate(
+            with revit.Transaction('Copy Legends to this document',
+                                   doc=dest_doc.doc):
+                destView = dest_doc.doc.GetElement(
+                    base_legend_view.Duplicate(
                         DB.ViewDuplicateOption.Duplicate
-                        )
                     )
+                )
 
                 options = DB.CopyPasteOptions()
                 options.SetDuplicateTypeNamesHandler(CopyUseDestination())
-                copied_elements = \
+                copied_element = \
                     DB.ElementTransformUtils.CopyElements(
-                        src_legend,
-                        List[DB.ElementId](elements_to_copy),
-                        dest_view,
+                        srcView,
+                        List[DB.ElementId](element_list),
+                        destView,
                         None,
                         options)
 
                 # matching element graphics overrides and view properties
-                for dest, src in zip(copied_elements, elements_to_copy):
-                    dest_view.SetElementOverrides(
+                for dest, src in zip(copied_element, element_list):
+                    destView.SetElementOverrides(
                         dest,
-                        src_legend.GetElementOverrides(src)
-                        )
+                        srcView.GetElementOverrides(src)
+                    )
+                if srcView.Name not in legends_poject:
+                    destView.Name = srcView.Name
+                    legends_poject.append(destView.Name)
+                else:
+                    index = 1
+                    while '{}-{}'.format(srcView.Name, index) in legends_poject:
+                        index += 1
+                    destView.Name = '{}-{}'.format(srcView.Name, index)
+                    legends_poject.append(destView.Name)
+                destView.Scale = srcView.Scale
 
-                # matching view name and scale
-                src_name = revit.query.get_name(src_legend)
-                count = 0
-                new_name = src_name
-                while new_name in all_legend_names:
-                    count += 1
-                    new_name = src_name + ' (Копия %s)' % count
-                    logger.warning(
-                        'Легенда уже существует. Переименование в: "%s"', new_name)
-                revit.update.set_name(dest_view, new_name)
-                dest_view.Scale = src_legend.Scale
+    forms.alert("Готово!")
