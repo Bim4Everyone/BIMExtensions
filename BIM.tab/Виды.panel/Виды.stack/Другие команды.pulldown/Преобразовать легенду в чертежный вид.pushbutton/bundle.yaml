@@ -5,3 +5,5 @@ title:
 tooltip:
   ru: Преобразовывает выбранные в диспетчере проекта чертежные виды в легенды.
   en_us: Converts drawing views selected in the Project Browser to legends.
+
+context: views
