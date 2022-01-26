@@ -111,7 +111,7 @@ class CreateLegendCommand(ICommand):
             return False
 
         if not self.__is_int(self.__view_model.legend_scale):
-            self.__view_model.error_text = "Масштаб легенды должен быть целочисленным числом."
+            self.__view_model.error_text = "Масштаб легенды должен быть целым числом."
             return False
 
         if float(self.__view_model.legend_scale) <= 0:
