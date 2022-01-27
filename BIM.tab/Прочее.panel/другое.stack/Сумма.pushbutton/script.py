@@ -58,25 +58,25 @@ def calc_param_total(element_list, param_name):
 
 
 def format_length(total):
-    return '{} фут\n' \
-           '{} метр\n' \
-           '{} сантиметр'.format(total,
+    return '{} футов\n' \
+           '{} метров\n' \
+           '{} сантиметров'.format(total,
                                    total/3.28084,
                                    (total/3.28084)*100)
 
 
 def format_area(total):
-    return '{} квадратный фут\n' \
-           '{} квадратный метр\n' \
-           '{} квадратный сантиметр'.format(total,
+    return '{} квадратных футов\n' \
+           '{} квадратных метров\n' \
+           '{} квадратных сантиметров'.format(total,
                                           total/10.7639,
                                           (total/10.7639)*10000)
 
 
 def format_volume(total):
-    return '{} кубический фут\n' \
-           '{} кубический метр\n' \
-           '{} кубический сантиметр'.format(total,
+    return '{} кубических футов\n' \
+           '{} кубических метров\n' \
+           '{} кубических сантиметров'.format(total,
                                          total/35.3147,
                                          (total/35.3147)*1000000)
 
@@ -89,7 +89,7 @@ formatter_funcs = {DB.ParameterType.Length: format_length,
 def output_param_total(element_list, param_def):
     total_value = calc_param_total(element_list, param_def.name)
 
-    print('Итого {}:\n\n'.format(param_def.name))
+    print('Итого параметр \"{}\":\n\n'.format(param_def.name))
     if param_def.type in formatter_funcs.keys():
         outputstr = formatter_funcs[param_def.type](total_value)
     else:
@@ -146,7 +146,7 @@ def process_sets(element_list):
     el_sets = pyutils.DefaultOrderedDict(list)
 
     # add all elements as first set, for totals of all elements
-    el_sets['All Selected Elements'].extend(element_list)
+    el_sets['Все выделенные элементы'].extend(element_list)
 
     # separate elements into sets based on their type
     for el in element_list:
@@ -178,6 +178,6 @@ if options:
                 type_name = coreutils.escape_for_html(type_name)
                 output.print_md('### Итого: {}'.format(type_name))
                 output_param_total(element_set, selected_option)
-                output.print_md('#### Анализ:')
+                output.print_md('#### Список значений:')
                 output_breakdown(element_set, selected_option)
                 output.insert_divider(level='##')
