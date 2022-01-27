@@ -14,3 +14,4 @@ assembly: RevitServerFolders.dll
 command_class: ExportRvtFileCommand
 
 author: dosymep
+context: zero-doc

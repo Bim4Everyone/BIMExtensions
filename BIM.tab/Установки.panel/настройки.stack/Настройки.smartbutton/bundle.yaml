@@ -5,5 +5,6 @@ title:
 tooltip:
   ru: Открывает окно настроек платформы.
   en_us: Opens the platform settings window.
-  
+
 author: dosymep
+context: zero-doc

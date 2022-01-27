@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+# coding=utf-8
 from collections import namedtuple
 
 from pyrevit import revit, DB
@@ -7,12 +7,6 @@ from pyrevit import forms
 from pyrevit import script
 from pyrevit import coreutils
 from pyrevit.coreutils import pyutils
-
-
-__context__ = 'selection'
-__doc__ = 'Выберите элементы сумму параметров которых нужно найти. Нажмите эту кнопку и выберите параметр для суммирования.'
-
-__title__ = '.'
 
 
 selection = revit.get_selection()
@@ -33,7 +27,7 @@ def is_calculable_param(param):
             return True
 
     return False
-    
+
 
 def calc_param_total(element_list, param_name):
     sum_total = 0.0
@@ -64,21 +58,27 @@ def calc_param_total(element_list, param_name):
 
 
 def format_length(total):
-    print('{} м\n'
-          '{} см'.format(total/3.28084,
-                                  (total/3.28084)*100))
+    return '{} фут\n' \
+           '{} метр\n' \
+           '{} сантиметр'.format(total,
+                                   total/3.28084,
+                                   (total/3.28084)*100)
 
 
 def format_area(total):
-    print('{} м²\n'
-          '{} см²'.format(total/10.7639,
-                                         (total/10.7639)*10000))
+    return '{} квадратный фут\n' \
+           '{} квадратный метр\n' \
+           '{} квадратный сантиметр'.format(total,
+                                          total/10.7639,
+                                          (total/10.7639)*10000)
 
 
 def format_volume(total):
-    print('{} м³\n'
-          '{} см³'.format(total/35.3147,
-                                        (total/35.3147)*1000000))
+    return '{} кубический фут\n' \
+           '{} кубический метр\n' \
+           '{} кубический сантиметр'.format(total,
+                                         total/35.3147,
+                                         (total/35.3147)*1000000)
 
 
 formatter_funcs = {DB.ParameterType.Length: format_length,
@@ -89,7 +89,7 @@ formatter_funcs = {DB.ParameterType.Length: format_length,
 def output_param_total(element_list, param_def):
     total_value = calc_param_total(element_list, param_def.name)
 
-    print('Значение по параметру: {}\n\n'.format(param_def.name))
+    print('Итого {}:\n\n'.format(param_def.name))
     if param_def.type in formatter_funcs.keys():
         outputstr = formatter_funcs[param_def.type](total_value)
     else:
@@ -141,28 +141,21 @@ def process_options(element_list):
         return {'{} <{}>'.format(x.name, x.type): x
                 for x in all_shared_params}
 
-  
+
 def process_sets(element_list):
     el_sets = pyutils.DefaultOrderedDict(list)
 
     # add all elements as first set, for totals of all elements
-    el_sets['Все выбранные элементы'].extend(element_list)
+    el_sets['All Selected Elements'].extend(element_list)
 
     # separate elements into sets based on their type
     for el in element_list:
-        #print el
         if hasattr(el, 'LineStyle'):
             el_sets[el.LineStyle.Name].append(el)
-        elif isinstance(el, DB.Architecture.Room):
-            #print el
-            el_sets['Помещения'].append(el)
-
         else:
             eltype = revit.doc.GetElement(el.GetTypeId())
-            #print eltype
-            
-            wrapped_eltype = revit.ElementWrapper(eltype)
-            el_sets[wrapped_eltype.name].append(el)
+            if eltype:
+                el_sets[revit.query.get_name(eltype)].append(el)
 
     return el_sets
 
@@ -174,7 +167,7 @@ options = process_options(selection.elements)
 if options:
     selected_switch = \
         forms.CommandSwitchWindow.show(sorted(options),
-                                       message='Введите параметр для суммирования:')
+                                       message='Значения параметра:')
 
     # Calculating totals for each set and printing results
     if selected_switch:
@@ -182,10 +175,9 @@ if options:
         if selected_option:
             for type_name, element_set \
                     in process_sets(selection.elements).items():
-                type_name = type_name.replace('<', '&lt;').replace('>', '&gt;')
-                output.print_md('### Итого для: {}'.format(type_name))
+                type_name = coreutils.escape_for_html(type_name)
+                output.print_md('### Итого: {}'.format(type_name))
                 output_param_total(element_set, selected_option)
-                output.insert_divider()
-                #output.print_md('#### Breakdown:')
-                #output_breakdown(element_set, selected_option)
-                #output.insert_divider(level='##')  
+                output.print_md('#### Анализ:')
+                output_breakdown(element_set, selected_option)
+                output.insert_divider(level='##')

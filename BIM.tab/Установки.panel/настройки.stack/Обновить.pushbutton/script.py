@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-"""Reload pyRevit into new session."""
 
 from pyrevit import EXEC_PARAMS
 from pyrevit import script
@@ -7,11 +6,7 @@ from pyrevit import forms
 from pyrevit.loader import sessionmgr
 from pyrevit.loader import sessioninfo
 
-__title__ = "."
 __cleanengine__ = True
-__doc__ = 'Searches the script folders and create buttons ' \
-          'for the new script or newly installed extensions.'
-
 
 res = True
 if EXEC_PARAMS.executed_from_ui:

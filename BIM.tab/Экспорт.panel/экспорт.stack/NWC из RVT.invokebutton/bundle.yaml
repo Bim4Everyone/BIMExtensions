@@ -10,3 +10,4 @@ assembly: RevitServerFolders.dll
 command_class: ExportNwcFileCommand
 
 author: dosymep
+context: zero-doc
