@@ -1,4 +1,5 @@
-#pylint: disable=C0111,E0401,C0103,W0201,W0613
+# coding=utf-8
+# pylint: disable=C0111,E0401,C0103,W0201,W0613
 import re
 import math
 
@@ -10,11 +11,9 @@ from pyrevit import script
 
 import patmaker
 
-
 logger = script.get_logger()
 
 selection = revit.get_selection()
-
 
 acceptable_lines = (DB.DetailLine,
                     DB.DetailArc,
@@ -34,7 +33,6 @@ detail_line_types = [DB.DetailLine,
                      DB.DetailArc,
                      DB.DetailNurbSpline]
 
-
 if HOST_APP.is_newer_than(2021):
     metric_units = [DB.UnitTypeId.Meters,
                     DB.UnitTypeId.Centimeters,
@@ -46,7 +44,6 @@ else:
 
 # type in lower case
 readonly_patterns = ['solid fill']
-
 
 PICK_COORD_RESOLUTION = 16
 
@@ -63,7 +60,7 @@ class MakePatternWindow(forms.WPFWindow):
             self.resolver_ops.IsEnabled = False
             self.create_b.IsEnabled = False
             self._export_only = True
-            self.prompt_lb.Content = "Select Pattern to Export"
+            self.prompt_lb.Content = "Выберите штриховку для экспорта"
 
         self.setup_patnames()
         self.setup_export_units()
@@ -173,7 +170,7 @@ class MakePatternWindow(forms.WPFWindow):
                         revit.query.get_fillpattern_from_element(
                             element,
                             background=False
-                            )
+                        )
                 # process both forground and background patterns
                 for fillpat in [bg_fillpat, fg_fillpat]:
                     # if available
@@ -192,9 +189,9 @@ class MakePatternWindow(forms.WPFWindow):
         return geom_curves, adjusted_fillgrids
 
     def setup_patnames(self):
-        existing_pats = DB.FilteredElementCollector(revit.doc)\
-                          .OfClass(DB.FillPatternElement)\
-                          .ToElements()
+        existing_pats = DB.FilteredElementCollector(revit.doc) \
+            .OfClass(DB.FillPatternElement) \
+            .ToElements()
 
         fillpats = [x.GetFillPattern() for x in existing_pats]
         self._existing_modelpats = \
@@ -245,8 +242,8 @@ class MakePatternWindow(forms.WPFWindow):
 
     def pick_domain(self):
         # ask user for origin and max domain points
-        with forms.WarningBar(title='Pick origin point (bottom-left '
-                                    'corner of the pattern area):'):
+        with forms.WarningBar(title='Выберите нижний левый '
+                                    'угол области штриховки:'):
             view = revit.active_view
             if not view.SketchPlane \
                     and not isinstance(view, DB.ViewDrafting):
@@ -258,8 +255,8 @@ class MakePatternWindow(forms.WPFWindow):
                     view.SketchPlane = pick_plane
             pat_bottomleft = revit.pick_point()
         if pat_bottomleft:
-            with forms.WarningBar(title='Pick top-right corner '
-                                        'of the pattern area:'):
+            with forms.WarningBar(title='Выберите верхний правый '
+                                        'угол области штриховки:'):
                 pat_topright = revit.pick_point()
             if pat_topright:
                 return self.make_pattern_line(pat_bottomleft, pat_topright)
@@ -302,9 +299,9 @@ class MakePatternWindow(forms.WPFWindow):
 
     def export_pattern(self, export_dir):
         patname = self.pat_name_cb.SelectedItem
-        existing_pats = DB.FilteredElementCollector(revit.doc)\
-                          .OfClass(DB.FillPatternElement)\
-                          .ToElements()
+        existing_pats = DB.FilteredElementCollector(revit.doc) \
+            .OfClass(DB.FillPatternElement) \
+            .ToElements()
 
         fillpats = [x.GetFillPattern() for x in existing_pats]
         target_type = \
@@ -320,7 +317,7 @@ class MakePatternWindow(forms.WPFWindow):
                     fillgrids=fillpat.GetFillGrids(),
                     scale=self.export_scale,
                     model_pattern=self.is_model_pat)
-                forms.alert('Pattern {} exported.'.format(patname))
+                forms.alert('Штриховка {} экспортирована.'.format(patname))
 
     def create_pattern(self, domain, export_only=False, export_path=None):
         # cleanup selection (pick only acceptable curves)
@@ -339,17 +336,17 @@ class MakePatternWindow(forms.WPFWindow):
                 line_tuples.append(
                     self.make_pattern_line(geom_curve.GetEndPoint(0),
                                            geom_curve.GetEndPoint(1))
-                    )
+                )
 
         call_params = 'Name:{} Model:{} FilledRegion:{} Domain:{}\n' \
-                      'Lines:{}\n'\
-                      'FillGrids:{}'\
-                      .format(self.pat_name,
-                              self.is_model_pat,
-                              self.create_filledregion,
-                              domain,
-                              line_tuples,
-                              self.selected_fillgrids)
+                      'Lines:{}\n' \
+                      'FillGrids:{}' \
+            .format(self.pat_name,
+                    self.is_model_pat,
+                    self.create_filledregion,
+                    domain,
+                    line_tuples,
+                    self.selected_fillgrids)
 
         logger.debug(call_params)
 
@@ -362,8 +359,8 @@ class MakePatternWindow(forms.WPFWindow):
                 scale=self.pat_scale * self.export_scale,
                 model_pattern=self.is_model_pat,
                 allow_expansion=self.highestres_cb.IsChecked
-                )
-            forms.alert('Pattern {} exported.'.format(self.pat_name))
+            )
+            forms.alert('Штриховка {} экспортирована.'.format(self.pat_name))
         else:
             patmaker.make_pattern(self.pat_name,
                                   line_tuples, domain,
@@ -375,18 +372,18 @@ class MakePatternWindow(forms.WPFWindow):
                                   model_pattern=self.is_model_pat,
                                   allow_expansion=self.highestres_cb.IsChecked,
                                   create_filledregion=self.create_filledregion)
-            forms.alert('Pattern {} created/updated.'.format(self.pat_name))
+            forms.alert('Штриховка {} создана/обновлена.'.format(self.pat_name))
 
     def verify_name(self):
         if not self.pat_name:
-            forms.alert('Type a name for the pattern first')
+            forms.alert('Сначала введите имя штриховки')
             return False
         elif not re.search('[a-zA-Z0-9]', self.pat_name):
-            forms.alert('Pattern name must have at least '
-                        'one character or digit')
+            forms.alert('Имя штриховки должно содержать '
+                        'хотя бы один символ или цифру')
             return False
         elif self.pat_name.lower() in readonly_patterns:
-            forms.alert('Read-Only pattern with name "{}" already exists '
+            forms.alert('Штриховка "{}" с таким именем уже существует'
                         .format(self.pat_name))
             return False
         return True

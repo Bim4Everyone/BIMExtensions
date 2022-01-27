@@ -1,3 +1,4 @@
+# coding=utf-8
 """Create patterns based on AutoCAD .pat standard."""
 #pylint: disable=import-error,invalid-name
 import os.path as op
@@ -150,7 +151,7 @@ class _PatternLine:
 
         div = det(xdiff, ydiff)
         if div == 0:
-            raise PyRevitException('Lines do not intersect.')
+            raise PyRevitException('Линии не пересекаются.')
 
         d = _PatternPoint(det(self.start_point, self.end_point),
                           det(pat_line.start_point, pat_line.end_point))
@@ -295,7 +296,7 @@ class _PatternDomain:
         self._normalized_domain = \
             _PatternPoint(1.0, 1.0 * (self._bounds.v / self._bounds.u))
         if self._zero_domain():
-            raise PyRevitException('Can not process zero domain.')
+            raise PyRevitException('Не удается обработать нулевой домен.')
 
         self.u_vec = _PatternLine(_PatternPoint(0, 0),
                                   _PatternPoint(self._bounds.u, 0))
@@ -385,8 +386,8 @@ class _PatternDomain:
                         self.safe_angles.append(angle2)
                         processed_ratios.add(ratio)
                     else:
-                        logger.warning('Skipping safe angle '
-                                       'for grid point U:{} V:{}'
+                        logger.warning('Пропуск безопасного угла '
+                                       'для точки сетки U:{} V:{}'
                                        .format(u_mult, v_mult))
                 v_mult += 1
             u_mult += 1
