@@ -9,7 +9,7 @@ title:
     file links
 
 tooltip:
-  ru: Выгружает из проекта все связанные файлы Revit.
-  en_us: Unloads all associated Revit files from the project.
+  ru: Выгружает связи из выбранного файла Revit.
+  en_us: Unloads links from the selected Revit file.
 
 author: dosymep
