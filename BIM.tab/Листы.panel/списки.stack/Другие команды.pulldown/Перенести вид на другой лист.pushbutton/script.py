@@ -137,13 +137,11 @@ class PrintSheetsWindow(forms.WPFWindow):
         """Handle select button click."""
         try:
             sheets = [x for x in self.sheet_list if x.state]
-            if len(sheets) > 0:
-                self.response = {
-                    'sheets': sheets}
+            if len(sheets) == 1:
+                self.response = {'sheets': sheets}
                 self.Close()
             else:
-                forms.alert('Вы должны выбрать хотя бы один лист для добавления '
-                            'выбранные виды.')
+                forms.alert('Вы должны выбрать один лист для переноса выбранных видов.')
         except:
             script.exit()
 
@@ -160,50 +158,56 @@ def getSheets():
     for album in sheet_albums:
         ll = sorted(grouped_sheets[album], key=lambda x: sort_fun(x.Number))
         for z in ll:
-            sorted_sheets.append(z)
+            if z.Id != revit.active_view.Id:
+                sorted_sheets.append(z)
 
     view = CollectionViewSource.GetDefaultView(sorted_sheets)
-    groupDescription = PropertyGroupDescription('sheet_album')
-    view.GroupDescriptions.Add(groupDescription)
+    group_description = PropertyGroupDescription('sheet_album')
+    view.GroupDescriptions.Add(group_description)
     window = PrintSheetsWindow('SelectsLists.xaml', list=view)
 
     window.ShowDialog()
     if hasattr(window, 'response'):
         res = window.response
         sheets = window.response
-        selSheets = sheets['sheets']
-        return selSheets
+        sel_sheets = sheets['sheets']
+        return sel_sheets
 
 
-selViewports = []
+cur_sheet = revit.active_view
+if not isinstance(cur_sheet, DB.ViewSheet):
+    forms.alert('Откройте лист, с которого надо перенести виды.', exitscript=True)
 
-cursheet = revit.active_view
-if not isinstance(cursheet, DB.ViewSheet):
-    forms.alert('Откройте лист, с которого надо перенести виды.')
+sel_viewports = revit.pick_elements()
+if not sel_viewports:
+    forms.alert('Не были выбраны виды для переноса.', exitscript=True)
+
+sel_viewports = [view_ports for view_ports in sel_viewports if
+                 isinstance(view_ports, DB.Viewport) or isinstance(view_ports, DB.ScheduleSheetInstance)]
+if not sel_viewports:
+    forms.alert('Не были выбраны виды для переноса.', exitscript=True)
+
+dest_sheet = getSheets()
+if not dest_sheet:
     script.exit()
-sel = revit.pick_elements()
-if sel:
-    for el in sel:
-        selViewports.append(el)
 
-if len(selViewports) > 0:
-    dest_sheet = getSheets()
-    for sh in dest_sheet:
-        with revit.Transaction('Move Viewports'):
-            for vp in selViewports:
-                if isinstance(vp, DB.Viewport):
-                    viewId = vp.ViewId
-                    vpCenter = vp.GetBoxCenter()
-                    vpTypeId = vp.GetTypeId()
-                    cursheet.DeleteViewport(vp)
-                    nvp = DB.Viewport.Create(revit.doc,
-                                             sh.Id,
-                                             viewId,
-                                             vpCenter)
-                    nvp.ChangeTypeId(vpTypeId)
-                elif isinstance(vp, DB.ScheduleSheetInstance):
-                    nvp = \
-                        DB.ScheduleSheetInstance.Create(
-                            revit.doc, sh.Id, vp.ScheduleId, vp.Point
-                        )
-                    revit.doc.Delete(vp.Id)
+with revit.Transaction('BIM: Перенос видов'):
+    for sheet in dest_sheet:
+        for view_port in sel_viewports:
+            if isinstance(view_port, DB.Viewport):
+                view_id = view_port.ViewId
+                vp_center = view_port.GetBoxCenter()
+                vp_type_id = view_port.GetTypeId()
+
+                cur_sheet.DeleteViewport(view_port)
+                nvp = DB.Viewport.Create(revit.doc,
+                                         sheet.Id,
+                                         view_id,
+                                         vp_center)
+                nvp.ChangeTypeId(vp_type_id)
+            elif isinstance(view_port, DB.ScheduleSheetInstance):
+                nvp = \
+                    DB.ScheduleSheetInstance.Create(
+                        revit.doc, sheet.Id, view_port.ScheduleId, view_port.Point
+                    )
+                revit.doc.Delete(view_port.Id)
