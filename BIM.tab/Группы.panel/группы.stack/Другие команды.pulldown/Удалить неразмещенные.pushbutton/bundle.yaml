@@ -6,5 +6,4 @@ tooltip:
   ru: Удаляет из проекта группы, которые нигде не размещены.
   en_us: Removes groups from the project that are not placed anywhere.
 
-context: selection
 author: dosymep
