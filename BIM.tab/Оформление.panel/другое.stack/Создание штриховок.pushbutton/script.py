@@ -378,10 +378,6 @@ class MakePatternWindow(forms.WPFWindow):
         if not self.pat_name:
             forms.alert('Сначала введите имя штриховки')
             return False
-        elif not re.search('[a-zA-Z0-9]', self.pat_name):
-            forms.alert('Имя штриховки должно содержать '
-                        'хотя бы один символ или цифру')
-            return False
         elif self.pat_name.lower() in readonly_patterns:
             forms.alert('Штриховка "{}" с таким именем уже существует'
                         .format(self.pat_name))
