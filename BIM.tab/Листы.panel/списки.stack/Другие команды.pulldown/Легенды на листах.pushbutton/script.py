@@ -169,13 +169,11 @@ class PrintSheetsWindow(forms.WPFWindow):
 
 cursheet = revit.active_view
 if not isinstance(cursheet, DB.ViewSheet):
-	forms.alert('Откройте лист, с которого надо перенести легенды.')
-	script.exit()
+	forms.alert('Откройте лист, с которого надо перенести легенды.', exitscript=True)
 
 selected_vps = revit.pick_elements()
 if not selected_vps:
-	forms.alert('Хотя бы одна легенда должна быть выбрана.')
-	script.exit()
+	forms.alert('Хотя бы одна легенда должна быть выбрана.', exitscript=True)
 
 
 allSheetedSchedules = DB.FilteredElementCollector(revit.doc)\
