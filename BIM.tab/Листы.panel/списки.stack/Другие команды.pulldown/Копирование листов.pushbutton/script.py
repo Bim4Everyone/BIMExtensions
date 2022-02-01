@@ -16,27 +16,19 @@ clr.AddReference("System.Windows.Forms")
 clr.AddReference("dosymep.Revit.dll")
 clr.AddReference("dosymep.Bim4Everyone.dll")
 
-from System.IO import FileInfo
-from System.Windows.Forms import MessageBox, SaveFileDialog, DialogResult
 from System.Collections.Generic import List
-from Autodesk.Revit.DB import DetailNurbSpline, CurveElement, ElementTransformUtils, \
-    DetailLine, View, ViewDuplicateOption, XYZ, LocationPoint, \
-    TransactionGroup, Transaction, FilteredElementCollector, \
-    ElementId, BuiltInCategory, FamilyInstance, ViewDuplicateOption, \
-    ViewSheet, FamilySymbol, Viewport, DetailEllipse, DetailArc, TextNote, \
-    ScheduleSheetInstance
-from Autodesk.Revit.Creation import ItemFactoryBase
-from Autodesk.Revit.UI.Selection import PickBoxStyle
-from Autodesk.Revit.UI import RevitCommandId, PostableCommand
-from pyrevit import script
+from Autodesk.Revit.DB import *
 
 import re
 from System.Windows.Data import CollectionViewSource, PropertyGroupDescription
 from System.Windows.Media import VisualTreeHelper
 
 import dosymep.Revit
+
 clr.ImportExtensions(dosymep.Revit)
 clr.ImportExtensions(dosymep.Bim4Everyone)
+
+from pyrevit import revit
 
 from dosymep.Bim4Everyone.Templates import ProjectParameters
 from dosymep.Bim4Everyone.SharedParams import SharedParamsConfig
@@ -48,12 +40,11 @@ app = __revit__.Application
 view = __revit__.ActiveUIDocument.ActiveGraphicalView
 view = doc.ActiveView
 
-__title__ = 'Копирование листов'
-__doc__ = '''
-Копирует листы вместе с видами, размещенными на листах.
+project_params = ProjectParameters.Create(app)
+project_params.SetupRevitParams(doc,
+                                ProjectParamsConfig.Instance.ViewGroup,
+                                SharedParamsConfig.Instance.AlbumBlueprints)
 
-Запустите скрипт, выберите в окне нужные листы и нажмите «Копировать».
-'''
 
 def sort_fun(str):
     num = [int(x) for x in re.findall(r'\d+', str)]
@@ -77,8 +68,9 @@ def GroupByParameter(lst, func):
 def list_albums(lists):
     albums = []
     for li in lists:
-        if not li in albums:
+        if li not in albums:
             albums.append(li)
+
     return albums
 
 
@@ -87,7 +79,7 @@ class SheetOption(object):
         self.state = state
         self.name = "{} - {}".format(obj.SheetNumber, obj.Name)
         self.Number = obj.SheetNumber
-        self.speech_album = obj.GetParamValueOrDefault(SharedParamsConfig.Instance.AlbumBlueprints)
+        self.sheet_album = obj.GetParamValueOrDefault(SharedParamsConfig.Instance.AlbumBlueprints)
 
         self.obj = obj
 
@@ -116,7 +108,7 @@ class SelectLists(forms.WPFWindow):
 
         for i in kwargs['views']:
             self.purpose.AddText(i)
-        for i in kwargs['speech_albums']:
+        for i in kwargs['sheet_albums']:
             self.sp_albums.AddText(i)
         # self._verify_context()
         self._list_options()
@@ -243,14 +235,14 @@ class SelectLists(forms.WPFWindow):
             purpose = ""
 
         if self.sp_albums.Text:
-            speech_album = self.sp_albums.Text
+            sheet_album = self.sp_albums.Text
         else:
-            speech_album = ""
+            sheet_album = ""
         self.response = {"copyViews": copyViews,
                          "suffix": suffix,
                          "prefix": prefix,
                          "purpose": purpose,
-                         "speech_album": speech_album,
+                         "sheet_album": sheet_album,
                          "sheets": sheets}
         self.Close()
 
@@ -263,13 +255,13 @@ class ViewSheetDuplicater:
             .ToElements()
 
         views = self.GetViewPurposeList()
-        speech_albums = self.GetSpeechAlbumList()
+        sheet_albums = self.GetSheetAlbumList()
         window = SelectLists('SelectLists.xaml',
-                             title="Копировние Листов",
+                             title="Копирование Листов",
                              button_name="Копировать",
                              list=self.list_shts(),
                              views=views,
-                             speech_albums=speech_albums)
+                             sheet_albums=sheet_albums)
         window.ShowDialog()
 
         if hasattr(window, 'response'):
@@ -278,7 +270,7 @@ class ViewSheetDuplicater:
             self.prefix = res["prefix"]
             self.suffix = res["suffix"]
             self.copyViews = res["copyViews"]
-            self.speech_album = res["speech_album"]
+            self.sheet_album = res["sheet_album"]
             for item in res["sheets"]:
                 sheet = item.obj
                 sheetId = sheet.Id
@@ -296,98 +288,98 @@ class ViewSheetDuplicater:
 
         list_sheets = [SheetOption(sh) for sh in sheets]
         sorted_sheets = []
-        albums = [x.speech_album for x in list_sheets]
-        speech_albums = list_albums(albums)
-        grouped_sheets = GroupByParameter(list_sheets, func=lambda x: x.speech_album)
-        for album in speech_albums:
+        albums = [x.sheet_album for x in list_sheets]
+        sheet_albums = list_albums(albums)
+        grouped_sheets = GroupByParameter(list_sheets, func=lambda x: x.sheet_album)
+
+        for album in sheet_albums:
             ll = sorted(grouped_sheets[album], key=lambda x: sort_fun(x.Number))
             for z in ll:
                 sorted_sheets.append(z)
 
         view = CollectionViewSource.GetDefaultView(sorted_sheets)
-        groupDescription = PropertyGroupDescription('speech_album')
-        view.GroupDescriptions.Add(groupDescription)
+        group_description = PropertyGroupDescription('sheet_album')
+        view.GroupDescriptions.Add(group_description)
+
         return view
 
     def Duplicate(self, sheet, titleType, viewports, details, textNotes, scheduleSheets):
-        tg = TransactionGroup(doc, "Duplicateing Sheet")
-        tg.Start()
-        t = Transaction(doc, "Duplicateing Sheet")
-        t.Start()
+        with revit.Transaction("BIM: Копирование листов"):
+            duplicated_sheet = ViewSheet.Create(doc, titleType if titleType else ElementId.InvalidElementId)
+            duplicated_sheet.Name = sheet.Name
+            duplicated_sheet.SetParamValue(SharedParamsConfig.Instance.AlbumBlueprints, self.sheet_album)
+            if self.copyViews:
+                for viewport in viewports:
+                    viewport_type_id = viewport.GetTypeId()
+                    if Viewport.CanAddViewToSheet(self.doc,
+                                                  duplicated_sheet.Id,
+                                                  viewport.ViewId):
+                        duplicated_viewport = Viewport.Create(self.doc,
+                                                              duplicated_sheet.Id,
+                                                              viewport.ViewId,
+                                                              viewport.GetBoxCenter())
+                        duplicated_viewport.ChangeTypeId(viewport_type_id)
 
-        duplicatedSheet = ViewSheet.Create(doc, titleType if titleType else ElementId.InvalidElementId)
-        duplicatedSheet.Name = sheet.Name
-        duplicatedSheet.SetParamValue(SharedParamsConfig.Instance.AlbumBlueprints, self.speech_album)
-        if self.copyViews:
-            for viewport in viewports:
-                viewportTypeId = viewport.GetTypeId()
-                if Viewport.CanAddViewToSheet(self.doc,
-                                              duplicatedSheet.Id,
-                                              viewport.ViewId):
-                    duplicatedViewport = Viewport.Create(self.doc,
-                                                         duplicatedSheet.Id,
-                                                         viewport.ViewId,
-                                                         viewport.GetBoxCenter())
-                    duplicatedViewport.ChangeTypeId(viewportTypeId)
+                    else:
+                        original_view = doc.GetElement(viewport.ViewId)
+                        view_name = original_view.Name
+                        duplicated_view_id = original_view.Duplicate(ViewDuplicateOption.WithDetailing)
+                        duplicated_view = doc.GetElement(duplicated_view_id)
 
-                else:
-                    originalView = doc.GetElement(viewport.ViewId)
-                    viewName = originalView.Name
-                    duplicatedViewId = originalView.Duplicate(ViewDuplicateOption.WithDetailing)
-                    duplicatedView = doc.GetElement(duplicatedViewId)
+                        duplicated_view_name = []
+                        if self.prefix:
+                            duplicated_view_name.append(self.prefix)
 
-                    duplicatedViewName = []
-                    if self.prefix: duplicatedViewName.append(self.prefix)
-                    duplicatedViewName.append(viewName)
-                    if self.suffix: duplicatedViewName.append(self.suffix)
-                    duplicatedViewName = " ".join(duplicatedViewName)
+                        duplicated_view_name.append(view_name)
 
-                    if len(duplicatedViewName) > len(viewName):
-                        duplicatedView.Name
-                    try:
-                        duplicatedView.SetParamValue(ProjectParamsConfig.Instance.ViewGroup, self.purpose)
-                    except:
-                        duplicatedView.ViewTemplateId = ElementId(-1)
-                        duplicatedView.SetParamValue(ProjectParamsConfig.Instance.ViewGroup, self.purpose)
+                        if self.suffix:
+                            duplicated_view_name.append(self.suffix)
 
-                    duplicatedViewport = Viewport.Create(self.doc,
-                                                         duplicatedSheet.Id,
-                                                         duplicatedViewId,
-                                                         viewport.GetBoxCenter())
-                    duplicatedViewport.ChangeTypeId(viewportTypeId)
+                        duplicated_view_name = "_".join(duplicated_view_name)
 
-        if details:
-            ElementTransformUtils.CopyElements(sheet, details, duplicatedSheet, None, None)
-        if textNotes:
-            ElementTransformUtils.CopyElements(sheet, textNotes, duplicatedSheet, None, None)
-        if scheduleSheets:
-            ElementTransformUtils.CopyElements(sheet, scheduleSheets, duplicatedSheet, None, None)
+                        if len(duplicated_view_name) > len(view_name):
+                            duplicated_view.Name = duplicated_view_name
+                        try:
+                            duplicated_view.SetParamValue(ProjectParamsConfig.Instance.ViewGroup, self.purpose)
+                        except:
+                            duplicated_view.ViewTemplateId = ElementId(-1)
+                            duplicated_view.SetParamValue(ProjectParamsConfig.Instance.ViewGroup, self.purpose)
 
-        t.Commit()
-        tg.Assimilate()
+                        duplicated_viewport = Viewport.Create(self.doc,
+                                                              duplicated_sheet.Id,
+                                                              duplicated_view_id,
+                                                              viewport.GetBoxCenter())
+                        duplicated_viewport.ChangeTypeId(viewport_type_id)
 
-        return duplicatedSheet
+            if details:
+                ElementTransformUtils.CopyElements(sheet, details, duplicated_sheet, None, None)
+            if textNotes:
+                ElementTransformUtils.CopyElements(sheet, textNotes, duplicated_sheet, None, None)
+            if scheduleSheets:
+                ElementTransformUtils.CopyElements(sheet, scheduleSheets, duplicated_sheet, None, None)
+
+        return duplicated_sheet
 
     def GetViewPurposeList(self):
         views = FilteredElementCollector(self.doc).OfCategory(BuiltInCategory.OST_Views).ToElements()
         purpose = []
         for view in views:
             param = view.GetParamValueOrDefault(ProjectParamsConfig.Instance.ViewGroup)
-            if param not in purpose:
+            if param and param not in purpose:
                 purpose.append(param)
         return purpose
 
-    def GetSpeechAlbumList(self):
+    def GetSheetAlbumList(self):
         sheets = FilteredElementCollector(doc) \
             .OfClass(ViewSheet) \
             .ToElements()
-        speechAlbumList = []
+        sheet_album_list = []
         for sh in sheets:
             if sh.GetParamValueOrDefault(SharedParamsConfig.Instance.AlbumBlueprints):
                 param = sh.GetParamValueOrDefault(SharedParamsConfig.Instance.AlbumBlueprints)
-                if param not in speechAlbumList:
-                    speechAlbumList.append(param)
-        return speechAlbumList
+                if param not in sheet_album_list:
+                    sheet_album_list.append(param)
+        return sheet_album_list
 
     def _GetTitleType(self, sheetId):
         collector = FilteredElementCollector(self.doc)

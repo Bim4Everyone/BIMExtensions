@@ -1,0 +1,14 @@
+title:
+  ru: Выбрать для стадий
+  en_us: Select for stages
+
+tooltip:
+  ru: >-
+    Выделяет элементы, входящие в выбранные группы, для которых можно изменить стадию.
+    Сначала необходимо выбрать группы на виде, затем запустить скрипт.
+  en_us: >-
+    Highlights the elements in the selected groups for which you can change the stage.
+    First you need to select the groups in the view, then run the script.
+
+context: selection
+author: dosymep

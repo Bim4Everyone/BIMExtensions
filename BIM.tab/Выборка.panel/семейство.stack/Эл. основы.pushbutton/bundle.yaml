@@ -1,0 +1,11 @@
+title:
+  ru: Эл. основы
+  en_us: Foundation elements
+
+tooltip:
+  ru: Выделяет все экземпляры семейств, размещенных на выбранной основе.
+  en_us: Selects all instances of families hosted on the selected canvas.
+
+context: selection
+
+autor: dosymep

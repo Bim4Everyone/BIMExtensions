@@ -1,0 +1,12 @@
+title:
+  ru: Менеджер листов
+  en_us: Sheet Manager
+
+tooltip:
+  ru: Пока что может только создавать листы
+  en_us: Can only create sheets
+
+assembly: RevitCreateViewSheet.dll
+command_class: CreateViewSheetCommand
+
+author: dosymep

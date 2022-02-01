@@ -1,3 +1,4 @@
+# coding=utf-8
 """Aligns the section box of the current 3D view to selected face."""
 
 from pyrevit.framework import Math
@@ -37,6 +38,6 @@ def orientsectionbox(view):
 if isinstance(curview, DB.View3D) and curview.IsSectionBoxActive:
     orientsectionbox(curview)
 elif isinstance(curview, DB.View3D) and not curview.IsSectionBoxActive:
-    forms.alert("The section box for View3D isn't active.")
+    forms.alert("Границы 3D вида не включены.")
 else:
-    forms.alert('You must be on a 3D view for this tool to work.')
+    forms.alert('Должен быть открыт 3D вид.')

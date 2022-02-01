@@ -1,0 +1,12 @@
+title:
+  ru: Добавить отметки этажа
+  en_us: Add level elevations
+
+tooltip:
+  ru: Добавляет отметки уровня к именам выделенных планов этажей.
+  en_us: Adds level marks to the names of selected floor plans.
+    
+assembly: RevitCopyViews.dll
+command_class: AddElevationCommand
+
+autor: dosymep

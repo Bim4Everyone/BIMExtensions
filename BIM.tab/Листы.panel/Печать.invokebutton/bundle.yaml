@@ -1,0 +1,12 @@
+title:
+  ru: Печать
+  en_us: Print
+
+tooltip:
+  ru: Сохраняет в PDF выбранные листы с автоматическим подбором размеров листа.
+  en_us: Saves selected sheets to PDF with automatic sheet sizing.
+
+assembly: RevitBatchPrint.dll
+command_class: BatchPrintCommand
+
+author: dosymep

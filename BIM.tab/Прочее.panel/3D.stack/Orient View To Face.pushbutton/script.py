@@ -1,3 +1,4 @@
+# coding=utf-8
 from pyrevit import HOST_APP
 from pyrevit import revit, DB, UI
 from pyrevit import forms
@@ -38,4 +39,4 @@ curview = revit.active_view
 if isinstance(curview, DB.View3D):
     reorient()
 else:
-    forms.alert('You must be on a 3D view for this tool to work.')
+    forms.alert('Должен быть открыт 3D вид.')

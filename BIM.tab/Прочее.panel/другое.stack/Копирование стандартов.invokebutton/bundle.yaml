@@ -1,0 +1,12 @@
+title:
+  ru: .
+  en_us: .
+
+tooltip:
+  ru: Копирует стандарты из подготовленных BIM-координатором файлов.
+  en_us: Copies standards from files prepared by BIM-coordinator.
+
+assembly: RevitCopyStandarts.dll
+command_class: CopyStandartsRevitCommand
+
+author: dosymep

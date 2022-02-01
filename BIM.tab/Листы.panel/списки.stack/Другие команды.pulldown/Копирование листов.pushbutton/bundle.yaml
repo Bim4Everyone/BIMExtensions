@@ -1,0 +1,7 @@
+title:
+  ru: Копирование листов
+  en_us: Copy sheets
+
+tooltip:
+  ru: Копирует листы вместе с видами, размещенными на листах. Запустите скрипт, выберите в окне нужные листы и нажмите «Копировать».
+  en_us: Copies the sheets along with the views placed on the sheets. Run the script, select the desired sheets in the window and click "Копировать".

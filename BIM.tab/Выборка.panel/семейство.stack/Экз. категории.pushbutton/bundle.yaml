@@ -1,0 +1,10 @@
+title:
+  ru: Экз. категории
+  en_us: Instances of the category
+
+tooltip:
+  ru: Выделяет все экземпляры семейств для категории выбранного экземпляра семейства.
+  en_us: Selects all family instances for the category of the selected family instance.
+
+context: selection
+autor: dosymep

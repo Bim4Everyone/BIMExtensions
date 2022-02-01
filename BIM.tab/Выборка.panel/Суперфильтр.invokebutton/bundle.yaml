@@ -1,0 +1,18 @@
+title:
+  ru: Суперфильтр
+  en_us: Superfilter
+
+tooltip:
+  ru: >-
+    Выбирает элементы в проекте на основе значений параметров.
+
+    Фильтрация элементов по параметрам работает по принципу "ИЛИ".
+  en_us: >-
+    Selects elements in the project based on parameter values.
+
+    Filtering elements by parameters works according to the "OR" principle.
+
+assembly: RevitSuperfilter.dll
+command_class: SuperfilterCommand
+
+author: dosymep

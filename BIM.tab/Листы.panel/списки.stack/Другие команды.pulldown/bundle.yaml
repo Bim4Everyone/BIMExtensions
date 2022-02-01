@@ -1,15 +1,16 @@
+title:
+  ru: Листы прочее
+  en_us: Sheets other
 layout:
-  - Copy Selected Legends To Open Documents
-  - Copy Selected Viewports To Selected Sheets
-  - Update view number
-  - SignSheet
+  - Легенды на листах
+  - Обновить номер вида на листах и фрагментах
+  - Подписать документ
   - Копирование листов
-  - Copy Selected Legends To Open Documents.
-  - Duplicate Selected Detail Views As Legends
-  - Duplicate Selected Legends As Detail Views
-  - Move Selected Viewports To Selected Sheet
-  - Set Crop Region To Selected Shape
-  - Жуки
-  - Схема разрез
-  - Схема фасад
-  - Создание легенды по плану этажа
+  - Перенести вид на другой лист
+  - Задать область подрезки
+  - ---
+  - Создание жука по плану этажа
+  - Выравнивание жуков на листах
+  - ---
+  - Выравнивание схем разрезов на листах
+  - Выравнивание схем фасадов на листах

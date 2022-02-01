@@ -1,7 +1,0 @@
-title:
-  ru: Обновить
-  en_us: Reload
-
-tooltip:
-  ru: "Находит папку скриптов и обновляет кнопки\nдля новых скриптов или новых установленных расширений."
-  en_us: "Searches the script folders and create buttons\nfor the new script or newly installed extensions."

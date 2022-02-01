@@ -1,0 +1,85 @@
+<Window xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Создать штриховку"
+        SizeToContent="Height"
+        Width="350" Height="485"
+        MinWidth="350" MaxWidth="550" MinHeight="485"
+        ResizeMode="CanResizeWithGrip"
+        ShowInTaskbar="False"
+        WindowStartupLocation="CenterScreen"
+        ScrollViewer.VerticalScrollBarVisibility="Disabled"
+        HorizontalContentAlignment="Center">
+    <DockPanel Margin="10" >
+        <DockPanel HorizontalAlignment="Stretch" DockPanel.Dock="Top">
+            <StackPanel DockPanel.Dock="Top">
+                <Label x:Name="prompt_lb" FontWeight="Bold" Padding="0,0,0,5">Введине новое имя штриховки</Label>
+                <ComboBox x:Name="pat_name_cb"
+                      Height="30"
+                      IsEditable="True"
+                      FontSize="14"
+                      VerticalContentAlignment="Center"
+                      StaysOpenOnEdit="True"/>
+            </StackPanel>
+            <StackPanel DockPanel.Dock="Bottom">
+                <DockPanel Margin="0,10,0,5" Height="30">
+                    <ComboBox x:Name="export_units_cb"
+                          DockPanel.Dock="Right"
+                          VerticalContentAlignment="Center"
+                          Padding="10,0,0,0"
+                          Width="60"/>
+                    <Button Click="export_pat"
+                        Margin="0,0,10,0"
+                        Content="Экспортировать PAT файл"/>
+                </DockPanel>
+                <Button x:Name="create_b"
+                        Click="make_pattern"
+                        Margin="0,5,0,0"
+                        DockPanel.Dock="Bottom"
+                        Height="30"
+                        Content="Создать штриховку"
+                        IsDefault="True"/>
+            </StackPanel>
+            <GroupBox x:Name="resolver_ops" DockPanel.Dock="Bottom" Header="Настройки" Margin="0,10,0,0">
+                <StackPanel Margin="5">
+                    <CheckBox x:Name="createfilledregion_cb" Margin="0,5,0,0" IsChecked="False" Content="Создать цветовую область" />
+                    <CheckBox x:Name="highestres_cb" Margin="0,10,0,0" IsChecked="True" Content="Использовать наивысшее разрешение"/>
+                    <DockPanel Margin="0,10,0,0">
+                        <TextBlock Text="Захваченный масштаб вида"  Margin="0,0,10,2" VerticalAlignment="Center" />
+                        <TextBox x:Name="viewscale_tb" Text="1.0" VerticalContentAlignment="Center" Height="24" IsEnabled="False"/>
+                    </DockPanel>
+                    <DockPanel Margin="0,10,0,0">
+                        <TextBlock Text="Множитель масштаба"  Margin="0,0,10,2" VerticalAlignment="Center" />
+                        <TextBox x:Name="multiplier_tb" Text="1.0" VerticalContentAlignment="Center" Height="24"/>
+                    </DockPanel>
+                    <DockPanel Margin="0,10,0,0">
+                        <TextBlock Text="Поворот (в градусах)"  Margin="0,0,10,2" VerticalAlignment="Center" />
+                        <TextBox x:Name="rotation_tb" Text="0" VerticalContentAlignment="Center" Height="24"/>
+                    </DockPanel>
+                    <StackPanel Margin="0,10,0,0">
+                        <CheckBox x:Name="flipvert_cb" Content="Развернуть по вертикали" />
+                        <CheckBox x:Name="fliphoriz_cb" Content="Развернуть по горизонтали" />
+                    </StackPanel>
+                </StackPanel>
+            </GroupBox>
+            <GroupBox Header="Тип штриховки" DockPanel.Dock="Bottom" Margin="0,10,0,0">
+                <WrapPanel>
+                    <RadioButton x:Name="is_detail_cb"
+                                GroupName="reporting_level"
+                                Margin="10,10,0,10"
+                                IsChecked="False"
+                                Checked="target_changed">
+                        Условный
+                    </RadioButton>
+                    <RadioButton x:Name="is_model_cb"
+                                GroupName="reporting_level"
+                                Margin="10,10,0,10"
+                                IsChecked="True"
+                                Checked="target_changed">
+                        Моделирующий
+                    </RadioButton>
+                </WrapPanel>
+            </GroupBox>
+            <Grid />
+        </DockPanel>
+    </DockPanel>
+</Window>

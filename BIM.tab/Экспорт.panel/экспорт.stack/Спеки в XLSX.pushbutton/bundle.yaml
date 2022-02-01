@@ -1,0 +1,9 @@
+title:
+  ru: Спеки в XLSX
+  en_us: Schedules to XLSX
+
+tooltip:
+  ru: Экспортирует выбранные спецификации в формат XLSX.
+  en_us: Exports selected schedules to XLSX format.
+
+author: dosymep

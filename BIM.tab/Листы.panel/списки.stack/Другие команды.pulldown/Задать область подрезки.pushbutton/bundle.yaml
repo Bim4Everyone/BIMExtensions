@@ -1,0 +1,15 @@
+title:
+  ru: Задать область подрезки
+  en_us: Set crop area
+
+tooltip:
+  ru: >-
+    Подрезает вид по контуру, нарисованному линиями аннотаций.
+
+    1. На   листе создайте линиями аннотации замкнутый контур, который будет служить   областью подрезки для вида, размещенного на этом листе.
+    2. Выберите   этот контур и вид для обрезки и запустите скрипт.
+  en_us: >-
+    Clips the view along the path drawn by the annotation lines.
+
+    1. On a sheet, create a closed loop with annotation lines to serve as the crop region for the view placed on that sheet.
+    2. Select this path and view to crop and run the script.

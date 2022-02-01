@@ -1,0 +1,17 @@
+title:
+  ru: Выбрать все экземпляры групп
+  en_us: Select all group instances
+
+tooltip:
+  ru: >-
+    Выделяет в проекте экземпляры групп сразу для нескольких выбранных типоразмеров групп.
+
+    1. В диспетчере проекта выберите необходимые типоразмеры групп
+    2. Запустите скрипт.
+  en_us: >-
+    Selects group instances in the project for several selected group types at once.
+
+    1. In the Project Browser, select the desired group types
+    2. Run the script.
+
+author: dosymep
