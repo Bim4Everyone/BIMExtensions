@@ -23,7 +23,7 @@ with forms.WarningBar(title="Выберите элемент связанног�
         if linkedDocument:
             linkedElement = linkedDocument.GetElement(selectedElement.LinkedElementId)
 
-            Clipboard.SetText(linkedElement.Id.ToString());
+            Clipboard.SetDataObject(linkedElement.Id.ToString())
             print "{title}.rvt ID: {elementId}".format(title=linkedDocument.Title, elementId=linkedElement.Id)
         else:
             forms.alert("Не был найден элемент в связанных файлах.", title="Сообщение")
