@@ -10,6 +10,7 @@
     <orderEntry type="module" module-name="BIM4Everyone.lib" />
     <orderEntry type="module" module-name="00.Admin.extension" />
     <orderEntry type="module" module-name="02.AR.extension" />
+    <orderEntry type="module" module-name="03.KR.extensions" />
     <orderEntry type="module" module-name="04.OV-VK.extension" />
   </component>
 </module>
