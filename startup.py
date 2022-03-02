@@ -19,7 +19,6 @@ clr.AddReference('dosymep.Bim4Everyone.dll')
 
 from pyrevit import HOST_APP
 from pyrevit.userconfig import user_config
-from Autodesk.Revit.ApplicationServices import LanguageType
 
 from dosymep.Bim4Everyone.Schedules import SchedulesConfig
 from dosymep.Bim4Everyone.KeySchedules import KeySchedulesConfig
@@ -37,16 +36,6 @@ def get_config_path(section, option):
 
 
 def load_platform_settings():
-    user_config.auto_update = True
-    user_config.check_updates = True
-    user_config.save_changes()
-
-    if HOST_APP.language == LanguageType.Russian:
-        user_config.user_locale = 'ru'
-
-    if HOST_APP.language == LanguageType.English_USA:
-        user_config.user_locale = 'en_us'
-
     shared_params_path = get_config_path("PlatformSettings", "SharedParamsPath")
     project_params_path = get_config_path("PlatformSettings", "ProjectParamsPath")
 
