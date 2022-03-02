@@ -36,10 +36,6 @@ def get_config_path(section, option):
 
 
 def load_platform_settings():
-    user_config.auto_update = True
-    user_config.check_updates = True
-    user_config.save_changes()
-
     shared_params_path = get_config_path("PlatformSettings", "SharedParamsPath")
     project_params_path = get_config_path("PlatformSettings", "ProjectParamsPath")
 

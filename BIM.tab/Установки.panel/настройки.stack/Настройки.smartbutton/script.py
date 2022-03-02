@@ -18,6 +18,10 @@ else:
 import PlatformSettings
 
 def __selfinit__(script_cmp, ui_button_cmp, __rvt__):
+    user_config.auto_update = True
+    user_config.check_updates = True
+    user_config.save_changes()
+
     if HOST_APP.language == LanguageType.Russian:
         user_config.user_locale = 'ru'
 
