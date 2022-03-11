@@ -31,7 +31,7 @@ def __selfinit__(script_cmp, ui_button_cmp, __rvt__):
 
 def open_platform_settings():
     settings = PlatformSettings.PlatformSettingsCommand()
-    result = settings.Execute(EXEC_PARAMS.command_data)
+    result = settings.OpenSettingsWindow(__revit__)
 
     if result:
         user_config.reload()
