@@ -78,9 +78,9 @@
       "name": "04.OV-VK",
       "description": "ОВиВК",
       "author": "dosymep",
-      "author_profile": "https://github.com/dosymep/",
-      "url": "https://github.com/dosymep/OV-VKExtensions",
-      "website": "https://github.com/dosymep/OV-VKExtensions",
+      "author_profile": "https://github.com/Redomine",
+      "url": "https://github.com/Redomine/HVACExtension.git",
+      "website": "https://github.com/Redomine/HVACExtension.git",
       "image": "",
       "dependencies": [ "BIM4Everyone" ]
     }
