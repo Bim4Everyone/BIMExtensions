@@ -26,10 +26,13 @@ clr.AddReference('dosymep.SimpleServices.dll')
 clr.AddReference('Serilog.dll')
 clr.AddReference('Serilog.Sinks.File.dll')
 
+clr.AddReference('DevExpress.Xpf.Core.v21.2.dll')
+clr.AddReference('DevExpress.Data.Desktop.v21.2.dll')
+
 from pyrevit import HOST_APP
 from pyrevit.userconfig import user_config
 
-from System.Windows import *
+from DevExpress.Xpf.Core import *
 
 from dosymep.Bim4Everyone.Schedules import SchedulesConfig
 from dosymep.Bim4Everyone.KeySchedules import KeySchedulesConfig
@@ -58,6 +61,10 @@ def load_platform_settings():
     SystemParamsConfig.LoadInstance(HOST_APP.language)
     SharedParamsConfig.LoadInstance(shared_params_path)
     ProjectParamsConfig.LoadInstance(project_params_path)
+
+    # Удаляем стиль DevExpress
+    # (на некоторых окнах портится layout)
+    ApplicationThemeHelper.ApplicationThemeName = Theme.NoneName
 
     ServicesProvider.LoadInstance(__revit__)
 
