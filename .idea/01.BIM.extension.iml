@@ -5,7 +5,7 @@
     <content url="file://$MODULE_DIR$/../BIM4Everyone.lib">
       <sourceFolder url="file://$MODULE_DIR$/../BIM4Everyone.lib" isTestSource="false" />
     </content>
-    <orderEntry type="jdk" jdkName="IronPython 2.7" jdkType="Python SDK" />
+    <orderEntry type="jdk" jdkName="IronPython 2.7 (2020)" jdkType="Python SDK" />
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="module" module-name="BIM4Everyone.lib" />
     <orderEntry type="module" module-name="00.Admin.extension" />
