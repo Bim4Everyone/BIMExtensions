@@ -13,3 +13,4 @@ tooltip:
   en_us: "Exports lookup tables to Excel (.csv).\nThis command solves problem with encoding russian symbols."
 
 author: dosymep
+help_url: "https://kb.a101.ru/pages/viewpage.action?pageId=67830008"

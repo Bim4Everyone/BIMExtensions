@@ -7,3 +7,4 @@ tooltip:
   en_us: Reorients the current 3D view camera, perpendicular to the selected face. This tool will set a sketch plane over the selected face for 3d drawing.
 
 context: active-3d-view
+help_url: "https://kb.a101.ru/pages/viewpage.action?pageId=67830008"

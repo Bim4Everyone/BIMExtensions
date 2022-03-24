@@ -5,3 +5,5 @@ title:
 tooltip:
   ru: Суммирует значения параметров выделенных элементов. Выберите параметр для суммирования.
   en_us: Adds the values of the parameters of the selected elements. Select an option to summarize.
+
+help_url: "https://kb.a101.ru/pages/viewpage.action?pageId=67830008"
