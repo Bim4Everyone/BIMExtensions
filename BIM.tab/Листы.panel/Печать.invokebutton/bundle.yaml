@@ -10,3 +10,4 @@ assembly: RevitBatchPrint.dll
 command_class: BatchPrintCommand
 
 author: dosymep
+help_url: "https://kb.a101.ru/pages/viewpage.action?pageId=67829996"

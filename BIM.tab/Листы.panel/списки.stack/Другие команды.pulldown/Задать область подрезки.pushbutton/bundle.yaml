@@ -13,3 +13,5 @@ tooltip:
 
     1. On a sheet, create a closed loop with annotation lines to serve as the crop region for the view placed on that sheet.
     2. Select this path and view to crop and run the script.
+
+help_url: "https://kb.a101.ru/pages/viewpage.action?pageId=67829996"

@@ -10,3 +10,4 @@ assembly: RevitCreateViewSheet.dll
 command_class: CreateViewSheetCommand
 
 author: dosymep
+help_url: "https://kb.a101.ru/pages/viewpage.action?pageId=67829996"

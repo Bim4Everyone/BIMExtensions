@@ -5,3 +5,5 @@ title:
 tooltip:
   ru: Открывает список листов для выбора тех, в которых требуется обновить/скопировать легенды. Запустите эту команду и выберите листы назначения. Затем выберите одну или несколько легенд и нажмите кнопку "Готово".
   en_us: Opens a list of sheets to select from which you want to update/copy legends. Run this command and select the destination sheets. Then select one or more legends and click Finish.
+
+help_url: "https://kb.a101.ru/pages/viewpage.action?pageId=67829996"
