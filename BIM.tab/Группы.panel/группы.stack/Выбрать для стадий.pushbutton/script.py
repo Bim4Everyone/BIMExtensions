@@ -1,14 +1,14 @@
 # -*- coding: utf-8 -*-
-"""Replaces current selection with elements inside the groups."""
 
 import clr
 clr.AddReference("dosymep.Revit.dll")
-
-from Autodesk.Revit.DB import BuiltInParameter
+clr.AddReference("dosymep.Bim4Everyone.dll")
 
 import dosymep
 clr.ImportExtensions(dosymep.Revit)
+clr.ImportExtensions(dosymep.Bim4Everyone)
 
+from Autodesk.Revit.DB import *
 from pyrevit import revit, DB
 
 doc = __revit__.ActiveUIDocument.Document
@@ -16,15 +16,20 @@ doc = __revit__.ActiveUIDocument.Document
 selection = revit.get_selection()
 
 
+def is_group(element):
+    return isinstance(element, DB.Group)
+
+
 def get_group(element, group_elements=None):
     if not group_elements:
         group_elements = []
 
-    for el in get_group_elements(element):
-        if is_group(el):
-            get_group(el, group_elements)
-        else:
-            group_elements.append(el)
+    group_elements.append(element)
+    for element in get_group_elements(element):
+        if is_group(element):
+            get_group(element, group_elements)
+
+        group_elements.append(element)
 
     return group_elements
 
@@ -32,19 +37,28 @@ def get_group(element, group_elements=None):
 def get_group_elements(group):
     if is_group(group):
         for sub_element_id in group.GetMemberIds():
-            sub_element = doc.GetElement(sub_element_id)
+            yield doc.GetElement(sub_element_id)
 
-            phase_create_param = sub_element.GetParam(BuiltInParameter.PHASE_CREATED)
-            if phase_create_param and not phase_create_param.IsReadOnly:
-                yield sub_element
-
-
-def is_group(element):
-    return isinstance(element, DB.Group)
+        if not group.IsAttached:
+            for sub_element_id in group.GetAvailableAttachedDetailGroupTypeIds():
+                for group in doc.GetElement(sub_element_id).Groups:
+                    yield group
 
 
-elements = []
-for selected in selection:
-    elements.extend(get_group(selected))
 
-selection.set_to([e.Id for e in elements])
+
+def filter_elements(elements):
+    for element in elements:
+        if element.HasPhases():
+            yield element
+
+
+def execute():
+    elements = []
+    for selected in selection:
+        elements.extend(filter_elements(get_group(selected)))
+
+    selection.set_to([e.Id for e in elements])
+
+
+execute()

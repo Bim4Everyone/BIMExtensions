@@ -1,18 +1,15 @@
 # -*- coding: utf-8 -*-
-"""Replaces current selection with elements inside the groups."""
 
 import clr
 clr.AddReference("dosymep.Revit.dll")
-
-from Autodesk.Revit.DB import BuiltInParameter
+clr.AddReference("dosymep.Bim4Everyone.dll")
 
 import dosymep
 clr.ImportExtensions(dosymep.Revit)
+clr.ImportExtensions(dosymep.Bim4Everyone)
 
+from Autodesk.Revit.DB import *
 from pyrevit import revit, DB
-
-__title__ = 'Выбрать элементы'
-__doc__ = 'Выделяет все элементы, находящиеся в выбраных группах'
 
 __context__ = 'selection'
 
@@ -20,15 +17,20 @@ doc = __revit__.ActiveUIDocument.Document
 selection = revit.get_selection()
 
 
+def is_group(element):
+    return isinstance(element, DB.Group)
+
+
 def get_group(element, group_elements=None):
     if not group_elements:
         group_elements = []
 
-    for el in get_group_elements(element):
-        if is_group(el):
-            get_group(el, group_elements)
+    group_elements.append(element)
+    for element in get_group_elements(element):
+        if is_group(element):
+            get_group(element, group_elements)
 
-        group_elements.append(el)
+        group_elements.append(element)
 
     return group_elements
 
@@ -38,9 +40,10 @@ def get_group_elements(group):
         for sub_element_id in group.GetMemberIds():
             yield doc.GetElement(sub_element_id)
 
-
-def is_group(element):
-    return isinstance(element, DB.Group)
+        if not group.IsAttached:
+            for sub_element_id in group.GetAvailableAttachedDetailGroupTypeIds():
+                for group in doc.GetElement(sub_element_id).Groups:
+                    yield group
 
 
 elements = []
