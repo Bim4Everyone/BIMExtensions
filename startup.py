@@ -34,14 +34,12 @@ from pyrevit.userconfig import user_config
 
 from DevExpress.Xpf.Core import *
 
+from dosymep_libs.simple_services import *
 from dosymep.Bim4Everyone.Schedules import SchedulesConfig
 from dosymep.Bim4Everyone.KeySchedules import KeySchedulesConfig
 from dosymep.Bim4Everyone.SystemParams import SystemParamsConfig
 from dosymep.Bim4Everyone.SharedParams import SharedParamsConfig
 from dosymep.Bim4Everyone.ProjectParams import ProjectParamsConfig
-from dosymep.Bim4Everyone.SimpleServices import ServicesProvider
-
-from dosymep.SimpleServices import INotificationService, ILoggerService
 
 
 def get_config_path(section, option):
@@ -68,10 +66,5 @@ def load_platform_settings():
 
     ServicesProvider.LoadInstance(__revit__)
 
-    notification_service = ServicesProvider.GetPlatformService[INotificationService]()
-    notification_service.CreateNotification("Bim4Everyone", "Инициализация платформы прошла успешно.", None).ShowAsync()
-
-    logger = ServicesProvider.GetPlatformService[ILoggerService]()
-    logger.Debug("Инициализация платформы.")
 
 load_platform_settings()
