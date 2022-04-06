@@ -5,6 +5,9 @@ import os.path as op
 import tempfile
 import re
 
+from pyrevit import EXEC_PARAMS
+from dosymep_libs.bim4everyone import *
+
 from Autodesk.Revit.DB import *
 
 uidoc = __revit__.ActiveUIDocument
@@ -30,14 +33,23 @@ def remove_backups():
 		os.remove(backup_file)
 
 
-if doc.IsFamilyDocument:
-	saveOptions = SaveAsOptions()
-	saveOptions.Compact = False
-	saveOptions.OverwriteExistingFile = True
+@log_plugin(EXEC_PARAMS.command_name)
+def script_execute(plugin_logger):
+	if doc.IsFamilyDocument:
+		saveOptions = SaveAsOptions()
+		saveOptions.Compact = False
+		saveOptions.OverwriteExistingFile = True
 
-	doc.Save()
-	doc.SaveAs(temp_file_path, saveOptions)
-	try:
-		doc.SaveAs(file_path, saveOptions)
-	finally:
-		remove_backups()
+		doc.Save()
+		doc.SaveAs(temp_file_path, saveOptions)
+		try:
+			doc.SaveAs(file_path, saveOptions)
+		finally:
+			remove_backups()
+
+		show_executed_script_notification()
+	else:
+		show_script_notification("Разрешено сохранять только файлы семейств.")
+
+
+script_execute()

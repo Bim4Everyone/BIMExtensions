@@ -6,8 +6,10 @@ from pyrevit.compat import safe_strtype
 from pyrevit import forms
 from pyrevit import script
 from pyrevit import coreutils
+from pyrevit import EXEC_PARAMS
 from pyrevit.coreutils import pyutils
 
+from dosymep_libs.bim4everyone import *
 
 selection = revit.get_selection()
 
@@ -160,24 +162,27 @@ def process_sets(element_list):
     return el_sets
 
 
-# main -----------------------------------------------------------------------
-# ask user to select an option
-options = process_options(selection.elements)
+@log_plugin(EXEC_PARAMS.command_name)
+def script_execute(plugin_logger):
+    options = process_options(selection.elements)
 
-if options:
-    selected_switch = \
-        forms.CommandSwitchWindow.show(sorted(options),
-                                       message='Значения параметра:')
+    if options:
+        selected_switch = \
+            forms.CommandSwitchWindow.show(sorted(options),
+                                           message='Значения параметра:')
 
-    # Calculating totals for each set and printing results
-    if selected_switch:
-        selected_option = options[selected_switch]
-        if selected_option:
-            for type_name, element_set \
-                    in process_sets(selection.elements).items():
-                type_name = coreutils.escape_for_html(type_name)
-                output.print_md('### Итого: {}'.format(type_name))
-                output_param_total(element_set, selected_option)
-                output.print_md('#### Список значений:')
-                output_breakdown(element_set, selected_option)
-                output.insert_divider(level='##')
+        # Calculating totals for each set and printing results
+        if selected_switch:
+            selected_option = options[selected_switch]
+            if selected_option:
+                for type_name, element_set \
+                        in process_sets(selection.elements).items():
+                    type_name = coreutils.escape_for_html(type_name)
+                    output.print_md('### Итого: {}'.format(type_name))
+                    output_param_total(element_set, selected_option)
+                    output.print_md('#### Список значений:')
+                    output_breakdown(element_set, selected_option)
+                    output.insert_divider(level='##')
+
+
+script_execute()

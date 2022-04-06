@@ -9,6 +9,9 @@ from Autodesk.Revit.DB import *
 from pyrevit import forms
 from pyrevit import script
 from pyrevit import HOST_APP
+from pyrevit import EXEC_PARAMS
+
+from dosymep_libs.bim4everyone import *
 
 
 document = __revit__.ActiveUIDocument.Document
@@ -53,9 +56,11 @@ def generate_table(family, table_name):
     
         result.append(";".join(columns))
     
-    return result;
+    return result
 
-def excecute_script():
+
+@log_plugin(EXEC_PARAMS.command_name)
+def script_execute(plugin_logger):
     familys = FilteredElementCollector(document).OfClass(Family).ToElements()
     familys = [ FamilyElement(document, family) for family in familys ]
     familys = [ family for family in familys if family.HasSizeTables ]
@@ -104,5 +109,5 @@ class FamilyElement:
     def __str__(self):
         return "{} [{}]".format(self.Name, self.SizeTableCount)
 
-#start script
-excecute_script()
+
+script_execute()

@@ -4,7 +4,9 @@
 from pyrevit.framework import Math
 from pyrevit import revit, DB, UI
 from pyrevit import forms
+from pyrevit import EXEC_PARAMS
 
+from dosymep_libs.bim4everyone import *
 
 curview = revit.active_view
 
@@ -35,9 +37,14 @@ def orientsectionbox(view):
             pass
 
 
-if isinstance(curview, DB.View3D) and curview.IsSectionBoxActive:
-    orientsectionbox(curview)
-elif isinstance(curview, DB.View3D) and not curview.IsSectionBoxActive:
-    forms.alert("Границы 3D вида не включены.")
-else:
-    forms.alert('Должен быть открыт 3D вид.')
+@log_plugin(EXEC_PARAMS.command_name)
+def script_execute(plugin_logger):
+    if isinstance(curview, DB.View3D) and curview.IsSectionBoxActive:
+        orientsectionbox(curview)
+    elif isinstance(curview, DB.View3D) and not curview.IsSectionBoxActive:
+        forms.alert("Границы 3D вида не включены.")
+    else:
+        forms.alert('Должен быть открыт 3D вид.')
+
+
+script_execute()

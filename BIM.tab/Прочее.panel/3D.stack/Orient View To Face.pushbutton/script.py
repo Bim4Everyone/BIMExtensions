@@ -2,6 +2,9 @@
 from pyrevit import HOST_APP
 from pyrevit import revit, DB, UI
 from pyrevit import forms
+from pyrevit import EXEC_PARAMS
+
+from dosymep_libs.bim4everyone import *
 
 
 def reorient():
@@ -34,9 +37,14 @@ def reorient():
         revit.uidoc.RefreshActiveView()
 
 
-curview = revit.active_view
+@log_plugin(EXEC_PARAMS.command_name)
+def script_execute(plugin_logger):
+    curview = revit.active_view
 
-if isinstance(curview, DB.View3D):
-    reorient()
-else:
-    forms.alert('Должен быть открыт 3D вид.')
+    if isinstance(curview, DB.View3D):
+        reorient()
+    else:
+        forms.alert('Должен быть открыт 3D вид.')
+
+
+script_execute()
