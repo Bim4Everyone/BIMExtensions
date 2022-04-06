@@ -5,26 +5,35 @@ clr.AddReference("System")
 from System.Collections.Generic import *
 from Autodesk.Revit.DB import *
 from pyrevit import forms
+from pyrevit import EXEC_PARAMS
 
-document = __revit__.ActiveUIDocument.Document
+from dosymep_libs.bim4everyone import *
 
-linkedFiles = FilteredElementCollector(document)\
-    .OfCategory(BuiltInCategory.OST_RvtLinks)\
-    .WhereElementIsElementType()\
-    .ToElementIds()
+@log_plugin(EXEC_PARAMS.command_name)
+def script_execute(plugin_logger):
+    document = __revit__.ActiveUIDocument.Document
 
-linkedFiles = [ item for item in linkedFiles if RevitLinkType.IsLoaded(document, item) == False ]
-linkedFileNames = [ document.GetElement(item) for item in linkedFiles]
-linkedFileNames = [ item.get_Parameter(BuiltInParameter.ALL_MODEL_TYPE_NAME).AsString() for item in linkedFileNames ]
+    linkedFiles = FilteredElementCollector(document)\
+        .OfCategory(BuiltInCategory.OST_RvtLinks)\
+        .WhereElementIsElementType()\
+        .ToElementIds()
 
-if linkedFileNames:
-    linkedFileNames.sort()
-    result = forms.alert("Будут удалены следующие связанные файлы:\r\n - " + "\r\n - ".join(linkedFileNames), title="Предупреждение", ok=False, yes=True, no=True)
+    linkedFiles = [ item for item in linkedFiles if RevitLinkType.IsLoaded(document, item) == False ]
+    linkedFileNames = [ document.GetElement(item) for item in linkedFiles]
+    linkedFileNames = [ item.get_Parameter(BuiltInParameter.ALL_MODEL_TYPE_NAME).AsString() for item in linkedFileNames ]
 
-    if result:
-        with Transaction(document, "Удаление связанных файлов") as transaction:
-            transaction.Start()
+    if linkedFileNames:
+        linkedFileNames.sort()
+        result = forms.alert("Будут удалены следующие связанные файлы:\r\n - " + "\r\n - ".join(linkedFileNames), title="Предупреждение", ok=False, yes=True, no=True)
 
-            document.Delete(List[ElementId](linkedFiles))
-        
-            transaction.Commit()
+        if result:
+            with Transaction(document, "Удаление связанных файлов") as transaction:
+                transaction.Start()
+
+                document.Delete(List[ElementId](linkedFiles))
+
+                transaction.Commit()
+
+            show_executed_script_notification()
+
+script_execute()
