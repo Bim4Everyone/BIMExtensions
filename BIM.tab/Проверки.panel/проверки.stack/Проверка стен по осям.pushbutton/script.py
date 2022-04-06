@@ -1,10 +1,12 @@
 # -*- coding: utf-8 -*-
 
 import clr
+
 clr.AddReference("dosymep.Revit.dll")
 clr.AddReference("dosymep.Bim4Everyone.dll")
 
 import dosymep
+
 clr.ImportExtensions(dosymep.Revit)
 clr.ImportExtensions(dosymep.Bim4Everyone)
 
@@ -13,7 +15,11 @@ from abc import abstractmethod
 
 from pyrevit import forms
 from pyrevit import script
+from pyrevit import revit
 from pyrevit import HOST_APP
+from pyrevit import EXEC_PARAMS
+
+from dosymep_libs.bim4everyone import *
 
 from System.Collections.Generic import *
 from Autodesk.Revit.DB import *
@@ -21,6 +27,19 @@ from Autodesk.Revit.DB import *
 from dosymep.Bim4Everyone.Templates import ProjectParameters
 from dosymep.Bim4Everyone.SharedParams import SharedParamsConfig
 from dosymep.Bim4Everyone.ProjectParams import ProjectParamsConfig
+
+
+doc = __revit__.ActiveUIDocument.Document
+uidoc = __revit__.ActiveUIDocument
+view = doc.ActiveView
+
+geometryOptions = Options()
+geometryOptions.View = view
+geometryOptions.ComputeReferences = True
+
+EPS = 1E-9
+GRAD_EPS = math.radians(0.01)
+
 
 class Utils:
     def __init__(self):
@@ -85,12 +104,12 @@ class Utils:
 
     @staticmethod
     def GetDistance(line, point):
-        distance =  abs((line.End.Y - line.Start.Y) * point.X
-                   - (line.End.X - line.Start.X) * point.Y
-                   + line.End.X * line.Start.Y
-                   - line.End.Y * line.Start.X) \
-               / math.sqrt((line.End.Y - line.Start.Y) ** 2
-                           + (line.End.X - line.Start.X) ** 2)
+        distance = abs((line.End.Y - line.Start.Y) * point.X
+                       - (line.End.X - line.Start.X) * point.Y
+                       + line.End.X * line.Start.Y
+                       - line.End.Y * line.Start.X) \
+                   / math.sqrt((line.End.Y - line.Start.Y) ** 2
+                               + (line.End.X - line.Start.X) ** 2)
 
         if HOST_APP.is_newer_than(2021):
             return UnitUtils.ConvertFromInternalUnits(distance, UnitTypeId.Millimeters)
@@ -204,6 +223,7 @@ class CashedWall(CashedElement):
         return [f for f in self.GetFaces()
                 if Utils.isParallel(f.FaceNormal, cashed_line.Direction)]
 
+
 class CashedFamilyInstance(CashedElement):
     def __init__(self, family_instance):
         CashedElement.__init__(self, family_instance)
@@ -272,48 +292,44 @@ def check_walls():
     # настройка атрибутов
     project_parameters = ProjectParameters.Create(__revit__.Application)
     project_parameters.SetupRevitParams(doc, ProjectParamsConfig.Instance.CheckIsNormalGrid,
-                                             ProjectParamsConfig.Instance.CheckCorrectDistanceGrid)
+                                        ProjectParamsConfig.Instance.CheckCorrectDistanceGrid)
 
     selection = uidoc.GetSelectedElements()
     if len(list(selection)) == 0:
-        forms.alert("Выберите хотя бы одну ось, стену или колонну.", title="Предупреждение!", footer="dosymep", exitscript=True)
+        forms.alert("Выберите хотя бы одну ось, стену или колонну.", title="Предупреждение!", footer="dosymep",
+                    exitscript=True)
 
-    selection_grids = [CashedGrid(selected_element) for selected_element in selection if isinstance(selected_element, Grid)]
+    selection_grids = [CashedGrid(selected_element) for selected_element in selection if
+                       isinstance(selected_element, Grid)]
     if len(selection_grids) == 0:
         forms.alert("Выберите хотя бы одну ось.", title="Предупреждение!", footer="dosymep", exitscript=True)
 
     cashed_elements = get_cashed_elements(selection)
     if len(cashed_elements) == 0:
-        forms.alert("Выберите хотя бы одну стену или колонну.", title="Предупреждение!", footer="dosymep", exitscript=True)
+        forms.alert("Выберите хотя бы одну стену или колонну.", title="Предупреждение!", footer="dosymep",
+                    exitscript=True)
 
     scale = get_scale()
-    with Transaction(doc, "Проверка стен") as t:
-        t.Start()
-
+    with revit.Transaction("BIM: Проверка стен"):
         for cashed_element in cashed_elements:
             cashed_element.Element.SetParamValue(ProjectParamsConfig.Instance.CheckIsNormalGrid, 0)
             cashed_element.Element.SetParamValue(ProjectParamsConfig.Instance.CheckCorrectDistanceGrid, 0)
 
         for cashed_grid in selection_grids:
-            normal_walls = [cashed_element for cashed_element in cashed_elements if cashed_element.IsNormal(cashed_grid)]
+            normal_walls = [cashed_element for cashed_element in cashed_elements if
+                            cashed_element.IsNormal(cashed_grid)]
             for cashed_element in normal_walls:
                 cashed_element.Element.SetParamValue(ProjectParamsConfig.Instance.CheckIsNormalGrid, 1)
 
                 distance = Utils.GetDistance(cashed_grid, cashed_element.LocationPoint)
-                cashed_element.Element.SetParamValue(ProjectParamsConfig.Instance.CheckCorrectDistanceGrid, int(round(distance, 5) % scale == 0))
+                cashed_element.Element.SetParamValue(ProjectParamsConfig.Instance.CheckCorrectDistanceGrid,
+                                                     int(round(distance, 5) % scale == 0))
 
-        t.Commit()
+
+@log_plugin(EXEC_PARAMS.command_name)
+def script_execute(plugin_logger):
+    check_walls()
+    show_executed_script_notification()
 
 
-doc = __revit__.ActiveUIDocument.Document
-uidoc = __revit__.ActiveUIDocument
-view = doc.ActiveView
-
-geometryOptions = Options()
-geometryOptions.View = view
-geometryOptions.ComputeReferences = True
-
-EPS = 1E-9
-GRAD_EPS = math.radians(0.01)
-
-check_walls()
+script_execute()
