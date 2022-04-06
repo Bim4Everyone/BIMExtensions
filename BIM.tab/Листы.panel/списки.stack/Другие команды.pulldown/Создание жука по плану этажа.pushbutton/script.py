@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 
 import clr
-
 clr.AddReference('System')
 clr.AddReference("System.Windows.Forms")
 
@@ -13,7 +12,6 @@ clr.AddReference("dosymep.Revit.dll")
 clr.AddReference("dosymep.Bim4Everyone.dll")
 
 import dosymep
-
 clr.ImportExtensions(dosymep.Revit)
 clr.ImportExtensions(dosymep.Bim4Everyone)
 
@@ -24,8 +22,11 @@ from Autodesk.Revit.DB import *
 import pyevent  # pylint: disable=import-error
 import os.path as op
 from pyrevit import forms
+from pyrevit import EXEC_PARAMS
 from pyrevit.forms import Reactive, reactive
 from pyrevit.revit import Transaction
+
+from dosymep_libs.bim4everyone import *
 
 
 class MainWindow(forms.WPFWindow):
@@ -130,7 +131,8 @@ class CreateLegendCommand(ICommand):
         legends = [x for x in legends if x.CanViewBeDuplicated(ViewDuplicateOption.Duplicate)]
         base_legend = legends[0]
 
-        walls = [x for x in FilteredElementCollector(doc, view.Id).OfClass(Wall).WhereElementIsNotElementType().ToElements()]
+        walls = [x for x in
+                 FilteredElementCollector(doc, view.Id).OfClass(Wall).WhereElementIsNotElementType().ToElements()]
 
         scale = 1
         legend_name = self.__view_model.legend_name
@@ -169,6 +171,11 @@ class CreateLegendCommand(ICommand):
             return False
 
 
-main_window = MainWindow()
-main_window.DataContext = MainWindowViewModel()
-main_window.show_dialog()
+@log_plugin(EXEC_PARAMS.command_name)
+def script_execute(plugin_logger):
+    main_window = MainWindow()
+    main_window.DataContext = MainWindowViewModel()
+    main_window.show_dialog()
+
+
+script_execute()

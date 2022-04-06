@@ -2,13 +2,16 @@
 
 from pySpeech.ViewSheets import *
 
-__title__ = 'Автонумерация'
+from pyrevit import EXEC_PARAMS
+from dosymep_libs.bim4everyone import *
 
-__doc__ = 'Полностью перенумеровывает альбом, лист которого выделен.\n' \
-          'Нумерация начинается с 1.'
+@log_plugin(EXEC_PARAMS.command_name)
+def script_execute(plugin_logger):
+    order_view = OrderViewSheetModel(DocumentRepository(__revit__))
 
-order_view = OrderViewSheetModel(DocumentRepository(__revit__))
+    order_view.LoadViewSheets()
+    order_view.CheckUniquesNames()
+    order_view.OrderViewSheets()
 
-order_view.LoadViewSheets()
-order_view.CheckUniquesNames()
-order_view.OrderViewSheets()
+
+script_execute()

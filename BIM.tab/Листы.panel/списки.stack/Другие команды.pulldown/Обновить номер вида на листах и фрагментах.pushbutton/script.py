@@ -130,7 +130,8 @@ def show_alert(title, table_columns, table_data, exit_script=False):
         script.exit()
 
 
-def update_view_number():
+@log_plugin(EXEC_PARAMS.command_name)
+def script_execute(plugin_logger):
     project_parameters = ProjectParameters.Create(application)
     project_parameters.SetupRevitParams(document, ProjectParamsConfig.Instance.ViewNumberOnSheet,
                                         ProjectParamsConfig.Instance.WithFullSheetNumber, ProjectParamsConfig.Instance.WithSheetNumber)
@@ -152,4 +153,4 @@ def update_view_number():
         transaction.Commit()
 
 
-update_view_number()
+script_execute()

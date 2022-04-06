@@ -6,7 +6,6 @@ import clr
 clr.AddReference("dosymep.Revit.dll")
 clr.AddReference("dosymep.Bim4Everyone.dll")
 
-
 import dosymep
 clr.ImportExtensions(dosymep.Revit)
 clr.ImportExtensions(dosymep.Bim4Everyone)
@@ -16,6 +15,9 @@ from Autodesk.Revit.DB import *
 from pyrevit import forms
 from pyrevit import revit
 from pyrevit import script
+from pyrevit import EXEC_PARAMS
+
+from dosymep_libs.bim4everyone import *
 
 
 class Option(object):
@@ -146,106 +148,111 @@ def GroupByParameter(lst, func):
     return res
 
 
-##########################################################################
-# ---------------------------------MAIN-----------------------------------#
-##########################################################################
-doc = __revit__.ActiveUIDocument.Document
-uidoc = __revit__.ActiveUIDocument
-app = __revit__.Application
+@log_plugin(EXEC_PARAMS.command_name)
+def script_execute(plugin_logger):
+    ##########################################################################
+    # ---------------------------------MAIN-----------------------------------#
+    ##########################################################################
+    doc = __revit__.ActiveUIDocument.Document
+    uidoc = __revit__.ActiveUIDocument
+    app = __revit__.Application
 
-##########################################################################
-# -------------------------Ввод параметров--------------------------------#
-##########################################################################
-viewPorts = FilteredElementCollector(doc).OfClass(Viewport)
+    ##########################################################################
+    # -------------------------Ввод параметров--------------------------------#
+    ##########################################################################
+    viewPorts = FilteredElementCollector(doc).OfClass(Viewport)
 
-ports = [Option(x) for x in viewPorts]  # ,x.priority x.number,
-ports = [x for x in ports if x.number[0].isalpha()]  # ,x.priority x.number,
+    ports = [Option(x) for x in viewPorts]  # ,x.priority x.number,
+    ports = [x for x in ports if x.number[0].isalpha()]  # ,x.priority x.number,
 
-sortedPorts = sorted(ports, key=lambda x: (x.str_number, x.priority))
+    sortedPorts = sorted(ports, key=lambda x: (x.str_number, x.priority))
 
-res = SelectPortViewForm.show(sortedPorts, title='Выравнивание видов', View2align2=sortedPorts)
-if res:
-    ports_toalign = [x for x in res['ports_toalign']]
-    port_toalignto = res['port_toalignto']
-    alignmentPoint = res['alignmentPoint']
-else:
-    script.exit()
+    res = SelectPortViewForm.show(sortedPorts, title='Выравнивание видов', View2align2=sortedPorts)
+    if res:
+        ports_toalign = [x for x in res['ports_toalign']]
+        port_toalignto = res['port_toalignto']
+        alignmentPoint = res['alignmentPoint']
+    else:
+        script.exit()
 
+    primaryViewPort = port_toalignto.obj
 
-primaryViewPort = port_toalignto.obj
+    with revit.Transaction("Выравнивание видов"):
+        for port in ports_toalign:
+            currentViewPort = port.obj
+            if alignmentPoint == 'Top':
+                d1 = primaryViewPort.GetBoxOutline().MaximumPoint.Y  # MinimumPoint
+                d2 = currentViewPort.GetBoxOutline().MaximumPoint.Y
+                delta = d1 - d2
+                newCenter = currentViewPort.GetBoxCenter().Add(delta)  # .Subtract(XYZ(delta_center,0,0))
+                currentViewPort.SetBoxCenter(newCenter)
 
-with revit.Transaction("Выравнивание видов"):
-    for port in ports_toalign:
-        currentViewPort = port.obj
-        if alignmentPoint == 'Top':
-            d1 = primaryViewPort.GetBoxOutline().MaximumPoint.Y  # MinimumPoint
-            d2 = currentViewPort.GetBoxOutline().MaximumPoint.Y
-            delta = d1 - d2
-            newCenter = currentViewPort.GetBoxCenter().Add(delta)  # .Subtract(XYZ(delta_center,0,0))
-            currentViewPort.SetBoxCenter(newCenter)
+            elif alignmentPoint == 'Right':
+                d1 = primaryViewPort.GetBoxOutline().MaximumPoint.X  # MinimumPoint
+                d2 = currentViewPort.GetBoxOutline().MaximumPoint.X
+                delta = d1 - d2
+                newCenter = currentViewPort.GetBoxCenter().Add(delta)  # .Subtract(XYZ(delta_center,0,0))
+                currentViewPort.SetBoxCenter(newCenter)
 
-        elif alignmentPoint == 'Right':
-            d1 = primaryViewPort.GetBoxOutline().MaximumPoint.X  # MinimumPoint
-            d2 = currentViewPort.GetBoxOutline().MaximumPoint.X
-            delta = d1 - d2
-            newCenter = currentViewPort.GetBoxCenter().Add(delta)  # .Subtract(XYZ(delta_center,0,0))
-            currentViewPort.SetBoxCenter(newCenter)
+            elif alignmentPoint == 'Top Right':
+                d1 = primaryViewPort.GetBoxOutline().MaximumPoint  # MinimumPoint
+                d2 = currentViewPort.GetBoxOutline().MaximumPoint
+                delta = d1 - d2
+                newCenter = currentViewPort.GetBoxCenter().Add(delta)
+                currentViewPort.SetBoxCenter(newCenter)
 
-        elif alignmentPoint == 'Top Right':
-            d1 = primaryViewPort.GetBoxOutline().MaximumPoint  # MinimumPoint
-            d2 = currentViewPort.GetBoxOutline().MaximumPoint
-            delta = d1 - d2
-            newCenter = currentViewPort.GetBoxCenter().Add(delta)
-            currentViewPort.SetBoxCenter(newCenter)
+            elif alignmentPoint == 'Top Left':
+                p_Max = primaryViewPort.GetBoxOutline().MaximumPoint  # MinimumPoint
+                p_Min = primaryViewPort.GetBoxOutline().MinimumPoint
+                c_Max = currentViewPort.GetBoxOutline().MaximumPoint
+                c_Min = currentViewPort.GetBoxOutline().MinimumPoint
 
-        elif alignmentPoint == 'Top Left':
-            p_Max = primaryViewPort.GetBoxOutline().MaximumPoint  # MinimumPoint
-            p_Min = primaryViewPort.GetBoxOutline().MinimumPoint
-            c_Max = currentViewPort.GetBoxOutline().MaximumPoint
-            c_Min = currentViewPort.GetBoxOutline().MinimumPoint
+                delta = p_Max - c_Max
+                P_delta_X = abs(p_Max.X - p_Min.X)
+                C_delta_X = abs(c_Max.X - c_Min.X)
 
-            delta = p_Max - c_Max
-            P_delta_X = abs(p_Max.X - p_Min.X)
-            C_delta_X = abs(c_Max.X - c_Min.X)
+                newCenter = currentViewPort.GetBoxCenter().Add(delta).Subtract(XYZ(P_delta_X - C_delta_X, 0, 0))
+                currentViewPort.SetBoxCenter(newCenter)
 
-            newCenter = currentViewPort.GetBoxCenter().Add(delta).Subtract(XYZ(P_delta_X - C_delta_X, 0, 0))
-            currentViewPort.SetBoxCenter(newCenter)
+            elif alignmentPoint == 'Bottom':
+                P_Min = primaryViewPort.GetBoxOutline().MinimumPoint.Y  # MinimumPoint
+                c_Min = currentViewPort.GetBoxOutline().MinimumPoint.Y
+                delta = c_Min - P_Min
+                newCenter = currentViewPort.GetBoxCenter().Subtract(delta)
+                currentViewPort.SetBoxCenter(newCenter)
 
-        elif alignmentPoint == 'Bottom':
-            P_Min = primaryViewPort.GetBoxOutline().MinimumPoint.Y  # MinimumPoint
-            c_Min = currentViewPort.GetBoxOutline().MinimumPoint.Y
-            delta = c_Min - P_Min
-            newCenter = currentViewPort.GetBoxCenter().Subtract(delta)
-            currentViewPort.SetBoxCenter(newCenter)
+            elif alignmentPoint == 'Left':
+                P_Min = primaryViewPort.GetBoxOutline().MinimumPoint.X  # MinimumPoint
+                c_Min = currentViewPort.GetBoxOutline().MinimumPoint.X
+                delta = c_Min - P_Min
+                newCenter = currentViewPort.GetBoxCenter().Subtract(delta)
+                currentViewPort.SetBoxCenter(newCenter)
 
-        elif alignmentPoint == 'Left':
-            P_Min = primaryViewPort.GetBoxOutline().MinimumPoint.X  # MinimumPoint
-            c_Min = currentViewPort.GetBoxOutline().MinimumPoint.X
-            delta = c_Min - P_Min
-            newCenter = currentViewPort.GetBoxCenter().Subtract(delta)
-            currentViewPort.SetBoxCenter(newCenter)
+            elif alignmentPoint == 'Bottom Left':
+                P_Min = primaryViewPort.GetBoxOutline().MinimumPoint  # MinimumPoint
+                c_Min = currentViewPort.GetBoxOutline().MinimumPoint
+                delta = c_Min - P_Min
+                newCenter = currentViewPort.GetBoxCenter().Subtract(delta)
+                currentViewPort.SetBoxCenter(newCenter)
 
-        elif alignmentPoint == 'Bottom Left':
-            P_Min = primaryViewPort.GetBoxOutline().MinimumPoint  # MinimumPoint
-            c_Min = currentViewPort.GetBoxOutline().MinimumPoint
-            delta = c_Min - P_Min
-            newCenter = currentViewPort.GetBoxCenter().Subtract(delta)
-            currentViewPort.SetBoxCenter(newCenter)
+            elif alignmentPoint == 'Bottom Right':
+                p_Max = primaryViewPort.GetBoxOutline().MaximumPoint  # MinimumPoint
+                p_Min = primaryViewPort.GetBoxOutline().MinimumPoint  # MinimumPoint
+                c_Max = currentViewPort.GetBoxOutline().MaximumPoint
+                c_Min = currentViewPort.GetBoxOutline().MinimumPoint
+                delta = c_Min - p_Min
+                P_delta_X = abs(p_Max.X - p_Min.X)
+                C_delta_X = abs(c_Max.X - c_Min.X)
+                newCenter = currentViewPort.GetBoxCenter().Subtract(delta).Add(XYZ(P_delta_X - C_delta_X, 0, 0))
+                currentViewPort.SetBoxCenter(newCenter)
 
-        elif alignmentPoint == 'Bottom Right':
-            p_Max = primaryViewPort.GetBoxOutline().MaximumPoint  # MinimumPoint
-            p_Min = primaryViewPort.GetBoxOutline().MinimumPoint  # MinimumPoint
-            c_Max = currentViewPort.GetBoxOutline().MaximumPoint
-            c_Min = currentViewPort.GetBoxOutline().MinimumPoint
-            delta = c_Min - p_Min
-            P_delta_X = abs(p_Max.X - p_Min.X)
-            C_delta_X = abs(c_Max.X - c_Min.X)
-            newCenter = currentViewPort.GetBoxCenter().Subtract(delta).Add(XYZ(P_delta_X - C_delta_X, 0, 0))
-            currentViewPort.SetBoxCenter(newCenter)
+            elif alignmentPoint == 'Center':
+                p_Center = primaryViewPort.GetBoxCenter()
+                c_Center = currentViewPort.GetBoxCenter()
+                delta = c_Center - p_Center
+                newCenter = currentViewPort.GetBoxCenter().Subtract(delta)
+                currentViewPort.SetBoxCenter(newCenter)
 
-        elif alignmentPoint == 'Center':
-            p_Center = primaryViewPort.GetBoxCenter()
-            c_Center = currentViewPort.GetBoxCenter()
-            delta = c_Center - p_Center
-            newCenter = currentViewPort.GetBoxCenter().Subtract(delta)
-            currentViewPort.SetBoxCenter(newCenter)
+    show_executed_script_notification()
+
+script_execute()

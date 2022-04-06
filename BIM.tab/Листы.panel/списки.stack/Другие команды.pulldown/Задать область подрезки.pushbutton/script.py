@@ -2,11 +2,7 @@
 from pyrevit.framework import List
 from pyrevit import revit, DB, UI
 from pyrevit import forms
-
-# note: no needs to check for curves in polygon.
-# currently it takes a straight line between the start and end point.
-# (no errors so far)
-# todo: ask to delete polygon when done
+from pyrevit import EXEC_PARAMS
 
 DEBUG = False
 MAKELINES = False
@@ -15,11 +11,14 @@ selection = revit.get_selection()
 
 import sys
 import clr
-
 clr.AddReference('System')
 clr.AddReference('System.IO')
 clr.AddReference("System.Windows.Forms")
+
+from dosymep_libs.bim4everyone import *
+
 from System.Windows.Forms import MessageBox
+
 
 def alert(msg):
     MessageBox.Show(msg)
@@ -114,7 +113,8 @@ def sheet_to_view_transform(sheetcoord):
     return DB.XYZ(newx, newy, 0.0)
 
 
-def set_crop_boundary():
+@log_plugin(EXEC_PARAMS.command_name)
+def script_execute(plugin_logger):
     selview = selvp = None
     vpboundaryoffset = 0.01
     selviewports = []
@@ -133,7 +133,8 @@ def set_crop_boundary():
         forms.alert('Выберите один вид и замкнутый контур линий детализации. Не выбран вид.')
 
     if len(selboundary) < 3:
-        forms.alert('Выберите один вид и замкнутый контур линий детализации. Не выбран замкнутый контур линий детализации.')
+        forms.alert(
+            'Выберите один вид и замкнутый контур линий детализации. Не выбран замкнутый контур линий детализации.')
 
     if selview is None:
         alert("Не выбран вид")
@@ -215,6 +216,6 @@ def set_crop_boundary():
 
 
 if selection:
-    set_crop_boundary()
+    script_execute()
 else:
     forms.alert('Выберите один вид и замкнутый контур линий детализации.')

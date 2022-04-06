@@ -1,21 +1,23 @@
 # -*- coding: utf-8 -*-
 
 import clr
-
 clr.AddReference("dosymep.Revit.dll")
 clr.AddReference("dosymep.Bim4Everyone.dll")
 
 from pyrevit import revit, DB
 from pyrevit import forms
 from pyrevit import script
+from pyrevit import EXEC_PARAMS
+
 from Autodesk.Revit.DB import *
 
 import dosymep
-
 clr.ImportExtensions(dosymep.Revit)
 clr.ImportExtensions(dosymep.Bim4Everyone)
 
 from dosymep.Bim4Everyone.SharedParams import *
+
+from dosymep_libs.bim4everyone import *
 
 import re
 from System.Windows.Data import CollectionViewSource, PropertyGroupDescription
@@ -174,40 +176,45 @@ def getSheets():
         return sel_sheets
 
 
-cur_sheet = revit.active_view
-if not isinstance(cur_sheet, DB.ViewSheet):
-    forms.alert('Откройте лист, с которого надо перенести виды.', exitscript=True)
+@log_plugin(EXEC_PARAMS.command_name)
+def script_execute(plugin_logger):
+    cur_sheet = revit.active_view
+    if not isinstance(cur_sheet, DB.ViewSheet):
+        forms.alert('Откройте лист, с которого надо перенести виды.', exitscript=True)
 
-sel_viewports = revit.pick_elements()
-if not sel_viewports:
-    forms.alert('Не были выбраны виды для переноса.', exitscript=True)
+    sel_viewports = revit.pick_elements()
+    if not sel_viewports:
+        forms.alert('Не были выбраны виды для переноса.', exitscript=True)
 
-sel_viewports = [view_ports for view_ports in sel_viewports if
-                 isinstance(view_ports, DB.Viewport) or isinstance(view_ports, DB.ScheduleSheetInstance)]
-if not sel_viewports:
-    forms.alert('Не были выбраны виды для переноса.', exitscript=True)
+    sel_viewports = [view_ports for view_ports in sel_viewports if
+                     isinstance(view_ports, DB.Viewport) or isinstance(view_ports, DB.ScheduleSheetInstance)]
+    if not sel_viewports:
+        forms.alert('Не были выбраны виды для переноса.', exitscript=True)
 
-dest_sheet = getSheets()
-if not dest_sheet:
-    script.exit()
+    dest_sheet = getSheets()
+    if not dest_sheet:
+        script.exit()
 
-with revit.Transaction('BIM: Перенос видов'):
-    for sheet in dest_sheet:
-        for view_port in sel_viewports:
-            if isinstance(view_port, DB.Viewport):
-                view_id = view_port.ViewId
-                vp_center = view_port.GetBoxCenter()
-                vp_type_id = view_port.GetTypeId()
+    with revit.Transaction('BIM: Перенос видов'):
+        for sheet in dest_sheet:
+            for view_port in sel_viewports:
+                if isinstance(view_port, DB.Viewport):
+                    view_id = view_port.ViewId
+                    vp_center = view_port.GetBoxCenter()
+                    vp_type_id = view_port.GetTypeId()
 
-                cur_sheet.DeleteViewport(view_port)
-                nvp = DB.Viewport.Create(revit.doc,
-                                         sheet.Id,
-                                         view_id,
-                                         vp_center)
-                nvp.ChangeTypeId(vp_type_id)
-            elif isinstance(view_port, DB.ScheduleSheetInstance):
-                nvp = \
-                    DB.ScheduleSheetInstance.Create(
-                        revit.doc, sheet.Id, view_port.ScheduleId, view_port.Point
-                    )
-                revit.doc.Delete(view_port.Id)
+                    cur_sheet.DeleteViewport(view_port)
+                    nvp = DB.Viewport.Create(revit.doc,
+                                             sheet.Id,
+                                             view_id,
+                                             vp_center)
+                    nvp.ChangeTypeId(vp_type_id)
+                elif isinstance(view_port, DB.ScheduleSheetInstance):
+                    nvp = \
+                        DB.ScheduleSheetInstance.Create(
+                            revit.doc, sheet.Id, view_port.ScheduleId, view_port.Point
+                        )
+                    revit.doc.Delete(view_port.Id)
+
+
+script_execute()
