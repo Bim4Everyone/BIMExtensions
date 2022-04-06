@@ -324,6 +324,7 @@ def script_execute(plugin_logger):
                 p.excel.Save()
                 p.excel.Dispose()
 
+            show_executed_script_notification()
         except Exception as ex:
             print "Не удалось сохранить спецификацию '{}'".format(item.name)
             print "Исключение '{}'".format(ex)
