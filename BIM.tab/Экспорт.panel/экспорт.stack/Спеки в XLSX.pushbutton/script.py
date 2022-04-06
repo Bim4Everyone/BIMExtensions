@@ -24,6 +24,8 @@ from System.Windows.Data import CollectionViewSource, PropertyGroupDescription
 from OfficeOpenXml import *
 from Autodesk.Revit.DB import *
 
+from dosymep_libs.bim4everyone import *
+
 
 from dosymep.Bim4Everyone.Templates import ProjectParameters
 from dosymep.Bim4Everyone.ProjectParams import ProjectParamsConfig
@@ -31,6 +33,7 @@ from dosymep.Bim4Everyone.ProjectParams import ProjectParamsConfig
 
 from pyrevit import forms
 from pyrevit import script
+from pyrevit import EXEC_PARAMS
 
 
 def FilterString(obj):
@@ -265,61 +268,65 @@ class PrintSheetsWindow(forms.WPFWindow):
         except:
             script.exit()
 
+@log_plugin(EXEC_PARAMS.command_name)
+def script_execute(plugin_logger):
+    doc = __revit__.ActiveUIDocument.Document
+    uidoc = __revit__.ActiveUIDocument
+    app = __revit__.Application
+    view = __revit__.ActiveUIDocument.ActiveGraphicalView
+    view = doc.ActiveView
 
-doc = __revit__.ActiveUIDocument.Document
-uidoc = __revit__.ActiveUIDocument
-app = __revit__.Application
-view = __revit__.ActiveUIDocument.ActiveGraphicalView
-view = doc.ActiveView
+    viewSchedules = FilteredElementCollector(doc).OfClass(ViewSchedule).ToElements()
+    items = [CheckBoxOption(x) for x in viewSchedules]
+    items = sorted(items, key=lambda item: (item.view_assignment, item.name))
 
-viewSchedules = FilteredElementCollector(doc).OfClass(ViewSchedule).ToElements()
-items = [CheckBoxOption(x) for x in viewSchedules]
-items = sorted(items, key=lambda item: (item.view_assignment, item.name))
+    # items = sorted(items, key=lambda item: item.name)
 
-# items = sorted(items, key=lambda item: item.name)
+    view = CollectionViewSource.GetDefaultView(items)
+    groupDescription = PropertyGroupDescription('view_assignment')
+    view.GroupDescriptions.Add(groupDescription)
 
-view = CollectionViewSource.GetDefaultView(items)
-groupDescription = PropertyGroupDescription('view_assignment')
-view.GroupDescriptions.Add(groupDescription)
+    window = PrintSheetsWindow('selectViews.xaml', list=view)
+    window.ShowDialog()
 
-window = PrintSheetsWindow('selectViews.xaml', list=view)
-window.ShowDialog()
+    sel_sheets = ''
+    if hasattr(window, 'response'):
+        sheets = window.response
+        sel_sheets = sheets['sheets']
+        save2_1file = sheets['oneFile']
 
-sel_sheets = ''
-if hasattr(window, 'response'):
-    sheets = window.response
-    sel_sheets = sheets['sheets']
-    save2_1file = sheets['oneFile']
+    if not sel_sheets:
+        script.exit()
 
-if not sel_sheets:
-    script.exit()
+    folder_name = forms.pick_folder(title="Выберите папку для сохранения спецификаций")
+    if folder_name:
+        views = []
+        file_info = ''
 
-folder_name = forms.pick_folder(title="Выберите папку для сохранения спецификаций")
-if folder_name:
-    views = []
-    file_info = ''
+        for item in sel_sheets:
+            if file_info == '':
+                file_info = FileInfo(folder_name + "\\" + FilterString(item.name) + ".xlsx")
+            views.append(item.obj)
 
-    for item in sel_sheets:
-        if file_info == '':
-            file_info = FileInfo(folder_name + "\\" + FilterString(item.name) + ".xlsx")
-        views.append(item.obj)
-
-    converter = TabelsConverter(views, save2_1file)
-    package = converter.excel_file
-    try:
-        count = 1
-        for p in package:
-            path_file = folder_name + "\\" + FilterString(p.name) + ".xlsx"
+        converter = TabelsConverter(views, save2_1file)
+        package = converter.excel_file
+        try:
             count = 1
-            while os.path.isfile(path_file):
-                path_file = folder_name + "\\" + FilterString(p.name) + "-" + str(count) + ".xlsx"
-                count += 1
+            for p in package:
+                path_file = folder_name + "\\" + FilterString(p.name) + ".xlsx"
+                count = 1
+                while os.path.isfile(path_file):
+                    path_file = folder_name + "\\" + FilterString(p.name) + "-" + str(count) + ".xlsx"
+                    count += 1
 
-            file_info = FileInfo(path_file)
-            p.excel.SaveAs(file_info)
-            p.excel.Save()
-            p.excel.Dispose()
+                file_info = FileInfo(path_file)
+                p.excel.SaveAs(file_info)
+                p.excel.Save()
+                p.excel.Dispose()
 
-    except Exception as ex:
-        print "Не удалось сохранить спецификацию '{}'".format(item.name)
-        print "Исключение '{}'".format(ex)
+        except Exception as ex:
+            print "Не удалось сохранить спецификацию '{}'".format(item.name)
+            print "Исключение '{}'".format(ex)
+
+
+script_execute()
