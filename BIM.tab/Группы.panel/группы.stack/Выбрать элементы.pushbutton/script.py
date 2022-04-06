@@ -10,6 +10,9 @@ clr.ImportExtensions(dosymep.Bim4Everyone)
 
 from Autodesk.Revit.DB import *
 from pyrevit import revit, DB
+from pyrevit import EXEC_PARAMS
+
+from dosymep_libs.bim4everyone import *
 
 __context__ = 'selection'
 
@@ -46,8 +49,13 @@ def get_group_elements(group):
                     yield group
 
 
-elements = []
-for selected in selection:
-    elements.extend(get_group(selected))
+@log_plugin(EXEC_PARAMS.command_name)
+def script_execute(plugin_logger):
+    elements = []
+    for selected in selection:
+        elements.extend(get_group(selected))
 
-selection.set_to([e.Id for e in elements])
+    selection.set_to([e.Id for e in elements])
+    show_executed_script_notification()
+
+script_execute()

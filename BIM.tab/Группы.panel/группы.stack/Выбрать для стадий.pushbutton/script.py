@@ -10,6 +10,8 @@ clr.ImportExtensions(dosymep.Bim4Everyone)
 
 from Autodesk.Revit.DB import *
 from pyrevit import revit, DB
+from pyrevit import EXEC_PARAMS
+from dosymep_libs.bim4everyone import *
 
 doc = __revit__.ActiveUIDocument.Document
 
@@ -53,12 +55,13 @@ def filter_elements(elements):
             yield element
 
 
-def execute():
+@log_plugin(EXEC_PARAMS.command_name)
+def script_execute(plugin_logger):
     elements = []
     for selected in selection:
         elements.extend(filter_elements(get_group(selected)))
 
     selection.set_to([e.Id for e in elements])
+    show_executed_script_notification()
 
-
-execute()
+script_execute()
