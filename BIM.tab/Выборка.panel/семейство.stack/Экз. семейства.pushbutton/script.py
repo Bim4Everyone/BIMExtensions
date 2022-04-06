@@ -140,13 +140,13 @@ def script_execute(plugin_logger):
         # print selection
         for el in selection:
             # print el
-            if isinstance(el, Wall):
+            if isinstance(el, DB.Wall):
 
                 family = el.WallType.FamilyName
-                wallSet = [x for x in DB.FilteredElementCollector(revit.doc).OfClass(Wall).ToElements() if
+                wallSet = [x for x in DB.FilteredElementCollector(revit.doc).OfClass(DB.Wall).ToElements() if
                            x.WallType.FamilyName == family and revit.doc.GetElement(
                                x.LevelId).Name in LEVEL and x.GetParamValueOrDefault(
-                               BuiltInParameter.WALL_BASE_CONSTRAINT)]
+                               DB.BuiltInParameter.WALL_BASE_CONSTRAINT)]
 
                 # break
                 for wall in wallSet:
