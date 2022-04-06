@@ -10,6 +10,8 @@ from pyrevit import HOST_APP
 from pyrevit import EXEC_PARAMS
 from pyrevit.userconfig import user_config
 
+from dosymep_libs.bim4everyone import *
+
 if HOST_APP.version == "2020":
     clr.AddReference("PlatformSettings.dll")
 else:
@@ -29,7 +31,8 @@ def __selfinit__(script_cmp, ui_button_cmp, __rvt__):
         user_config.user_locale = 'en_us'
 
 
-def open_platform_settings():
+@log_plugin(EXEC_PARAMS.command_name)
+def script_execute(plugin_logger):
     settings = PlatformSettings.PlatformSettingsCommand()
     result = settings.OpenSettingsWindow(__revit__)
 
@@ -39,5 +42,6 @@ def open_platform_settings():
         from pyrevit.loader.sessionmgr import execute_command
         execute_command("01dotbim-bim-установки-настройки-обновить")
 
+
 if __name__ == '__main__':
-    open_platform_settings()
+    script_execute()
