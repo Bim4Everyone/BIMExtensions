@@ -123,7 +123,7 @@ class SelectLevelFrom(forms.TemplateUserInputWindow):
 
 @log_plugin(EXEC_PARAMS.command_name)
 def script_execute(plugin_logger):
-    lvls = FilteredElementCollector(revit.doc).OfClass(Level)
+    lvls = DB.FilteredElementCollector(revit.doc).OfClass(DB.Level)
     ops = [Option(x) for x in lvls]
     ops.sort(key=lambda x: x.elevation)
     res = SelectLevelFrom.show(ops,
