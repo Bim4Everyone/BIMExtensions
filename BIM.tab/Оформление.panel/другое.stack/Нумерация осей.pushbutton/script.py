@@ -7,14 +7,19 @@ import math
 
 clr.AddReference('System')
 clr.AddReference("System.Windows.Forms")
+
 from System.Windows.Forms import MessageBox
 from System.Collections.Generic import List
-from Autodesk.Revit.DB import FilteredElementCollector, DimensionType, Transaction, TransactionGroup, ElementId, \
-    BuiltInCategory, Grid, XYZ
+from Autodesk.Revit.DB import *
 from Autodesk.Revit.Creation import ItemFactoryBase
 
 from pyrevit import forms
+from pyrevit import revit
+from pyrevit import EXEC_PARAMS
 from pyrevit.framework import Controls
+
+from dosymep_libs.bim4everyone import *
+
 
 class SelectLevelFrom(forms.TemplateUserInputWindow):
     xaml_source = op.join(op.dirname(__file__), 'MainWindow.xaml')
@@ -90,7 +95,7 @@ class GridElement:
         else:
             self.angle = round(
                 (math.atan((self.endPoint(1).Y - self.endPoint(0).Y) / (self.endPoint(1).X - self.endPoint(0).X))) * (
-                            180 / (math.pi)), 3)
+                        180 / (math.pi)), 3)
 
         self.name = self.__grid.Name
 
@@ -156,170 +161,165 @@ def flipList(list):
     return result
 
 
-doc = __revit__.ActiveUIDocument.Document
-uidoc = __revit__.ActiveUIDocument
-app = __revit__.Application
-view = __revit__.ActiveUIDocument.ActiveGraphicalView
-view = doc.ActiveView
-selections = [elId for elId in __revit__.ActiveUIDocument.Selection.GetElementIds() if
-              isinstance(doc.GetElement(elId), Grid)]
-grids = [x for x in FilteredElementCollector(doc).OfCategory(BuiltInCategory.OST_Grids).OfClass(Grid).ToElementIds() if
-         x not in selections]
-selections = [doc.GetElement(x) for x in selections]
-grids = [doc.GetElement(x).Name for x in grids]
+@log_plugin(EXEC_PARAMS.command_name)
+def script_execute(plugin_logger):
+    doc = __revit__.ActiveUIDocument.Document
+    uidoc = __revit__.ActiveUIDocument
+    app = __revit__.Application
+    view = __revit__.ActiveUIDocument.ActiveGraphicalView
+    view = doc.ActiveView
+    selections = [elId for elId in __revit__.ActiveUIDocument.Selection.GetElementIds() if
+                  isinstance(doc.GetElement(elId), Grid)]
+    grids = [x for x in FilteredElementCollector(doc).OfCategory(BuiltInCategory.OST_Grids).OfClass(Grid).ToElementIds() if
+             x not in selections]
+    selections = [doc.GetElement(x) for x in selections]
+    grids = [doc.GetElement(x).Name for x in grids]
 
-if len(selections) == 0:
-    MessageBox.Show('Вы должны выбрать хотя бы одну ось', 'Error!')
-    raise SystemExit(1)
-res = SelectLevelFrom.show([], title='Перенумерация осей', button_name='Ок')
-if not res:
-    raise SystemExit(1)
-if not res['start']:
-    raise SystemExit(1)
-
-PREFIX = res['prefix']
-SUFFIX = res['suffix']
-IS_REVERSE = res['isReverse']
-
-LENGTH = len(selections)
-NAME = res['start']
-result = []
-IS_DIGIT = NAME.isdigit()
-
-if not IS_DIGIT:
-    CHARACTERS = [
-        "А",
-        "Б",
-        "В",
-        "Г",
-        "Д",
-        "Е",
-        "Ж",
-        "И",
-        "К",
-        "Л",
-        "М",
-        "Н",
-        "П",
-        "Р",
-        "С",
-        "Т",
-        "У",
-        "Ф",
-        "Ш",
-        "Э",
-        "Ю",
-        "Я",
-    ]
-    CHARACTERS_DICT = {
-        "А": 1,
-        "Б": 2,
-        "В": 3,
-        "Г": 4,
-        "Д": 5,
-        "Е": 6,
-        "Ж": 7,
-        "И": 8,
-        "К": 9,
-        "Л": 10,
-        "М": 11,
-        "Н": 12,
-        "П": 13,
-        "Р": 14,
-        "С": 15,
-        "Т": 16,
-        "У": 17,
-        "Ф": 18,
-        "Ш": 19,
-        "Э": 20,
-        "Ю": 21,
-        "Я": 22,
-    }
-
-    if len(NAME) > 3:
-        MessageBox.Show('Некорректно введен номер!')
+    if len(selections) == 0:
+        MessageBox.Show('Вы должны выбрать хотя бы одну ось', 'Error!')
+        raise SystemExit(1)
+    res = SelectLevelFrom.show([], title='Перенумерация осей', button_name='Ок')
+    if not res:
+        raise SystemExit(1)
+    if not res['start']:
         raise SystemExit(1)
 
-    START_NAME = list(NAME)
-    for sym in START_NAME:
-        if sym not in CHARACTERS_DICT:
-            MessageBox.Show('Некорректно введен номер!')
-            raise SystemExit(1)
+    PREFIX = res['prefix']
+    SUFFIX = res['suffix']
+    IS_REVERSE = res['isReverse']
 
-    START_NUMBER = [CHARACTERS_DICT[x] for x in START_NAME]
-    temp = START_NUMBER[::]
+    LENGTH = len(selections)
+    NAME = res['start']
+    result = []
+    IS_DIGIT = NAME.isdigit()
 
-    for i in range(LENGTH):
-        n = ''
-        for index in temp:
-            n += CHARACTERS[index - 1]
+    if not IS_DIGIT:
+        CHARACTERS = [
+            "А",
+            "Б",
+            "В",
+            "Г",
+            "Д",
+            "Е",
+            "Ж",
+            "И",
+            "К",
+            "Л",
+            "М",
+            "Н",
+            "П",
+            "Р",
+            "С",
+            "Т",
+            "У",
+            "Ф",
+            "Ш",
+            "Э",
+            "Ю",
+            "Я",
+        ]
+        CHARACTERS_DICT = {
+            "А": 1,
+            "Б": 2,
+            "В": 3,
+            "Г": 4,
+            "Д": 5,
+            "Е": 6,
+            "Ж": 7,
+            "И": 8,
+            "К": 9,
+            "Л": 10,
+            "М": 11,
+            "Н": 12,
+            "П": 13,
+            "Р": 14,
+            "С": 15,
+            "Т": 16,
+            "У": 17,
+            "Ф": 18,
+            "Ш": 19,
+            "Э": 20,
+            "Ю": 21,
+            "Я": 22,
+        }
 
-        result.append(n)
-        temp = addChar(temp)
-else:
-    start = int(NAME)
-    for i in range(LENGTH):
-        result.append(str(start + i))
+        if len(NAME) > 3:
+            forms.alert("Некорректно введен номер!", exitscript=True)
 
-for name in result:
-    if PREFIX + name + SUFFIX in grids:
-        MessageBox.Show('Имя ' + PREFIX + name + SUFFIX + ' уже занято!')
-        raise SystemExit(1)
+        START_NAME = list(NAME)
+        for sym in START_NAME:
+            if sym not in CHARACTERS_DICT:
+                forms.alert("Некорректно введен номер!", exitscript=True)
 
-selections = [GridElement(x, IS_DIGIT) for x in selections]
-if len(selections) == 0:
-    MessageBox.Show("вы должны выбрать хотя бы одну ось")
-# raise SystemExit(1)
+        START_NUMBER = [CHARACTERS_DICT[x] for x in START_NAME]
+        temp = START_NUMBER[::]
 
-gridElementContainer = GridElementContainer(selections)
+        for i in range(LENGTH):
+            n = ''
+            for index in temp:
+                n += CHARACTERS[index - 1]
 
-flip = False
-count_flip = 0
-angles_deg = [x.angle for x in selections]
-# Check parrallel
-min_ang = min(angles_deg)
-max_ang = max(angles_deg)
-if max_ang - min_ang > 0.001:
-    MessageBox.Show("Линии должны быть параллельны", "Error")
-    raise SystemExit(1)
-# Check flip Condition
-for x in angles_deg:
-    if x < 89.999 and x > -0.001 and IS_DIGIT:
-        flip = True
-        break
-
-# choose metric to arrang arrays	
-angles = [abs(math.cos(x.angle)) for x in selections]
-less_45 = 0
-big_45 = 0
-for ang in angles:
-    if ang > 0.707:
-        less_45 += 1
+            result.append(n)
+            temp = addChar(temp)
     else:
-        big_45 += 1
+        start = int(NAME)
+        for i in range(LENGTH):
+            result.append(str(start + i))
 
-if big_45 > less_45:
-    selections.sort(key=lambda x: x.getRangeX())
-else:
-    selections.sort(key=lambda x: x.getRangeY())
+    for name in result:
+        if PREFIX + name + SUFFIX in grids:
+            forms.alert('Имя ' + PREFIX + name + SUFFIX + ' уже занято!', exitscript=True)
 
-if IS_REVERSE:
-    flip = not flip
+    selections = [GridElement(x, IS_DIGIT) for x in selections]
+    if len(selections) == 0:
+        forms.alert("Вы должны выбрать хотя бы одну ось.", exitscript=True)
 
-if flip:
-    result = flipList(result)
+    gridElementContainer = GridElementContainer(selections)
 
-tg = TransactionGroup(doc, "Update")
-tg.Start()
-t = Transaction(doc, "Calculating")
-t.Start()
+    flip = False
+    count_flip = 0
+    angles_deg = [x.angle for x in selections]
+    # Check parrallel
+    min_ang = min(angles_deg)
+    max_ang = max(angles_deg)
+    if max_ang - min_ang > 0.001:
+        forms.alert("Линии должны быть параллельны.", exitscript=True)
 
-for grid in selections:
-    grid.setName(grid.name + 'TEMP')
+    # Check flip Condition
+    for x in angles_deg:
+        if x < 89.999 and x > -0.001 and IS_DIGIT:
+            flip = True
+            break
 
-for idx, grid in enumerate(selections):
-    grid.setName(PREFIX + result[idx] + SUFFIX)
+    # choose metric to arrang arrays
+    angles = [abs(math.cos(x.angle)) for x in selections]
+    less_45 = 0
+    big_45 = 0
+    for ang in angles:
+        if ang > 0.707:
+            less_45 += 1
+        else:
+            big_45 += 1
 
-t.Commit()
-tg.Assimilate()
-MessageBox.Show("Готов!")
+    if big_45 > less_45:
+        selections.sort(key=lambda x: x.getRangeX())
+    else:
+        selections.sort(key=lambda x: x.getRangeY())
+
+    if IS_REVERSE:
+        flip = not flip
+
+    if flip:
+        result = flipList(result)
+
+    with revit.Transaction("BIM: Нумерация осей"):
+        for grid in selections:
+            grid.setName(grid.name + 'TEMP')
+
+        for idx, grid in enumerate(selections):
+            grid.setName(PREFIX + result[idx] + SUFFIX)
+
+    show_executed_script_notification()
+
+
+script_execute()

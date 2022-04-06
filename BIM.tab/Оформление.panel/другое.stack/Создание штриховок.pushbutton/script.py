@@ -8,6 +8,9 @@ from pyrevit import HOST_APP
 from pyrevit import forms
 from pyrevit import revit, DB
 from pyrevit import script
+from pyrevit import EXEC_PARAMS
+
+from dosymep_libs.bim4everyone import *
 
 import patmaker
 
@@ -412,6 +415,10 @@ class MakePatternWindow(forms.WPFWindow):
             self.Close()
 
 
-if __name__ == '__main__':
+@log_plugin(EXEC_PARAMS.command_name)
+def script_execute(plugin_logger):
     MakePatternWindow('MakePatternWindow.xaml',
                       selection.elements).show(modal=True)
+
+
+script_execute()

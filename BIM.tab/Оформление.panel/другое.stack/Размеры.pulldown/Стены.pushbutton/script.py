@@ -10,6 +10,10 @@ from abc import abstractmethod
 from System.Collections.Generic import *
 from Autodesk.Revit.DB import *
 
+from pyrevit import revit
+from pyrevit import EXEC_PARAMS
+from dosymep_libs.bim4everyone import *
+
 
 class Utils:
     def __init__(self):
@@ -228,9 +232,7 @@ def get_normal_references(compare_line):
 
 
 def create_dimensions():
-    with Transaction(doc, "Размеры") as transaction:
-        transaction.Start()
-
+    with revit.Transaction(doc, "Размеры"):
         for selected_line in detail_lines:
             main_line = CashedDetailLine(selected_line)
             normal_references = get_normal_references(main_line)
@@ -244,29 +246,32 @@ def create_dimensions():
                 doc.Create.NewDimension(view, new_line, array)
                 doc.Delete(selected_line.Id)
 
-        transaction.Commit()
+
+@log_plugin(EXEC_PARAMS.command_name)
+def script_execute(plugin_logger):
+    doc = __revit__.ActiveUIDocument.Document
+    uidoc = __revit__.ActiveUIDocument
+    view = doc.ActiveView
+
+    geometryOptions = Options()
+    geometryOptions.ComputeReferences = True
+    geometryOptions.View = view
+
+    EPS = 1E-9
+    GRAD_EPS = math.radians(0.01)
+
+    filter_categories = List[BuiltInCategory]([BuiltInCategory.OST_Walls,
+                                               BuiltInCategory.OST_Columns,
+                                               BuiltInCategory.OST_StructuralColumns])
+
+    elements = FilteredElementCollector(doc, view.Id) \
+        .WherePasses(ElementMulticategoryFilter(filter_categories)) \
+        .ToElements()
+
+    selection = uidoc.Selection.GetElementIds()
+    detail_lines = [doc.GetElement(i) for i in selection if isinstance(doc.GetElement(i), DetailLine)]
+
+    create_dimensions()
 
 
-doc = __revit__.ActiveUIDocument.Document
-uidoc = __revit__.ActiveUIDocument
-view = doc.ActiveView
-
-geometryOptions = Options()
-geometryOptions.ComputeReferences = True
-geometryOptions.View = view
-
-EPS = 1E-9
-GRAD_EPS = math.radians(0.01)
-
-filter_categories = List[BuiltInCategory]([BuiltInCategory.OST_Walls,
-                                           BuiltInCategory.OST_Columns,
-                                           BuiltInCategory.OST_StructuralColumns])
-
-elements = FilteredElementCollector(doc, view.Id) \
-    .WherePasses(ElementMulticategoryFilter(filter_categories)) \
-    .ToElements()
-
-selection = uidoc.Selection.GetElementIds()
-detail_lines = [doc.GetElement(i) for i in selection if isinstance(doc.GetElement(i), DetailLine)]
-
-create_dimensions()
+script_execute()
