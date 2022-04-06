@@ -8,7 +8,7 @@ import dosymep
 clr.ImportExtensions(dosymep.Revit)
 clr.ImportExtensions(dosymep.Bim4Everyone)
 
-from Autodesk.Revit.DB import *
+from Autodesk.Revit import DB
 
 from pyrevit.framework import *
 from pyrevit import forms
