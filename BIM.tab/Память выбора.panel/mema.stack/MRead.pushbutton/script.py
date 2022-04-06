@@ -1,24 +1,28 @@
 import pickle
 
-from pyrevit.framework import List
-from pyrevit import script
+from pyrevit import EXEC_PARAMS
 from pyrevit import revit, DB
 
-
-selection = revit.get_selection()
-
-datafile = script.get_document_data_file("SelList", "pym")
+from dosymep_libs.bim4everyone import *
 
 
-try:
-    f = open(datafile, 'r')
-    current_selection = pickle.load(f)
-    f.close()
+@log_plugin(EXEC_PARAMS.command_name)
+def script_execute(plugin_logger):
+    try:
+        selection = revit.get_selection()
+        datafile = script.get_document_data_file("SelList", "pym")
 
-    element_ids = []
-    for elid in current_selection:
-        element_ids.append(DB.ElementId(int(elid)))
+        f = open(datafile, 'r')
+        current_selection = pickle.load(f)
+        f.close()
 
-    selection.set_to(element_ids)
-except Exception:
-    pass
+        element_ids = []
+        for elid in current_selection:
+            element_ids.append(DB.ElementId(int(elid)))
+
+        selection.set_to(element_ids)
+    except Exception:
+        pass
+
+
+script_execute()
