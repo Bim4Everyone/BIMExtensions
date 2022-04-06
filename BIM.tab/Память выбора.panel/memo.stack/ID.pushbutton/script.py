@@ -17,15 +17,19 @@ uiDocument = __revit__.ActiveUIDocument
 def script_execute(plugin_logger):
     with forms.WarningBar(title="Выберите элемент связанного файла"):
         try:
-            selectedElement = uiDocument.Selection.PickObject(ObjectType.LinkedElement, "Выберите элемент связанного файла.")
-            linkedDocuments = [ documentInstance.GetLinkDocument() for documentInstance in FilteredElementCollector(document).OfClass(RevitLinkInstance) if documentInstance.Id == selectedElement.ElementId ]
+            selected_element = uiDocument.Selection.PickObject(ObjectType.LinkedElement,
+                                                               "Выберите элемент связанного файла.")
 
-            linkedDocument = next(iter(linkedDocuments), None)
-            if linkedDocument:
-                linkedElement = linkedDocument.GetElement(selectedElement.LinkedElementId)
+            linked_documents = [documentInstance.GetLinkDocument() for documentInstance in
+                                FilteredElementCollector(document).OfClass(RevitLinkInstance)
+                                if documentInstance.Id == selected_element.ElementId]
 
-                Clipboard.SetDataObject(linkedElement.Id.ToString())
-                print "{title}.rvt ID: {elementId}".format(title=linkedDocument.Title, elementId=linkedElement.Id)
+            linked_document = next(iter(linked_documents), None)
+            if linked_document:
+                linked_element = linked_document.GetElement(selected_element.LinkedElementId)
+
+                Clipboard.SetDataObject(linked_element.Id.ToString())
+                print "{title}.rvt ID: {elementId}".format(title=linked_document.Title, elementId=linked_element.Id)
             else:
                 forms.alert("Не был найден элемент в связанных файлах.", title="Сообщение")
         except OperationCanceledException:
