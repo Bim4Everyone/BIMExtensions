@@ -18,6 +18,9 @@ from dosymep.Bim4Everyone.ProjectParams import ProjectParamsConfig
 
 from pyrevit import script
 from pyrevit import forms
+from pyrevit import EXEC_PARAMS
+
+from dosymep_libs.bim4everyone import *
 
 output = script.get_output()
 output.set_title("dosymep (Обновление номера вида)")
