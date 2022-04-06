@@ -13,7 +13,7 @@ document = __revit__.ActiveUIDocument.Document
 uiDocument = __revit__.ActiveUIDocument
 
 
-@log_plugin("ID")
+@log_plugin(EXEC_PARAMS.command_name)
 def script_execute(plugin_logger):
     with forms.WarningBar(title="Выберите элемент связанного файла"):
         try:
@@ -29,7 +29,7 @@ def script_execute(plugin_logger):
             else:
                 forms.alert("Не был найден элемент в связанных файлах.", title="Сообщение")
         except OperationCanceledException:
-            plugin_logger.Warning("Операция была отменена пользователем.")
+            show_canceled_script_notification()
 
 
 script_execute()
