@@ -130,15 +130,14 @@ def script_execute(plugin_logger):
         selvp = selviewports[0]
         selview = revit.doc.GetElement(selvp.ViewId)
     else:
-        forms.alert('Выберите один вид и замкнутый контур линий детализации. Не выбран вид.')
+        forms.alert('Выберите один вид и замкнутый контур линий детализации. Не выбран вид.', exitscript=True)
 
     if len(selboundary) < 3:
         forms.alert(
-            'Выберите один вид и замкнутый контур линий детализации. Не выбран замкнутый контур линий детализации.')
+            'Выберите один вид и замкнутый контур линий детализации. Не выбран замкнутый контур линий детализации.', exitscript=True)
 
     if selview is None:
-        alert("Не выбран вид")
-        sys.exit()
+        forms.alert("Не выбран вид", exitscript=True)
 
     # making sure the cropbox is active.
     if not selview.CropBoxActive:
