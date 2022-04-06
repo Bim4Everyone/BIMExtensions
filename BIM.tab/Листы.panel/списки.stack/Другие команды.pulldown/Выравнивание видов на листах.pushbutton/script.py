@@ -166,6 +166,8 @@ def script_execute(plugin_logger):
     ports = [x for x in ports if x.number[0].isalpha()]  # ,x.priority x.number,
 
     sortedPorts = sorted(ports, key=lambda x: (x.str_number, x.priority))
+    if len(sortedPorts) == 0:
+        forms.alert("Выберите видовые экраны.", exitscript=True)
 
     res = SelectPortViewForm.show(sortedPorts, title='Выравнивание видов', View2align2=sortedPorts)
     if res:
