@@ -1,45 +1,50 @@
 # -*- coding: utf-8 -*-
-import os.path as op
-
-from Autodesk.Revit.DB import Wall, Level, FilteredElementCollector
-from pyrevit.framework import List
-from pyrevit import revit, DB, UI, forms
-from pyrevit.framework import Controls
-from pyrevit.coreutils import Timer
 
 import clr
 clr.AddReference("dosymep.Revit.dll")
 clr.AddReference("dosymep.Bim4Everyone.dll")
 
-from Autodesk.Revit.DB import BuiltInParameter
-
 import dosymep
 clr.ImportExtensions(dosymep.Revit)
 clr.ImportExtensions(dosymep.Bim4Everyone)
+
+from Autodesk.Revit.DB import *
+
+from pyrevit.framework import *
+from pyrevit import forms
+from pyrevit import script
+from pyrevit import revit
+from pyrevit import EXEC_PARAMS
+
+from dosymep_libs.bim4everyone import *
+
 
 class Option(object):
     def __init__(self, obj, state=False):
         self.state = state
         self.name = obj.Name
         self.elevation = obj.Elevation
+
         def __nonzero__(self):
             return self.state
+
         def __str__(self):
             return self.name
 
+
 class SelectLevelFrom(forms.TemplateUserInputWindow):
-    xaml_source = op.join(op.dirname(__file__),'SelectFromCheckboxes.xaml')
-    
+    xaml_source = op.join(op.dirname(__file__), 'SelectFromCheckboxes.xaml')
+
     def _setup(self, **kwargs):
         self.checked_only = kwargs.get('checked_only', True)
         button_name = kwargs.get('button_name', None)
         if button_name:
             self.select_b.Content = button_name
-        
+
         self.list_lb.SelectionMode = Controls.SelectionMode.Extended
-        
+
         self.Height = 550
-        #for i in range(1,4):
+        # for i in range(1,4):
         #	self.purpose.AddText(str(i))
 
         self._verify_context()
@@ -63,7 +68,7 @@ class SelectLevelFrom(forms.TemplateUserInputWindow):
             checkbox_filter = checkbox_filter.lower()
             self.list_lb.ItemsSource = \
                 [checkbox for checkbox in self._context
-                if checkbox_filter in checkbox.name.lower()]
+                 if checkbox_filter in checkbox.name.lower()]
         else:
             self.checkall_b.Content = 'Выделить все'
             self.uncheckall_b.Content = 'Сбросить выделение'
@@ -112,70 +117,70 @@ class SelectLevelFrom(forms.TemplateUserInputWindow):
             self.response = [x for x in self._context if x.state]
         else:
             self.response = self._context
-        self.response = {'level':self.response}
+        self.response = {'level': self.response}
         self.Close()
 
 
-lvls = FilteredElementCollector(revit.doc).OfClass(Level)
-ops = [Option(x) for x in lvls] 
-ops.sort(key=lambda x: x.elevation)
-res = SelectLevelFrom.show(ops,
-                button_name='ОК', title="Выберите уровни")
+@log_plugin(EXEC_PARAMS.command_name)
+def script_execute(plugin_logger):
+    lvls = FilteredElementCollector(revit.doc).OfClass(Level)
+    ops = [Option(x) for x in lvls]
+    ops.sort(key=lambda x: x.elevation)
+    res = SelectLevelFrom.show(ops,
+                               button_name='ОК', title="Выберите уровни")
 
-LEVEL = []
-if res:
-    LEVEL = [x.name for x in res['level']]
-matchlist = []
+    LEVEL = []
+    if res:
+        LEVEL = [x.name for x in res['level']]
+    matchlist = []
 
-selection = revit.get_selection()
-#print LEVEL
-if len(selection)>0 and len(LEVEL)>0:
-    #print selection
-    for el in selection:
-        #print el
-        if isinstance(el, Wall):
-            
-            family = el.WallType.FamilyName
-            wallSet = [x for x in DB.FilteredElementCollector(revit.doc).OfClass(Wall).ToElements() if x.WallType.FamilyName == family and revit.doc.GetElement(x.LevelId).Name in LEVEL and x.GetParamValueOrDefault(BuiltInParameter.WALL_BASE_CONSTRAINT)]
-            
-            #break
-            for wall in wallSet:
-                matchlist.append(wall.Id)
-        else:
-            if hasattr(el, "Symbol"):
-                family = el.Symbol.Family
-                symbolIdSet = family.GetFamilySymbolIds()
+    selection = revit.get_selection()
+    # print LEVEL
+    if len(selection) > 0 and len(LEVEL) > 0:
+        # print selection
+        for el in selection:
+            # print el
+            if isinstance(el, Wall):
 
-                for symid in symbolIdSet:
-                    cl = DB.FilteredElementCollector(revit.doc)\
-                            .WherePasses(DB.FamilyInstanceFilter(revit.doc, symid))\
+                family = el.WallType.FamilyName
+                wallSet = [x for x in DB.FilteredElementCollector(revit.doc).OfClass(Wall).ToElements() if
+                           x.WallType.FamilyName == family and revit.doc.GetElement(
+                               x.LevelId).Name in LEVEL and x.GetParamValueOrDefault(
+                               BuiltInParameter.WALL_BASE_CONSTRAINT)]
+
+                # break
+                for wall in wallSet:
+                    matchlist.append(wall.Id)
+            else:
+                if hasattr(el, "Symbol"):
+                    family = el.Symbol.Family
+                    symbolIdSet = family.GetFamilySymbolIds()
+
+                    for symid in symbolIdSet:
+                        cl = DB.FilteredElementCollector(revit.doc) \
+                            .WherePasses(DB.FamilyInstanceFilter(revit.doc, symid)) \
                             .ToElements()
 
-                    for el in cl:
-                        level = revit.doc.GetElement(el.LevelId)
-                        host = el.Host
+                        for el in cl:
+                            level = revit.doc.GetElement(el.LevelId)
+                            host = el.Host
 
-                        if level:
-                            if level.Name in LEVEL:
-                                matchlist.append(el.Id)
-                        elif host:
-                            host
-                            if host:
-                                level = revit.doc.GetElement(host.LevelId)
-                                if level:
-                                    if level.Name in LEVEL:
-                                        matchlist.append(el.Id)
-                        else:
-                            matchlist = matchlist + list(cl)
-                            break
+                            if level:
+                                if level.Name in LEVEL:
+                                    matchlist.append(el.Id)
+                            elif host:
+                                host
+                                if host:
+                                    level = revit.doc.GetElement(host.LevelId)
+                                    if level:
+                                        if level.Name in LEVEL:
+                                            matchlist.append(el.Id)
+                            else:
+                                matchlist = matchlist + list(cl)
+                                break
+
+        selection.set_to(matchlist)
+        show_executed_script_notification()
 
 
-    selection.set_to(matchlist)
-
-    
-    
-    
-    
-    
-    
-    
+script_execute()
