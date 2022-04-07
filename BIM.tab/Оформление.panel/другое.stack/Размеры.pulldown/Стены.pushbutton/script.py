@@ -15,6 +15,18 @@ from pyrevit import EXEC_PARAMS
 from dosymep_libs.bim4everyone import *
 
 
+doc = __revit__.ActiveUIDocument.Document
+uidoc = __revit__.ActiveUIDocument
+view = doc.ActiveView
+
+geometryOptions = Options()
+geometryOptions.ComputeReferences = True
+geometryOptions.View = view
+
+EPS = 1E-9
+GRAD_EPS = math.radians(0.01)
+
+
 class Utils:
     def __init__(self):
         pass
@@ -249,17 +261,6 @@ def create_dimensions():
 
 @log_plugin(EXEC_PARAMS.command_name)
 def script_execute(plugin_logger):
-    doc = __revit__.ActiveUIDocument.Document
-    uidoc = __revit__.ActiveUIDocument
-    view = doc.ActiveView
-
-    geometryOptions = Options()
-    geometryOptions.ComputeReferences = True
-    geometryOptions.View = view
-
-    EPS = 1E-9
-    GRAD_EPS = math.radians(0.01)
-
     filter_categories = List[BuiltInCategory]([BuiltInCategory.OST_Walls,
                                                BuiltInCategory.OST_Columns,
                                                BuiltInCategory.OST_StructuralColumns])
