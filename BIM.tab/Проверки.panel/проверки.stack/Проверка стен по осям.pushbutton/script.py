@@ -312,18 +312,18 @@ def check_walls():
     scale = get_scale()
     with revit.Transaction("BIM: Проверка стен"):
         for cashed_element in cashed_elements:
-            cashed_element.Element.SetParamValue(ProjectParamsConfig.Instance.CheckIsNormalGrid, 0)
-            cashed_element.Element.SetParamValue(ProjectParamsConfig.Instance.CheckCorrectDistanceGrid, 0)
+            cashed_element.Element.SetParamValue(ProjectParamsConfig.Instance.CheckIsNormalGrid, "Нет")
+            cashed_element.Element.SetParamValue(ProjectParamsConfig.Instance.CheckCorrectDistanceGrid, "Нет")
 
         for cashed_grid in selection_grids:
             normal_walls = [cashed_element for cashed_element in cashed_elements if
                             cashed_element.IsNormal(cashed_grid)]
             for cashed_element in normal_walls:
-                cashed_element.Element.SetParamValue(ProjectParamsConfig.Instance.CheckIsNormalGrid, 1)
+                cashed_element.Element.SetParamValue(ProjectParamsConfig.Instance.CheckIsNormalGrid, "Да")
 
                 distance = Utils.GetDistance(cashed_grid, cashed_element.LocationPoint)
                 cashed_element.Element.SetParamValue(ProjectParamsConfig.Instance.CheckCorrectDistanceGrid,
-                                                     int(round(distance, 5) % scale == 0))
+                                                     "Да" if round(distance, 5) % scale == 0 else "Нет")
 
 
 @log_plugin(EXEC_PARAMS.command_name)
