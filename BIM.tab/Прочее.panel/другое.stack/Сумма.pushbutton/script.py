@@ -60,26 +60,20 @@ def calc_param_total(element_list, param_name):
 
 
 def format_length(total):
-    return '{} футов\n' \
-           '{} метров\n' \
-           '{} сантиметров'.format(total,
-                                   total/3.28084,
+    return '{} метров\n' \
+           '{} сантиметров'.format(total/3.28084,
                                    (total/3.28084)*100)
 
 
 def format_area(total):
-    return '{} квадратных футов\n' \
-           '{} квадратных метров\n' \
-           '{} квадратных сантиметров'.format(total,
-                                          total/10.7639,
+    return '{} квадратных метров\n' \
+           '{} квадратных сантиметров'.format(total/10.7639,
                                           (total/10.7639)*10000)
 
 
 def format_volume(total):
-    return '{} кубических футов\n' \
-           '{} кубических метров\n' \
-           '{} кубических сантиметров'.format(total,
-                                         total/35.3147,
+    return '{} кубических метров\n' \
+           '{} кубических сантиметров'.format(total/35.3147,
                                          (total/35.3147)*1000000)
 
 
