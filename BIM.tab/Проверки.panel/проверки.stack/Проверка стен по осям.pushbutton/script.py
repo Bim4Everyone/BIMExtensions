@@ -38,7 +38,7 @@ geometryOptions.View = view
 geometryOptions.ComputeReferences = True
 
 EPS = 1E-9
-GRAD_EPS = math.radians(0.01)
+GRAD_EPS = math.radians(0.0000001)
 
 
 class Utils:
