@@ -288,9 +288,6 @@ def get_scale():
     script.exit()
 
 
-def get_int(value):
-    return int(round(value, 5) * 10000)
-
 def check_walls():
     # настройка атрибутов
     project_parameters = ProjectParameters.Create(__revit__.Application)
@@ -326,7 +323,7 @@ def check_walls():
 
                 distance = Utils.GetDistance(cashed_grid, cashed_element.LocationPoint)
                 cashed_element.Element.SetParamValue(ProjectParamsConfig.Instance.CheckCorrectDistanceGrid,
-                                                     "Да" if get_int(distance) % get_int(scale) == 0 else "Нет")
+                                                     "Да" if round((distance + 0.000000001) % scale, 8) == 0 else "Нет")
 
 
 @log_plugin(EXEC_PARAMS.command_name)
