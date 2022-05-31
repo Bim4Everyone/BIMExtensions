@@ -141,7 +141,7 @@ class GridElementContainer:
         self.__gridElementList = gridElementList
 
 
-def addChar(lst):
+def addChar(lst, CHARACTERS):
     if lst:
         res = lst[::]
         if res[-1] + 1 <= len(CHARACTERS):
@@ -260,7 +260,7 @@ def script_execute(plugin_logger):
                 n += CHARACTERS[index - 1]
 
             result.append(n)
-            temp = addChar(temp)
+            temp = addChar(temp, CHARACTERS)
     else:
         start = int(NAME)
         for i in range(LENGTH):
