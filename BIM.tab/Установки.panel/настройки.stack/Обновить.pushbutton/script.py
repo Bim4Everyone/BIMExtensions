@@ -10,23 +10,22 @@ from dosymep_libs.bim4everyone import *
 
 __cleanengine__ = True
 
+@notification()
 @log_plugin(EXEC_PARAMS.command_name)
 def script_execute(plugin_logger):
-    res = True
     if EXEC_PARAMS.executed_from_ui:
-        res = forms.alert('Вы уверены что хотите обновить?',
-                          yes=True, no=True)
+        forms.alert('Вы уверены что хотите обновить?',
+                          yes=True, no=True, exitscript=True)
 
-    if res:
-        logger = script.get_logger()
-        results = script.get_results()
+    logger = script.get_logger()
+    results = script.get_results()
 
-        # re-load pyrevit session.
-        logger.info('Reloading....')
-        sessionmgr.load_session()
+    # re-load pyrevit session.
+    logger.info('Reloading....')
+    sessionmgr.load_session()
 
-        results.newsession = sessioninfo.get_session_uuid()
-        show_executed_script_notification()
+    results.newsession = sessioninfo.get_session_uuid()
+    show_executed_script_notification()
 
 
 script_execute()
