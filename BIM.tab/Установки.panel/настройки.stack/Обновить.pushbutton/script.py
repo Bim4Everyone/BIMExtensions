@@ -25,7 +25,6 @@ def script_execute(plugin_logger):
     sessionmgr.load_session()
 
     results.newsession = sessioninfo.get_session_uuid()
-    show_executed_script_notification()
 
 
 script_execute()
