@@ -10,11 +10,9 @@ from dosymep_libs.bim4everyone import *
 
 from Autodesk.Revit.DB import *
 
-uidoc = __revit__.ActiveUIDocument
-doc = __revit__.ActiveUIDocument.Document
-app = doc.Application
+document = __revit__.ActiveUIDocument.Document
 
-file_path = doc.PathName
+file_path = document.PathName
 file_name = op.basename(file_path)
 
 temp_file_path = op.join(tempfile.gettempdir(), file_name)
@@ -27,7 +25,7 @@ def remove_backups():
 	# удаляем бекапы созданные ревитом
 	dir_name = op.dirname(file_path)
 	backup_files = [op.join(dir_name, f) for f in os.listdir(dir_name)
-					if f.startswith(doc.Title) and f != file_name and re.findall(r".*\.\d\d\d\d\..*", f) ]
+					if f.startswith(document.Title) and f != file_name and re.findall(r".*\.\d\d\d\d\..*", f)]
 	backup_files = [f for f in backup_files if op.isfile(f) ]
 	for backup_file in backup_files:
 		os.remove(backup_file)
@@ -35,21 +33,25 @@ def remove_backups():
 
 @log_plugin(EXEC_PARAMS.command_name)
 def script_execute(plugin_logger):
-	if doc.IsFamilyDocument:
-		saveOptions = SaveAsOptions()
-		saveOptions.Compact = False
-		saveOptions.OverwriteExistingFile = True
+	if not document.IsFamilyDocument:
+		show_script_warning_notification("Сохранять разрешено только файлы семейств", exit_script=True)
 
-		doc.Save()
-		doc.SaveAs(temp_file_path, saveOptions)
+	try:
+		save_options = SaveAsOptions()
+		save_options.Compact = False
+		save_options.OverwriteExistingFile = True
+
+		document.Save()
+		document.SaveAs(temp_file_path, save_options)
 		try:
-			doc.SaveAs(file_path, saveOptions)
+			document.SaveAs(file_path, save_options)
 		finally:
 			remove_backups()
+	except:
+		show_fatal_script_notification()
+		raise
 
-		show_executed_script_notification()
-	else:
-		show_script_notification("Разрешено сохранять только файлы семейств.")
+	show_executed_script_notification()
 
 
 script_execute()
