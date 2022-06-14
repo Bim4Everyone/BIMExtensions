@@ -1,0 +1,19 @@
+<Window
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Width="550" MinWidth="550"
+        Height="380" MinHeight="380"
+
+        WindowStartupLocation="CenterOwner" SizeToContent="Height">
+        <StackPanel Margin="15">
+            <Label Content="Путь к файлу общих параметров" FontWeight="Bold" FontSize="15" />
+            <TextBlock MinHeight="40" TextWrapping="Wrap" Margin="5" Text="{Binding txt_path}" ></TextBlock>
+            <Button Name="open_txt_file" Margin="5" Command="{Binding PickTXTFileCommand}">Выбрать ФОП</Button>
+
+            <Label Content="Таблица Excel со списком параметров" FontWeight="Bold" Margin="0,30,0,0" FontSize="15"/>
+            <TextBlock MinHeight="40"  Margin="5" TextWrapping="Wrap" Text="{Binding excel_path}"></TextBlock>
+            <Button Name="open_excel_file" Margin="5" Command="{Binding PickExcelFileCommand}">Выбрать Excel</Button>
+
+            <Button Name="OK" Click="ButtonOK_Click" Width="180" HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="0,30,0,0" FontSize="14" Height="30">Добавить параметры</Button>
+        </StackPanel>
+</Window>
