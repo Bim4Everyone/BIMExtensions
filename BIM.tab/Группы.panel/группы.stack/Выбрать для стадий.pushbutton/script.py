@@ -46,14 +46,15 @@ def get_group_elements(group):
                 for group in doc.GetElement(sub_element_id).Groups:
                     yield group
 
-
-
+def is_parameters_editable(element):
+    if element.IsExistsParam(BuiltInParameter.PHASE_CREATED) and element.IsExistsParam(BuiltInParameter.PHASE_DEMOLISHED):
+        return not element.GetParam(BuiltInParameter.PHASE_CREATED).IsReadOnly and not element.GetParam(BuiltInParameter.PHASE_DEMOLISHED).IsReadOnly
+    return False
 
 def filter_elements(elements):
     for element in elements:
-        if element.HasPhases():
+        if element.HasPhases() and is_parameters_editable(element):
             yield element
-
 
 @log_plugin(EXEC_PARAMS.command_name)
 def script_execute(plugin_logger):
