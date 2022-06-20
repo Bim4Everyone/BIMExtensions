@@ -3,10 +3,14 @@
 import clr
 clr.AddReference("PresentationCore")
 
+from System.Windows import Clipboard
+
+from Autodesk.Revit.DB import *
 from Autodesk.Revit.UI.Selection import *
 from Autodesk.Revit.Exceptions import *
 
 from pyrevit import forms
+from pyrevit import EXEC_PARAMS
 from dosymep_libs.bim4everyone import *
 
 document = __revit__.ActiveUIDocument.Document
