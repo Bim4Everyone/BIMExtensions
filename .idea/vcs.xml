@@ -4,7 +4,6 @@
     <mapping directory="" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/../00.Admin.extension" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/../02.AR.extension" vcs="Git" />
-    <mapping directory="$PROJECT_DIR$/../04.OV-VK.extension" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/../BIM4Everyone.lib" vcs="Git" />
   </component>
 </project>
