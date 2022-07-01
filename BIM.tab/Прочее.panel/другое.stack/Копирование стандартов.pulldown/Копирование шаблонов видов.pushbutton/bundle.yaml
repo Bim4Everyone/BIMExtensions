@@ -1,1 +1,7 @@
-tooltip: Copy selected view templates to other open models
+title:
+  ru: Копирование шаблонов видов
+  en_us: Copy view templates
+
+tooltip:
+  ru: Копирует выделенные шаблоны видов в другие открытые модели.
+  en_us: Copy selected view templates to other open models.
