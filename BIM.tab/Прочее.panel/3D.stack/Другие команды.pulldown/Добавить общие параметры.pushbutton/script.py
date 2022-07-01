@@ -113,6 +113,7 @@ class MainWindowViewModel(Reactive):
 class MainWindow(WPFWindow):
     def __init__(self,):
         self._context = None
+        self.run = False
         self.xaml_source = op.join(op.dirname(__file__), 'MainWindow.xaml')
 
         super(MainWindow, self).__init__(self.xaml_source)
@@ -179,11 +180,10 @@ def set_vary_by_group(doc, param_names, vary_by_group):
     while iterator.MoveNext():
         int_def = iterator.Key
         if int_def.Name in param_names:
-            with revit.Transaction("BIM: Настроено изменение параметров по группам"):
-                try:
-                    int_def.SetAllowVaryBetweenGroups(doc, vary_by_group)
-                except Exception as exc:
-                    result = exc
+            try:
+                int_def.SetAllowVaryBetweenGroups(doc, vary_by_group)
+            except Exception as exc:
+                result = exc
     return result
 
 
@@ -261,23 +261,22 @@ def check_and_add_parameter(doc,
                             param_group,
                             param_inst
                             ):
-    with revit.Transaction("BIM: Добавлен общий параметр"):
-        definitions = []
-        ex_def = create_ex_definition(group_in_txt, param_name)
-        definitions.append(ex_def)
-        for ex_def in definitions:
-            if doc.IsFamilyDocument:
-                parameters_in_family = [param.Definition.Name for param in doc.FamilyManager.GetParameters()]
-                if ex_def.Name not in parameters_in_family:
-                    result = add_shared_parameter_to_family(doc, ex_def, param_group, param_inst)
-                else:
-                    result = "Параметр '{}' уже есть в семействе\n".format(ex_def.Name)
+    definitions = []
+    ex_def = create_ex_definition(group_in_txt, param_name)
+    definitions.append(ex_def)
+    for ex_def in definitions:
+        if doc.IsFamilyDocument:
+            parameters_in_family = [param.Definition.Name for param in doc.FamilyManager.GetParameters()]
+            if ex_def.Name not in parameters_in_family:
+                result = add_shared_parameter_to_family(doc, ex_def, param_group, param_inst)
             else:
-                cat_set = create_category_set(categories)
-                if doc.ParameterBindings.Contains(ex_def):
-                    result = add_category_to_shared_parameter(doc, cat_set, ex_def)
-                else:
-                    result = add_shared_parameter_to_project(doc, cat_set, ex_def, param_group, param_inst)
+                result = "Параметр '{}' уже есть в семействе\n".format(ex_def.Name)
+        else:
+            cat_set = create_category_set(categories)
+            if doc.ParameterBindings.Contains(ex_def):
+                result = add_category_to_shared_parameter(doc, cat_set, ex_def)
+            else:
+                result = add_shared_parameter_to_project(doc, cat_set, ex_def, param_group, param_inst)
     return result
 
 
@@ -292,45 +291,52 @@ def script_execute(plugin_logger):
     main_window = MainWindow()
     main_window.DataContext = MainWindowViewModel()
     main_window.DataContext.txt_path = spf_path
-    main_window.show_dialog()
+    if not main_window.show_dialog() and not main_window.run:
+        script.exit()
 
     excel_path = main_window.DataContext.excel_path
     new_spf_path = main_window.DataContext.txt_path
 
     app.SharedParametersFilename = new_spf_path
 
-    if excel_path and main_window.run:
-        parameters, categories_str = read_from_excel(excel_path, doc.IsFamilyDocument)
+    if main_window.run:
+        if "xls" in excel_path and main_window.DataContext.txt_path:
+            parameters, categories_str = read_from_excel(excel_path, doc.IsFamilyDocument)
 
-        categories, error_message = get_categories_list(doc, categories_str)
+            categories, error_message = get_categories_list(doc, categories_str)
 
-        if error_message:
-            print error_message
+            if error_message:
+                print error_message
+                script.exit()
+
+            result_message = ""
+
+            with revit.Transaction("BIM: Добавление общих параметров"):
+                for parameter in parameters:
+                    param_name = parameter[0]
+                    group_in_txt = parameter[1]
+                    param_group = parameter[2]
+                    param_inst = int(parameter[3])
+                    result = check_and_add_parameter(doc,
+                                                     categories,
+                                                     group_in_txt,
+                                                     param_name,
+                                                     param_group,
+                                                     param_inst
+                                                     )
+
+                    result_message += result
+
+                if not doc.IsFamilyDocument:
+                    vary_by_group = int(parameter[4])
+                    set_vary_by_group(doc,
+                                      param_name,
+                                      vary_by_group
+                                      )
+            print result_message
+        else:
+            print "Не указан путь к ФОП или файлу Excel"
             script.exit()
-
-        result_message = ""
-        for parameter in parameters:
-            param_name = parameter[0]
-            group_in_txt = parameter[1]
-            param_group = parameter[2]
-            param_inst = int(parameter[3])
-
-            result = check_and_add_parameter(doc,
-                                             categories,
-                                             group_in_txt,
-                                             param_name,
-                                             param_group,
-                                             param_inst
-                                             )
-
-            if not doc.IsFamilyDocument:
-                vary_by_group = int(parameter[4])
-                set_vary_by_group(doc,
-                                  param_name,
-                                  vary_by_group
-                                  )
-            result_message += result
-        print result_message
 
 
 script_execute()
