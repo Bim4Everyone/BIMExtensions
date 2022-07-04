@@ -148,7 +148,7 @@ def addChar(lst, CHARACTERS):
             res[-1] += 1
             return res
         else:
-            return addChar(lst[:-1]) + [1]
+            return addChar(lst[:-1], CHARACTERS) + [1]
     else:
         return [1]
 
