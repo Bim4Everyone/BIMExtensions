@@ -1,0 +1,10 @@
+title:
+  ru: Поиск коллизий
+  en_us: Clash detective
+
+tooltip:
+  ru: Поиск коллизий
+  en_us: Clash detective
+
+assembly: RevitClashDetective.dll
+command_class: DetectiveClashesCommand

@@ -1,0 +1,10 @@
+title:
+  ru: Навигатор
+  en_us: Navigator
+
+tooltip:
+  ru: Просмотр коллизий
+  en_us: Сollision view
+
+assembly: RevitClashDetective.dll
+command_class: GetClashesCommand

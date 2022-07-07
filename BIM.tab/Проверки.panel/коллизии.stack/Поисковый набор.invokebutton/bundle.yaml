@@ -1,0 +1,10 @@
+title:
+  ru: Поисковый набор
+  en_us: Search Set
+
+tooltip:
+  ru: Создание поисковых наборов
+  en_us: Create search sets
+
+assembly: RevitClashDetective.dll
+command_class: CreateFiltersCommand
