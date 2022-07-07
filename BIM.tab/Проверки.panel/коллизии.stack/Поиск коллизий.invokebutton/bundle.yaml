@@ -8,3 +8,6 @@ tooltip:
 
 assembly: RevitClashDetective.dll
 command_class: DetectiveClashesCommand
+
+highlight: new
+author: budaevaler

@@ -4,7 +4,10 @@ title:
 
 tooltip:
   ru: Просмотр коллизий
-  en_us: Сollision view
+  en_us: Collision view
 
 assembly: RevitClashDetective.dll
 command_class: GetClashesCommand
+
+highlight: new
+author: budaevaler

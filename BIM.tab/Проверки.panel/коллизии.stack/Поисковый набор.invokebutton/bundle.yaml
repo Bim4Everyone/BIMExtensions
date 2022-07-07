@@ -8,3 +8,6 @@ tooltip:
 
 assembly: RevitClashDetective.dll
 command_class: CreateFiltersCommand
+
+highlight: new
+author: budaevaler
