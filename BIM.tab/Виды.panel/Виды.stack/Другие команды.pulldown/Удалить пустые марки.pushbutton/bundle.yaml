@@ -1,0 +1,9 @@
+title:
+  ru: Удалить пустые марки
+  en_us: Remove empty marks
+
+tooltip:
+  ru: Удаляет все марки со знаком ВОПРОСА "?".
+  en_us: Removes all marks with QUESTION mark "?".
+
+author: dosymep
