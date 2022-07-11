@@ -32,8 +32,8 @@ def shake_dimensions(target_view):
             pinned = dimension.Pinned
 
             dimension.Pinned = False
-            dimension.Location.Move(DB.XYZ(0.1, 0, 0))
-            dimension.Location.Move(DB.XYZ(-0.1, 0, 0))
+            dimension.Location.Move(DB.XYZ(0.1, 0.1, 0.1))
+            dimension.Location.Move(DB.XYZ(-0.1, -0.1, -0.1))
 
             dimension.Pinned = pinned
 
