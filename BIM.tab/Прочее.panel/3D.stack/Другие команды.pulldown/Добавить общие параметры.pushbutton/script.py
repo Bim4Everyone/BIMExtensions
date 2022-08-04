@@ -49,7 +49,9 @@ class PickExcelFileCommand(ICommand):
         return True
 
     def Execute(self, parameter):
-        self.__view_model.excel_path = pick_excel_file()
+        picked_file = pick_file()
+        if picked_file:
+            self.__view_model.excel_path = picked_file
 
 
 class PickTXTFileCommand(ICommand):
@@ -72,7 +74,9 @@ class PickTXTFileCommand(ICommand):
         return True
 
     def Execute(self, parameter):
-        self.__view_model.txt_path = pick_file()
+        picked_file = pick_file()
+        if picked_file:
+            self.__view_model.txt_path = picked_file
 
 
 class MainWindowViewModel(Reactive):
@@ -80,7 +84,7 @@ class MainWindowViewModel(Reactive):
         Reactive.__init__(self, *args)
 
         self.__excel_path = "Файл не выбран!"
-        self.__txt_path = None
+        self.__txt_path = "Файл не выбран!"
         self.__pick_excel_file_command = PickExcelFileCommand(self)
         self.__pick_txt_file_command = PickTXTFileCommand(self)
 
@@ -223,6 +227,13 @@ def create_ex_definition(param_group, param_name):
     return ex_definition
 
 
+def get_bltn_param_group(name):
+    for bltn_param_group in System.Enum.GetValues(BuiltInParameterGroup):
+        bltn_param_group_name = LabelUtils.GetLabelFor(bltn_param_group)
+        if bltn_param_group_name == name:
+            return bltn_param_group
+
+
 def create_category_set(categories):
     category_set = app.Create.NewCategorySet()
     for category in categories:
@@ -235,13 +246,11 @@ def add_shared_parameter_to_project(doc, cat_set, ex_def, param_group, param_ins
         new_bind = app.Create.NewInstanceBinding(cat_set)
     else:
         new_bind = app.Create.NewTypeBinding(cat_set)
-    param_group = BuiltInParameterGroup.Parse(BuiltInParameterGroup, param_group)
     doc.ParameterBindings.Insert(ex_def, new_bind, param_group)
     return "Параметр '{}' добавлен\n".format(ex_def.Name)
 
 
 def add_shared_parameter_to_family(doc, ex_def, param_group, param_inst):
-    param_group = BuiltInParameterGroup.Parse(BuiltInParameterGroup, param_group)
     doc.FamilyManager.AddParameter(ex_def, param_group, param_inst)
     return "Параметр '{}' добавлен\n".format(ex_def.Name)
 
@@ -283,14 +292,12 @@ def check_and_add_parameter(doc,
 @notification()
 @log_plugin(EXEC_PARAMS.command_name)
 def script_execute(plugin_logger):
-    try:
-        spf_path = app.SharedParametersFilename
-    except:
-        spf_path = "Файл не выбран!"
+    spf_path = app.SharedParametersFilename
 
     main_window = MainWindow()
     main_window.DataContext = MainWindowViewModel()
-    main_window.DataContext.txt_path = spf_path
+    if spf_path:
+        main_window.DataContext.txt_path = spf_path
     if not main_window.show_dialog() and not main_window.run:
         script.exit()
 
@@ -300,14 +307,13 @@ def script_execute(plugin_logger):
     app.SharedParametersFilename = new_spf_path
 
     if main_window.run:
-        if "xls" in excel_path and main_window.DataContext.txt_path:
+        if "xls" in excel_path and "txt" in main_window.DataContext.txt_path:
             parameters, categories_str = read_from_excel(excel_path, doc.IsFamilyDocument)
 
             categories, error_message = get_categories_list(doc, categories_str)
 
             if error_message:
-                print error_message
-                script.exit()
+                alert(error_message, exitscript=True)
 
             result_message = ""
 
@@ -315,7 +321,7 @@ def script_execute(plugin_logger):
                 for parameter in parameters:
                     param_name = parameter[0]
                     group_in_txt = parameter[1]
-                    param_group = parameter[2]
+                    param_group = get_bltn_param_group(parameter[2])
                     param_inst = int(parameter[3])
                     result = check_and_add_parameter(doc,
                                                      categories,
@@ -335,8 +341,7 @@ def script_execute(plugin_logger):
                                       )
             print result_message
         else:
-            print "Не указан путь к ФОП или файлу Excel"
-            script.exit()
+            alert("Не указан путь к ФОП или файлу Excel", exitscript=True)
 
 
 script_execute()
