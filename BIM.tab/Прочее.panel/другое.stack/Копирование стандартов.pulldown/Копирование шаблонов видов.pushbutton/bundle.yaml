@@ -3,5 +3,5 @@ title:
   en_us: Copy view templates
 
 tooltip:
-  ru: Копирует выделенные шаблоны видов в другие открытые модели.
-  en_us: Copy selected view templates to other open models.
+  ru: Копирует из открытого проекта шаблоны видов в другие открытые проекты. 1. Запустите скрипт и выберите шаблоны, которые надо скопировать. Нажмите "Выбрать". 2. Выберите проекты, в которые надо скопировать шаблоны и нажмите "ОК"
+  en_us: Copies selected view templates from current open document to other open documents.
