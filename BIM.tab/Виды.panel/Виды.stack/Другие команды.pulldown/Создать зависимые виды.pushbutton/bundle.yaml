@@ -1,0 +1,11 @@
+title:
+  ru: Создать зависимые виды
+  en_us: Create dependent views
+
+tooltip:
+  ru: Создаёт зависимые виды для выбранных видов. При создании новых видов можно скопировать настройки (область подрезки) с существующего зависимого вида. 1. Запустите скрипт, выберите существующей зависимый вид при необходимости. 2. Выберите виды, для которых будут созданы зависимые виды.
+  
+  en_us: Creates dependent views for views in project. You can choose existing dependent view to copy view settings.
+
+highlight: new
+author: sssenya
