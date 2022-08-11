@@ -14,7 +14,7 @@
             <RowDefinition/>
             <RowDefinition Height="40"/>
         </Grid.RowDefinitions>
-        <TextBlock Text="Скопировать настройки вида с существующего зависимого вида" Margin="10,5,10,0"/>
+        <TextBlock Text="Копировать настройки и количество зависимых видов с вида:" Margin="10,5,10,0"/>
         <ComboBox x:Name="DependentViews" Height="25" Margin="10,0,10,5" Grid.Row="1"/>
         <ListBox x:Name="AllViews" Margin="10,5" Grid.Row="2">
             <ListBox.ItemTemplate>

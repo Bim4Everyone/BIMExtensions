@@ -43,18 +43,23 @@ class MainWindow(WPFWindow):
         if views_to_copy:
             selected_view = self.DependentViews.SelectedItem.ViewToShow
             if selected_view:
-                template = selected_view.ViewTemplateId
-                cropbox = selected_view.CropBox
+                dependent_views = selected_view.GetDependentViewIds()
 
             with Transaction(doc, "Name") as t:
                 t.Start()
                 for view in views_to_copy:
-                    if view.GetPrimaryViewId().IntegerValue == -1 and len(view.GetDependentViewIds()) == 0:
-                        new_view = view.Duplicate(ViewDuplicateOption.AsDependent)
-                        if selected_view:
+                    if selected_view:
+                        for dep_view_id in dependent_views:
+                            new_view = view.Duplicate(ViewDuplicateOption.AsDependent)
+
+                            template = doc.GetElement(dep_view_id).ViewTemplateId
+                            cropbox = doc.GetElement(dep_view_id).CropBox
+
                             doc.GetElement(new_view).ViewTemplateId = template
                             doc.GetElement(new_view).CropBox = cropbox
                             doc.GetElement(new_view).CropBoxVisible = False
+                    else:
+                        view.Duplicate(ViewDuplicateOption.AsDependent)
                 t.Commit()
             self.DialogResult = True
             self.Close()
@@ -77,26 +82,26 @@ class ViewInCheckBox():
 
 def GetViews(doc):
     all_views = FilteredElementCollector(doc).OfClass(ViewPlan).ToElements()
-    dependent_views = []
+    # Main (not dependent) views with dependent views
+    views_with_dependent = []
+    # All main (not dependent) views
     main_views = []
     for view in all_views:
-        if view.CanViewBeDuplicated(ViewDuplicateOption.AsDependent) and not view.IsTemplate:
-            if view.GetPrimaryViewId() == ElementId.InvalidElementId:
-                view_check_box = ViewInCheckBox(view, view.Name)
-                main_views.append(view_check_box)
-            else:
-                primary_view_id = view.GetPrimaryViewId()
-                primary_view = doc.GetElement(primary_view_id)
-                full_name = "{}: {}".format(view.Name, primary_view.Name)
-                view_combo_box = ViewInComboBox(view, full_name)
-                dependent_views.append(view_combo_box)
+        if not view.IsTemplate:
+            if view.CanViewBeDuplicated(ViewDuplicateOption.AsDependent):
+                if view.GetPrimaryViewId() == ElementId.InvalidElementId:
+                    view_check_box = ViewInCheckBox(view, view.Name)
+                    main_views.append(view_check_box)
+                    if view.GetDependentViewIds():
+                        view_combo_box = ViewInComboBox(view, view.Name)
+                        views_with_dependent.append(view_combo_box)
 
-    first_item = ViewInComboBox(None, "<Не копировать настройки>")
-    dependent_views.insert(0, first_item)
+    first_item = ViewInComboBox(None, "<Без вида>")
+    views_with_dependent.insert(0, first_item)
 
     main_views.sort(key=lambda view: view.Name)
 
-    return dependent_views, main_views
+    return views_with_dependent, main_views
 
 
 @notification()
