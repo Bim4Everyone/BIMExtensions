@@ -304,10 +304,13 @@ def script_execute(plugin_logger):
     excel_path = main_window.DataContext.excel_path
     new_spf_path = main_window.DataContext.txt_path
 
+    excel_path_ext = os.path.splitext(excel_path)[1]
+    txt_path_ext = os.path.splitext(main_window.DataContext.txt_path)[1]
+
     app.SharedParametersFilename = new_spf_path
 
     if main_window.run:
-        if "xls" in excel_path and "txt" in main_window.DataContext.txt_path:
+        if "xls" in excel_path_ext and "txt" in txt_path_ext:
             parameters, categories_str = read_from_excel(excel_path, doc.IsFamilyDocument)
 
             categories, error_message = get_categories_list(doc, categories_str)

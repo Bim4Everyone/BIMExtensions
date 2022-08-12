@@ -8,9 +8,6 @@ import dosymep
 clr.ImportExtensions(dosymep.Revit)
 clr.ImportExtensions(dosymep.Bim4Everyone)
 
-import pyevent #pylint: disable=import-error
-from System.Windows.Input import ICommand
-
 from dosymep_libs.bim4everyone import *
 
 from pyrevit import *
@@ -37,6 +34,7 @@ class MainWindow(WPFWindow):
 
     def create_dependent_views(self, sender, args):
         views_to_copy = []
+        dependent_views = []
         for view in self.AllViews.Items:
             if view.IsChecked:
                 views_to_copy.append(view.ViewToCheck)
@@ -45,19 +43,22 @@ class MainWindow(WPFWindow):
             if selected_view:
                 dependent_views = selected_view.GetDependentViewIds()
 
-            with Transaction(doc, "Name") as t:
+            with Transaction(doc, "BIM: Создать зависимые виды") as t:
                 t.Start()
                 for view in views_to_copy:
                     if selected_view:
                         for dep_view_id in dependent_views:
-                            new_view = view.Duplicate(ViewDuplicateOption.AsDependent)
+                            new_view_id = view.Duplicate(ViewDuplicateOption.AsDependent)
 
-                            template = doc.GetElement(dep_view_id).ViewTemplateId
-                            cropbox = doc.GetElement(dep_view_id).CropBox
+                            dep_view = doc.GetElement(dep_view_id)
+                            template = dep_view.ViewTemplateId
+                            cropbox = dep_view.CropBox
+                            cropbox_vis = dep_view.CropBoxVisible
 
-                            doc.GetElement(new_view).ViewTemplateId = template
-                            doc.GetElement(new_view).CropBox = cropbox
-                            doc.GetElement(new_view).CropBoxVisible = False
+                            new_view = doc.GetElement(new_view_id)
+                            new_view.ViewTemplateId = template
+                            new_view.CropBox = cropbox
+                            new_view.CropBoxVisible = cropbox_vis
                     else:
                         view.Duplicate(ViewDuplicateOption.AsDependent)
                 t.Commit()
@@ -67,20 +68,20 @@ class MainWindow(WPFWindow):
             alert("Не выбраны виды", exitscript=False)
 
 
-class ViewInComboBox():
+class MainViewWithDependent():
     def __init__(self, view, name):
         self.ViewToShow = view
         self.Name = name
 
 
-class ViewInCheckBox():
+class MainView():
     def __init__(self, view, name):
         self.ViewToCheck = view
         self.Name = name
         self.IsChecked = False
 
 
-def GetViews(doc):
+def get_views(doc):
     all_views = FilteredElementCollector(doc).OfClass(ViewPlan).ToElements()
     # Main (not dependent) views with dependent views
     views_with_dependent = []
@@ -90,13 +91,13 @@ def GetViews(doc):
         if not view.IsTemplate:
             if view.CanViewBeDuplicated(ViewDuplicateOption.AsDependent):
                 if view.GetPrimaryViewId() == ElementId.InvalidElementId:
-                    view_check_box = ViewInCheckBox(view, view.Name)
+                    view_check_box = MainView(view, view.Name)
                     main_views.append(view_check_box)
                     if view.GetDependentViewIds():
-                        view_combo_box = ViewInComboBox(view, view.Name)
+                        view_combo_box = MainViewWithDependent(view, view.Name)
                         views_with_dependent.append(view_combo_box)
 
-    first_item = ViewInComboBox(None, "<Без вида>")
+    first_item = MainViewWithDependent(None, "<Без вида>")
     views_with_dependent.insert(0, first_item)
 
     main_views.sort(key=lambda view: view.Name)
@@ -107,7 +108,7 @@ def GetViews(doc):
 @notification()
 @log_plugin(EXEC_PARAMS.command_name)
 def script_execute(plugin_logger):
-    dependent_views, main_views = GetViews(doc)
+    dependent_views, main_views = get_views(doc)
     main_window = MainWindow(dependent_views, main_views)
     if not main_window.show_dialog():
         script.exit()
