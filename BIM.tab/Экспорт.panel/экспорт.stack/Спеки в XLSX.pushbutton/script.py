@@ -164,6 +164,8 @@ class CheckBoxOption:
         self.obj = obj
         self.view_assignment = obj.GetParamValueOrDefault(ProjectParamsConfig.Instance.ViewGroup)
         self.view_assignment = self.view_assignment if self.view_assignment else None
+        self.is_open = "Все спецификации"
+        self.sort_order = 3
 
     def __nonzero__(self):
         return self.state
@@ -172,11 +174,20 @@ class CheckBoxOption:
         return self.name
 
 
+
 class PrintSheetsWindow(forms.WPFWindow):
     def __init__(self, xaml_file_name, **kwargs):
         forms.WPFWindow.__init__(self, xaml_file_name)
 
         self.sheet_list = kwargs.get('list', None)
+        self.active_view = kwargs.get('active_view', None)
+        self.select_active_view()
+
+    def select_active_view(self):
+        if self.active_view:
+            for element in self.sheets_lb.ItemsSource:
+                if element.name == self.active_view.Name:
+                    element.state = True
 
     # doc and schedule
     @property
@@ -268,25 +279,39 @@ class PrintSheetsWindow(forms.WPFWindow):
         except:
             script.exit()
 
+
 @log_plugin(EXEC_PARAMS.command_name)
 def script_execute(plugin_logger):
     doc = __revit__.ActiveUIDocument.Document
     uidoc = __revit__.ActiveUIDocument
     app = __revit__.Application
     view = __revit__.ActiveUIDocument.ActiveGraphicalView
-    view = doc.ActiveView
+    active_view = doc.ActiveView
+
+    opened_views = [x.ViewId for x in uidoc.GetOpenUIViews()]
+
+    checked_view = None
+    if active_view.ViewType == ViewType.Schedule:
+        checked_view = active_view
 
     viewSchedules = FilteredElementCollector(doc).OfClass(ViewSchedule).ToElements()
     items = [CheckBoxOption(x) for x in viewSchedules]
-    items = sorted(items, key=lambda item: (item.view_assignment, item.name))
 
-    # items = sorted(items, key=lambda item: item.name)
+    for item in items:
+        if item.obj.Id in opened_views:
+            item.is_open = "Открытые спецификации"
+            item.sort_order = 2
+        if item.obj.Id == view.Id:
+            item.is_open = "Активная спецификация"
+            item.sort_order = 1
+
+    items = sorted(items, key=lambda item: (item.sort_order, item.name))
 
     view = CollectionViewSource.GetDefaultView(items)
-    groupDescription = PropertyGroupDescription('view_assignment')
+    groupDescription = PropertyGroupDescription('is_open')
     view.GroupDescriptions.Add(groupDescription)
 
-    window = PrintSheetsWindow('selectViews.xaml', list=view)
+    window = PrintSheetsWindow('selectViews.xaml', list=view, active_view=checked_view)
     window.ShowDialog()
 
     sel_sheets = ''
