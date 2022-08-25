@@ -9,5 +9,4 @@ tooltip:
 assembly: RevitClashDetective.dll
 command_class: GetClashesCommand
 
-highlight: new
 author: budaevaler
