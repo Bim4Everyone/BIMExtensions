@@ -1,0 +1,79 @@
+<Window
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:local="clr-namespace:UpdateSelectedLinks"
+             Title="Связи"
+             mc:Ignorable="d"
+             WindowStartupLocation="CenterScreen"
+             Height="450" Width="400">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="50"/>
+            <RowDefinition Height="60"/>
+            <RowDefinition/>
+            <RowDefinition Height="50" />
+            <RowDefinition Height="50" />
+        </Grid.RowDefinitions>
+
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="0.33*" />
+            <ColumnDefinition Width="0.33*"/>
+            <ColumnDefinition Width="0.33*"/>
+        </Grid.ColumnDefinitions>
+
+        <Button
+            Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="3"
+            Margin="10,10,10,5" Content="Выбрать папку"
+            Command="{Binding SelectFolder}"/>
+
+        <TextBlock
+            Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="3"
+            Margin="10,5,10,5" TextWrapping="Wrap"
+            Text="{Binding FilePath}"/>
+
+        <ListView
+            Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="3"
+            Margin="10,5,10,10"
+            x:Name="revit_links">
+            <ListView.View>
+                <GridView>
+                    <GridViewColumn Width="30">
+                        <GridViewColumn.CellTemplate>
+                            <DataTemplate>
+                                <CheckBox IsChecked="{Binding is_checked}"/>
+                            </DataTemplate>
+                        </GridViewColumn.CellTemplate>
+                    </GridViewColumn>
+                    <GridViewColumn
+                        Header="Имя связи" Width="200"
+                        DisplayMemberBinding="{Binding link_name}"/>
+                    <GridViewColumn
+                        Header="Статус связи" Width="120"
+                        DisplayMemberBinding="{Binding link_status}"/>
+                </GridView>
+            </ListView.View>
+        </ListView>
+
+        <Button
+            Grid.Row="3" Grid.Column="0"
+            Margin="10" Content="Выбрать все"
+            Click="select_all"/>
+
+        <Button
+            Grid.Row="3" Grid.Column="1"
+            Margin="10" Content="Снять выбор"
+            Click="deselect_all"/>
+
+        <Button
+            Grid.Row="3" Grid.Column="2"
+            Margin="10" Content="Инвертировать"
+            Click="invert"/>
+
+        <Button
+            Grid.Row="4" Grid.Column="2"
+            Margin="10" Content="Обновить"
+            />
+    </Grid>
+</Window>
