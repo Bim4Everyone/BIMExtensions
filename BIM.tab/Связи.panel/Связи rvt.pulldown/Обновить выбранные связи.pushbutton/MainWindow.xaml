@@ -26,12 +26,12 @@
         <Button
             Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="3"
             Margin="10,10,10,5" Content="Выбрать папку"
-            Command="{Binding SelectFolder}"/>
+            Command="{Binding PickFolderCommand}"/>
 
         <TextBlock
             Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="3"
             Margin="10,5,10,5" TextWrapping="Wrap"
-            Text="{Binding FilePath}"/>
+            Text="{Binding folder_path}"/>
 
         <ListView
             Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="3"
