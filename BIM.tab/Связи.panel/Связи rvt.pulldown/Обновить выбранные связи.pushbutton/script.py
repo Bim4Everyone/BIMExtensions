@@ -43,20 +43,64 @@ class PickFolderCommand(ICommand):
             self.__view_model.folder_path = picked_folder
 
 
-class UpdateLinks(ICommand):
-    pass
+class UpdateLinksCommand(ICommand):
+    CanExecuteChanged, _canExecuteChanged = pyevent.make_event()
+
+    def __init__(self, view_model, *args):
+        ICommand.__init__(self, *args)
+        self.__view_model = view_model
+
+    def add_CanExecuteChanged(self, value):
+        self.CanExecuteChanged += value
+
+    def remove_CanExecuteChanged(self, value):
+        self.CanExecuteChanged -= value
+
+    def OnCanExecuteChanged(self):
+        self._canExecuteChanged(self, System.EventArgs.Empty)
+
+    def CanExecute(self, parameter):
+        return True
+
+    def find_file(self, path, link_name, level=0):
+        if level < 5:
+            files = os.listdir(path)
+            if link_name in files:
+                return os.path.join(path, link_name)
+            else:
+                level += 1
+                for file_in_dir in files:
+                    new_path = os.path.join(path, file_in_dir)
+                    if os.path.isdir(new_path):
+                        result = self.find_file(new_path, link_name, level)
+                        if result:
+                            return result
+
+    def Execute(self, parameter):
+        ws_config = WorksetConfiguration()
+        for link in self.__view_model.links:
+            link_path = self.find_file(self.__view_model.folder_path, link.link_name)
+            if link_path:
+                revit_path = FilePath(link_path)
+                link.rvt_link.LoadFrom(revit_path, ws_config)
 
 
 class MainWindowViewModel(Reactive):
-    def __init__(self, *args):
-        Reactive.__init__(self, *args)
+    def __init__(self, links):
+        Reactive.__init__(self)
 
         self.__folder_path = ""
+        self.__links = links
         self.__pick_folder_command = PickFolderCommand(self)
+        self.__update_links_command = UpdateLinksCommand(self)
 
     @property
     def PickFolderCommand(self):
         return self.__pick_folder_command
+
+    @property
+    def UpdateLinksCommand(self):
+        return self.__update_links_command
 
     @reactive
     def folder_path(self):
@@ -65,6 +109,14 @@ class MainWindowViewModel(Reactive):
     @folder_path.setter
     def folder_path(self, value):
         self.__folder_path = value
+
+    @reactive
+    def links(self):
+        return self.__links
+
+    @links.setter
+    def links(self, value):
+        self.__links = value
 
 
 class MainWindow(WPFWindow):
@@ -92,7 +144,7 @@ class MainWindow(WPFWindow):
 
 class LinkedFile(Reactive):
     def __init__(self, revit_link):
-        self.link = revit_link
+        self.rvt_link = revit_link
         self.link_name = revit_link.Parameter[BuiltInParameter.ALL_MODEL_TYPE_NAME].AsString()
 
         status = revit_link.GetLinkedFileStatus()
@@ -144,7 +196,7 @@ def get_links_from_document(document):
 def script_execute(plugin_logger):
     links = get_links_from_document(doc)
     main_window = MainWindow(links)
-    main_window.DataContext = MainWindowViewModel()
+    main_window.DataContext = MainWindowViewModel(links)
     main_window.show_dialog()
 
 

@@ -73,6 +73,7 @@
 
         <Button
             Grid.Row="4" Grid.Column="2"
+            Command="{Binding UpdateLinksCommand}"
             Margin="10" Content="Обновить"
             />
     </Grid>
