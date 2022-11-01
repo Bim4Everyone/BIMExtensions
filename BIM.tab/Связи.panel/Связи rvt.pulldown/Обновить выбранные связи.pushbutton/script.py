@@ -3,7 +3,6 @@ import clr
 clr.AddReference("OpenMcdf.dll")
 clr.AddReference("dosymep.Revit.dll")
 
-from dosymep.Revit import *
 from pyrevit.forms import *
 from pyrevit import EXEC_PARAMS
 
@@ -49,6 +48,7 @@ class UpdateLinksCommand(ICommand):
     def __init__(self, view_model, *args):
         ICommand.__init__(self, *args)
         self.__view_model = view_model
+        self.__view_model.PropertyChanged += self.ViewModel_PropertyChanged
 
     def add_CanExecuteChanged(self, value):
         self.CanExecuteChanged += value
@@ -59,30 +59,47 @@ class UpdateLinksCommand(ICommand):
     def OnCanExecuteChanged(self):
         self._canExecuteChanged(self, System.EventArgs.Empty)
 
+    def ViewModel_PropertyChanged(self, sender, e):
+        self.OnCanExecuteChanged()
+
     def CanExecute(self, parameter):
+        if not self.__view_model.folder_path:
+            return False
+
         return True
 
-    def find_file(self, path, link_name, level=0):
+    def __find_file(self, main_path, link_name, level=0):
         if level < 5:
-            files = os.listdir(path)
+            files = os.listdir(main_path)
             if link_name in files:
-                return os.path.join(path, link_name)
+                return os.path.join(main_path, link_name)
             else:
                 level += 1
                 for file_in_dir in files:
-                    new_path = os.path.join(path, file_in_dir)
-                    if os.path.isdir(new_path):
-                        result = self.find_file(new_path, link_name, level)
+                    sub_path = os.path.join(main_path, file_in_dir)
+                    if os.path.isdir(sub_path):
+                        result = self.__find_file(sub_path, link_name, level)
                         if result:
                             return result
 
+    def __filter_links(self, links):
+        filtered_links = []
+        for link in links:
+            if link.is_checked:
+                if link.revit_link.GetLinkedFileStatus() != LinkedFileStatus.Loaded:
+                    if link.revit_link.IsFromLocalPath():
+                        if link.revit_link.IsNotLoadedIntoMultipleOpenDocuments():
+                            filtered_links.append(link)
+        return filtered_links
+
     def Execute(self, parameter):
         ws_config = WorksetConfiguration()
-        for link in self.__view_model.links:
-            link_path = self.find_file(self.__view_model.folder_path, link.link_name)
+        links_to_update = self.__filter_links(self.__view_model.links)
+        for link in links_to_update:
+            link_path = self.__find_file(self.__view_model.folder_path, link.link_name)
             if link_path:
                 revit_path = FilePath(link_path)
-                link.rvt_link.LoadFrom(revit_path, ws_config)
+                link.revit_link.LoadFrom(revit_path, ws_config)
 
 
 class InvertCommand(ICommand):
@@ -138,14 +155,12 @@ class MainWindowViewModel(Reactive):
     def __init__(self, links):
         Reactive.__init__(self)
 
-        self.__folder_path = ""
         self.__links = links
         self.__pick_folder_command = PickFolderCommand(self)
         self.__update_links_command = UpdateLinksCommand(self)
         self.__invert_command = InvertCommand(self)
         self.__set_true_command = UpdateStatesCommand(self, True)
         self.__set_false_command = UpdateStatesCommand(self, False)
-
 
     @property
     def PickFolderCommand(self):
@@ -185,21 +200,23 @@ class MainWindowViewModel(Reactive):
 
 
 class MainWindow(WPFWindow):
-    def __init__(self, links):
+    def __init__(self):
         self._context = None
         self.xaml_source = op.join(op.dirname(__file__), 'MainWindow.xaml')
         super(MainWindow, self).__init__(self.xaml_source)
 
-        self.revit_links.ItemsSource = links
+    def button_on_click(self, sender, e):
+        self.Close()
 
 
 class LinkedFile(Reactive):
     def __init__(self, revit_link):
-        self.rvt_link = revit_link
+        self.revit_link = revit_link
         self.link_name = revit_link.Parameter[BuiltInParameter.ALL_MODEL_TYPE_NAME].AsString()
 
         status = revit_link.GetLinkedFileStatus()
         self.link_status = status
+
         if status == LinkedFileStatus.NotFound or status == LinkedFileStatus.Unloaded:
             self.is_checked = True
         else:
@@ -232,21 +249,17 @@ class LinkedFile(Reactive):
 
 
 def get_links_from_document(document):
-    links = FilteredElementCollector(document).OfClass(RevitLinkType).ToElements()
-    all_links = []
-    for link in links:
-        if not link.IsNestedLink:
-            linked_file = LinkedFile(link)
-            all_links.append(linked_file)
-    # add links sorting
-    return all_links
+    all_links = FilteredElementCollector(document).OfClass(RevitLinkType).ToElements()
+    links = [LinkedFile(x) for x in all_links if not x.IsNestedLink]
+    links = sorted(links, key=lambda x: x.link_name)
+    return links
 
 
 @notification()
 @log_plugin(EXEC_PARAMS.command_name)
 def script_execute(plugin_logger):
     links = get_links_from_document(doc)
-    main_window = MainWindow(links)
+    main_window = MainWindow()
     main_window.DataContext = MainWindowViewModel(links)
     main_window.show_dialog()
 

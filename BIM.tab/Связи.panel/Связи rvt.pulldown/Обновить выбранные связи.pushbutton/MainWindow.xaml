@@ -36,7 +36,7 @@
         <ListView
             Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="3"
             Margin="10,5,10,10"
-            x:Name="revit_links">
+            ItemsSource="{Binding links}">
             <ListView.View>
                 <GridView>
                     <GridViewColumn Width="30">
@@ -47,10 +47,10 @@
                         </GridViewColumn.CellTemplate>
                     </GridViewColumn>
                     <GridViewColumn
-                        Header="Имя связи" Width="200"
+                        Header="Имя связи" Width="180"
                         DisplayMemberBinding="{Binding link_name}"/>
                     <GridViewColumn
-                        Header="Статус связи" Width="120"
+                        Header="Статус связи" Width="140"
                         DisplayMemberBinding="{Binding link_status}"/>
                 </GridView>
             </ListView.View>
@@ -74,6 +74,7 @@
         <Button
             Grid.Row="4" Grid.Column="2"
             Command="{Binding UpdateLinksCommand}"
+            Click="button_on_click"
             Margin="10" Content="Обновить"
             />
     </Grid>
