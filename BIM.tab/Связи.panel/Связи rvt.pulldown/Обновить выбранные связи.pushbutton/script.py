@@ -85,6 +85,55 @@ class UpdateLinksCommand(ICommand):
                 link.rvt_link.LoadFrom(revit_path, ws_config)
 
 
+class InvertCommand(ICommand):
+    CanExecuteChanged, _canExecuteChanged = pyevent.make_event()
+
+    def __init__(self, view_model, *args):
+        ICommand.__init__(self, *args)
+        self.__view_model = view_model
+
+    def add_CanExecuteChanged(self, value):
+        self.CanExecuteChanged += value
+
+    def remove_CanExecuteChanged(self, value):
+        self.CanExecuteChanged -= value
+
+    def OnCanExecuteChanged(self):
+        self._canExecuteChanged(self, System.EventArgs.Empty)
+
+    def CanExecute(self, parameter):
+        return True
+
+    def Execute(self, parameter):
+        for link in self.__view_model.links:
+            link.is_checked = not link.is_checked
+
+
+class UpdateStatesCommand(ICommand):
+    CanExecuteChanged, _canExecuteChanged = pyevent.make_event()
+
+    def __init__(self, view_model, value, *args):
+        ICommand.__init__(self, *args)
+        self.__view_model = view_model
+        self.__value = value
+
+    def add_CanExecuteChanged(self, value):
+        self.CanExecuteChanged += value
+
+    def remove_CanExecuteChanged(self, value):
+        self.CanExecuteChanged -= value
+
+    def OnCanExecuteChanged(self):
+        self._canExecuteChanged(self, System.EventArgs.Empty)
+
+    def CanExecute(self, parameter):
+        return True
+
+    def Execute(self, parameter):
+        for link in self.__view_model.links:
+            link.is_checked = self.__value
+
+
 class MainWindowViewModel(Reactive):
     def __init__(self, links):
         Reactive.__init__(self)
@@ -93,6 +142,10 @@ class MainWindowViewModel(Reactive):
         self.__links = links
         self.__pick_folder_command = PickFolderCommand(self)
         self.__update_links_command = UpdateLinksCommand(self)
+        self.__invert_command = InvertCommand(self)
+        self.__set_true_command = UpdateStatesCommand(self, True)
+        self.__set_false_command = UpdateStatesCommand(self, False)
+
 
     @property
     def PickFolderCommand(self):
@@ -101,6 +154,18 @@ class MainWindowViewModel(Reactive):
     @property
     def UpdateLinksCommand(self):
         return self.__update_links_command
+
+    @property
+    def InvertCommand(self):
+        return self.__invert_command
+
+    @property
+    def SetTrueCommand(self):
+        return self.__set_true_command
+
+    @property
+    def SetFalseCommand(self):
+        return self.__set_false_command
 
     @reactive
     def folder_path(self):
@@ -126,20 +191,6 @@ class MainWindow(WPFWindow):
         super(MainWindow, self).__init__(self.xaml_source)
 
         self.revit_links.ItemsSource = links
-
-    def update_states(self, value):
-        for link in self.revit_links.ItemsSource:
-            link.is_checked = value
-
-    def select_all(self, sender, args):
-        self.update_states(True)
-
-    def deselect_all(self, sender, args):
-        self.update_states(False)
-
-    def invert(self, sender, args):
-        for link in self.revit_links.ItemsSource:
-            link.is_checked = not link.is_checked
 
 
 class LinkedFile(Reactive):

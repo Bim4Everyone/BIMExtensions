@@ -59,17 +59,17 @@
         <Button
             Grid.Row="3" Grid.Column="0"
             Margin="10" Content="Выбрать все"
-            Click="select_all"/>
+            Command="{Binding SetTrueCommand}"/>
 
         <Button
             Grid.Row="3" Grid.Column="1"
             Margin="10" Content="Снять выбор"
-            Click="deselect_all"/>
+            Command="{Binding SetFalseCommand}"/>
 
         <Button
             Grid.Row="3" Grid.Column="2"
             Margin="10" Content="Инвертировать"
-            Click="invert"/>
+            Command="{Binding InvertCommand}"/>
 
         <Button
             Grid.Row="4" Grid.Column="2"
