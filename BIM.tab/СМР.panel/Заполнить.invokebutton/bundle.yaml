@@ -1,0 +1,10 @@
+title:
+  ru: Заполнить
+  en_us: Fill
+
+tooltip:
+  ru: Обновляет значения параметров СМР с формообразующих из файла координации по выделенному варианту
+  en_us: Updates the values of the parameters SMR from the shapers from the coordination file according to the selected variant
+
+assembly: RevitSetLevelSection.dll
+command_class: SetLevelSectionCommand
