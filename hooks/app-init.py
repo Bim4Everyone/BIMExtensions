@@ -21,7 +21,7 @@ def check_updates():
 
 if check_updates():
     show_notification_service("Bim4Everyone",
-                              "Инициализация платформы прошла с ошибкой: \"Пожалуйста переустановите платформу\".")
+                              "Инициализация платформы прошла с ошибкой, пожалуйста переустановите платформу.")
 else:
     show_notification_service("Bim4Everyone",
                               "Инициализация платформы прошла успешно.")
