@@ -1,0 +1,10 @@
+title:
+  ru: Проверить зоны
+  en_us: Check areas
+
+tooltip:
+  ru: Проверяет зоны в открытой модели.
+  en_us: Checks areas in opened model.
+
+assembly: RevitEditingZones.dll
+command_class: RevitEditingZonesCommand
