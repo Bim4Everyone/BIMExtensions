@@ -1,0 +1,10 @@
+title:
+  ru: Проверить уровни
+  en_us: Check levels
+
+tooltip:
+  ru: Проверяет уровни в открытой модели.
+  en_us: Checks levels in opened model.
+
+assembly: RevitCheckingLevels.dll
+command_class: RevitCheckingLevelsCommand
