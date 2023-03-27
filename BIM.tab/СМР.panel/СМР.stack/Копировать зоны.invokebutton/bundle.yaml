@@ -1,0 +1,10 @@
+title:
+  ru: Копировать зоны
+  en_us: Copy areas
+
+tooltip:
+  ru: Копирует зоны с открытого вида зонирования на выбранные.
+  en_us: Copies areas from opened area view to selected.
+
+assembly: RevitCopingZones.dll
+command_class: RevitCopingZonesCommand
