@@ -1,0 +1,12 @@
+title:
+  ru: Удалить неиспользуемые
+  en_us: Delete unused
+
+tooltip:
+  ru: Удаляет из проекта неиспользуемые фильтры и шаблоны видов.
+  en_us: Deletes unused filters and view templates from the project.
+
+assembly: RevitDeleteUnused.dll
+command_class: RevitDeleteUnusedCommand
+
+author: sssenya
