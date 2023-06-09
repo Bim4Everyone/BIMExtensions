@@ -22,9 +22,9 @@ from Autodesk.Revit.DB import *
 import pyevent  # pylint: disable=import-error
 import os.path as op
 from pyrevit import forms
+from pyrevit import revit
 from pyrevit import EXEC_PARAMS
 from pyrevit.forms import Reactive, reactive
-from pyrevit.revit import Transaction
 
 from dosymep_libs.bim4everyone import *
 
@@ -147,7 +147,7 @@ class CreateLegendCommand(ICommand):
         transform = Transform.CreateTranslation(XYZ.Zero)
         transform = transform.ScaleBasis(scale)
 
-        with Transaction("BIM: Создание жука по плану этажа"):
+        with revit.Transaction("BIM: Создание жука по плану этажа"):
             legend_id = base_legend.Duplicate(ViewDuplicateOption.Duplicate)
             legend = doc.GetElement(legend_id)
 
@@ -171,6 +171,7 @@ class CreateLegendCommand(ICommand):
             return False
 
 
+@notification()
 @log_plugin(EXEC_PARAMS.command_name)
 def script_execute(plugin_logger):
     main_window = MainWindow()
