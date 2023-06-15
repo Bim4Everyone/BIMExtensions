@@ -20,9 +20,11 @@ def to_dictionary(repo_info):
 
 
 def log_trace(message):
-    logger.Information(message)
-    for repo_info in updater.get_all_extension_repos():
-        logger.Information("Информация расширения: \"{@RepoInfo}\"", to_dictionary(repo_info))
+    repo_infos = {}
+    for extension in updater.get_all_extension_repos():
+        repo_infos[extension.name] = to_dictionary(extension)
+
+    logger.Information(message + ": {@Extensions}", Dictionary[str, object](repo_infos))
 
 
 def check_updates():
@@ -36,9 +38,9 @@ def check_updates():
 
                 # пытаемся обновится
                 updater.update_repo(repo_info)
-        except Exception as ex:
+        except Exception:
             status_update = True
-            logger.Warning(ex, "Ошибка обновления расширения: \"{@RepoInfo}\"", to_dictionary(repo_info))
+            logger.Warning("Ошибка обновления расширения: \"{@RepoInfo}\"", to_dictionary(repo_info))
 
     return status_update
 
