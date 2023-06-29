@@ -29,6 +29,20 @@
       "dependencies": [ "BIM4Everyone" ]
     },
     {
+      "builtin": "False",
+      "default_enabled": "False",
+      "type": "extension",
+      "rocket_mode_compatible": "True",
+      "name": "01.2D",
+      "description": "2D",
+      "author": "dosymep",
+      "author_profile": "https://github.com/dosymep/",
+      "url": "https://github.com/dosymep/2DExtensions",
+      "website": "https://github.com/dosymep/2DExtensions",
+      "image": "",
+      "dependencies": [ "BIM4Everyone" ]
+    },
+    {
       "builtin": "True",
       "default_enabled": "True",
       "type": "extension",
