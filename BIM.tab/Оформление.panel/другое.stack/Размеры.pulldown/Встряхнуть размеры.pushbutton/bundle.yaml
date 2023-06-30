@@ -1,9 +1,0 @@
-title:
-  ru: Встряхнуть размеры
-  en_us: Shake dimensions
-
-tooltip:
-  ru: Перемещает все размеры на выделенных видах вперед и назад на небольшую величину, чтобы подтолкнуть Revit к повторному созданию размера и обновлению вида.
-  en_us: Moves all Dimensions on the selected views back-and-forth by a tiny amount to push Revit to regenerate the dimension and update the display.
-
-author: dosymep

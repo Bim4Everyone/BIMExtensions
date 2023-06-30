@@ -1,9 +1,0 @@
-title:
-  ru: Преобразовать чертежный вид в легенду
-  en_us: Convert Drawing View to Legend
-
-tooltip:
-  ru: Преобразовывает выбранные в диспетчере проекта легенды в чертежные виды.
-  en_us: Converts legends selected in the Project Browser to drawing views.
-
-help_url: "https://kb.a101.ru/pages/viewpage.action?pageId=67829994"
