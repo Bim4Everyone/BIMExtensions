@@ -1,0 +1,14 @@
+title:
+  ru: "."
+  en_us: "."
+
+tooltip:
+  ru: >-
+    Суммирует значения параметров выделенных элементов.
+  
+  
+    Для работы со скриптом сначала выберите необходимые семейства в проекте, 
+    затем в открывшемся окне выберите параметр для суммирования значений.
+  en_us: Adds the values of the parameters of the selected elements. Select an option to summarize.
+
+help_url: "https://kb.a101.ru/pages/viewpage.action?pageId=67830008"

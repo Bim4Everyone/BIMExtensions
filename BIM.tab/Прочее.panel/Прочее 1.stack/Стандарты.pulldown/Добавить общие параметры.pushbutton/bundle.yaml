@@ -1,0 +1,18 @@
+title:
+  ru: Добавить общие параметры
+  en_us: Add shared parameters
+
+tooltip:
+  ru: >-
+    Добавляет несколько общих параметров в проект на основе файла Excel. 
+    
+    
+    Шаблон файла Excel и инструкцию по работе со скриптом можно найти в статье Confluence.
+    
+    
+    Для открытия инструкции Confluence наведите курсор на иконку скрипта и нажмите F1.
+  en_us: Adds shared parameters in current project by excel file.
+
+help_url: "https://kb.a101.ru/pages/viewpage.action?pageId=82610012"
+
+author: sssenya

@@ -1,0 +1,14 @@
+title:
+  ru: "*"
+  en_us: "*"
+
+tooltip:
+  ru: >-
+    Выравнивает границу 3D вида по выбраной грани.
+  
+  
+    Для работы со скриптом запустите скрипт и выберите грань элемента на виде
+  en_us: Aligns the section box of the current 3D view to selected face.
+
+context: active-3d-view
+help_url: "https://kb.a101.ru/pages/viewpage.action?pageId=67830008"
