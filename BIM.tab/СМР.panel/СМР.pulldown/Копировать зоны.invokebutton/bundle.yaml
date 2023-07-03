@@ -3,8 +3,23 @@ title:
   en_us: Copy areas
 
 tooltip:
-  ru: Копирует зоны с открытого вида зонирования на выбранные.
+  ru: >-
+    Копирует зоны с открытого плана зонирования на выбранные планы.
+    
+    
+    1. Запустите скрипт на плане зонирования, на котором находятся зоны для копирования.
+    
+    2. Нажмите "Выбрать зоны".
+    
+    3. Выберите на виде необходимые зоны.
+    
+    4. Выберите необходимые этажи для копирования.
+    
+    5. Нажмите "ОК".
   en_us: Copies areas from opened area view to selected.
 
 assembly: RevitCopingZones.dll
 command_class: RevitCopingZonesCommand
+
+author: dosymep
+help_url: "https://kb.a101.ru/pages/viewpage.action?pageId=104598018"
