@@ -5,7 +5,8 @@ title:
 tooltip:
   ru: >-
     Пересохраняет с отсоединением RVT-файлы из Revit Server в указанную папку.
-    Дополнительно можно NWC из пересохраняемых файлов.
+    
+    Дополнительно можно сохранить NWC из пересохраняемых файлов.
   en_us: >-
     Resaves detached RVT files from Revit Server to the specified folder.
     Additionally, you can NWC from resaved files.

@@ -1,12 +1,6 @@
 title:
-  ru: >-
-    Удалить
-    
-    выгруженные связи
-  en_us: >-
-    Remove
-    
-    unloaded links
+  ru: Удалить выгруженные связи
+  en_us: Remove unloaded links
 
 tooltip:
   ru: Удаляет из проекта все выгруженные связи Revit.

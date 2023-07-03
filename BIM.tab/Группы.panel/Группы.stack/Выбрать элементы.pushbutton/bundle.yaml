@@ -5,7 +5,11 @@ title:
 tooltip:
   ru: >-
     Выделяет все элементы, входящие в выбранные группы.
-    Сначала необходимо выбрать группы на виде, затем запустить скрипт.
+    
+    
+    1. Выберите необходимые группы на виде.
+    
+    2. Запустите скрипт.
   en_us: >-
     Selects all elements included in the selected groups.
     First you need to select the groups in the view, then run the script.

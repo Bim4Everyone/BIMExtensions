@@ -3,7 +3,13 @@ title:
   en_us: Foundation elements
 
 tooltip:
-  ru: Выделяет все экземпляры семейств, размещенных на выбранной основе.
+  ru: >- 
+    Выделяет все экземпляры семейств, размещенных на выбранной основе.
+    
+    
+    1. Выберите нужный элемент-основу
+
+    2. Запустите скрипт
   en_us: Selects all instances of families hosted on the selected canvas.
 
 context: selection

@@ -2,10 +2,14 @@ title:
   ru: Удалить
   en_us: MDeduct
 tooltip:
-  ru: Перезаписывает выбранные элементы  (удаляет уже записанные и записывает новые)   в память проекта. Работает как кнопки MC и M+ в калькуляторе.
+  ru: >-
+    Перезаписывает выбранные элементы  (удаляет уже записанные и записывает новые) в память проекта.  
+    Работает как кнопки MC и M+ в калькуляторе.
   en_us: >-
     Deducts selection from memory keeping the rest
     
-    Works like the M- button in a calculator. This is a project-dependent memory. Every project has its own selection memory saved in %appdata%/pyRevit folder as *.pym files
+    Works like the M- button in a calculator. This is a project-dependent memory. 
+    
+    Every project has its own selection memory saved in %appdata%/pyRevit folder as *.pym files
 
 help_url: "https://kb.a101.ru/pages/viewpage.action?pageId=67829989"

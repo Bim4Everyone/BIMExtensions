@@ -3,7 +3,13 @@ title:
   en_us: Family instances
 
 tooltip:
-  ru: Выделяет все экземпляры всех типоразмеров выбранного экземпляра семейства.
+  ru: >- 
+    Выделяет все экземпляры всех типоразмеров выбранного экземпляра семейства.
+    
+    
+    1. Выберите нужный элемент 
+
+    2. Запустите скрипт
   en_us: Selects all instances of all types of the selected family instance.
 
 context: selection
