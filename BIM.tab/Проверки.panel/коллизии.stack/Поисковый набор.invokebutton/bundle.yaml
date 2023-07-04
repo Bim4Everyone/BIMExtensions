@@ -4,7 +4,7 @@ title:
 
 tooltip:
   ru: Создание поисковых наборов
-  en_us: Create search sets
+  en_us: Creating search sets
 
 assembly: RevitClashDetective.dll
 command_class: CreateFiltersCommand

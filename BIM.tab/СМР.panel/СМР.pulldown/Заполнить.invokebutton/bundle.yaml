@@ -1,6 +1,6 @@
 title:
   ru: Заполнить
-  en_us: Fill
+  en_us: Set
 
 tooltip:
   ru: >-
@@ -27,7 +27,9 @@ tooltip:
     3. При необходимости Выберите разделы.
     
     4. Нажмите "ОК".
-  en_us: Updates the values of the parameters SMR from the shapers from the coordination file according to the selected variant
+  en_us: >-
+    Updates the values of the CIW (construction and installation works) parameters from the forms 
+    from the coordination file according to the selected variant
 
 assembly: RevitSetLevelSection.dll
 command_class: SetLevelSectionCommand

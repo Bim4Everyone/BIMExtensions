@@ -12,7 +12,7 @@ tooltip:
     2. Проанализируйте имеющиеся ошибки.
     
     3. Закройте скрипт и исправьте ошибки вручную.
-  en_us: Checks levels in opened model.
+  en_us: Checks levels in the current project.
 
 assembly: RevitCheckingLevels.dll
 command_class: RevitCheckingLevelsCommand

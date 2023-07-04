@@ -1,6 +1,6 @@
 title:
   ru: Выбрать для стадий
-  en_us: Select for stages
+  en_us: Select for phases
 
 tooltip:
   ru: >-
@@ -11,7 +11,7 @@ tooltip:
     
     2. Запустите скрипт.
   en_us: >-
-    Highlights the elements in the selected groups for which you can change the stage.
+    Highlights the elements in the selected groups for which you can change the phase.
     First you need to select the groups in the view, then run the script.
 
 context: selection

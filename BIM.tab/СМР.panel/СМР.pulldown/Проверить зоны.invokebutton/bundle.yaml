@@ -19,7 +19,7 @@ tooltip:
     4. Нажмите "Обновить привязки"
     
     5. Остальные ошибки необходимо исправлять вручную.
-  en_us: Checks areas in opened model.
+  en_us: Checks areas in the current project.
 
 assembly: RevitEditingZones.dll
 command_class: RevitEditingZonesCommand
