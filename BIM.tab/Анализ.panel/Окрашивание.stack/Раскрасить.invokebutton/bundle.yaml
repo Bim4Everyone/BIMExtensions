@@ -1,0 +1,10 @@
+title:
+  ru: Раскрасить
+  en_us: Colorize
+
+tooltip:
+  ru: Анализирует значения выбранного пользователем параметра у элементов на виде и создает фильтры для каждого из значений.
+  en_us: Analyzes the values of the user-selected parameter for elements in the view and creates filters for each of the values.
+
+assembly: RevitCreatingFiltersByValues.dll
+command_class: RevitCreatingFiltersByValuesCommand

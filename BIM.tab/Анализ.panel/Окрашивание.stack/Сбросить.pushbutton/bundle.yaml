@@ -1,0 +1,7 @@
+title:
+  ru: Сбросить
+  en_us: Reset
+
+tooltip:
+  ru: Сбрасывает переопределение графики у всех видимых элементов на виде
+  en_us: Resets the graphic override for all visible elements in the view
