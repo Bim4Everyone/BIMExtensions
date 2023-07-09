@@ -1,0 +1,10 @@
+title:
+  ru: Расставить
+  en_us: Place
+
+tooltip:
+  ru: Расставляет задания на отверстия
+  en_us: Places opening tasks
+
+assembly: RevitOpeningPlacement.dll
+command_class: PlaceOpeningTaskCommand

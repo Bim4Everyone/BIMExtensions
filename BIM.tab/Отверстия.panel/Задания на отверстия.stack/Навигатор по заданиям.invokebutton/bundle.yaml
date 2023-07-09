@@ -1,0 +1,10 @@
+title:
+  ru: Навигатор
+  en_us: Navigator
+
+tooltip:
+  ru: Просмотр заданий на отверстия
+  en_us: View opening tasks
+
+assembly: RevitOpeningPlacement.dll
+command_class: GetOpeningTaskCommand

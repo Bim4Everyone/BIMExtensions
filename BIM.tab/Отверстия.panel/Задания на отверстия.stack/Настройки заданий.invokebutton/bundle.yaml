@@ -1,0 +1,10 @@
+title:
+  ru: Настройки
+  en_us: Settings
+
+tooltip:
+  ru: Настройки плагина для расстановки заданий на отверстия
+  en_us: Plugin settings for placing opening tasks
+
+assembly: RevitOpeningPlacement.dll
+command_class: SetOpeningTaskCommand
