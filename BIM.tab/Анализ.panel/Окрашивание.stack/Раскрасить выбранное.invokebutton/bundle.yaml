@@ -1,0 +1,10 @@
+title:
+  ru: Раскрасить выбранное
+  en_us: Colorize selected
+
+tooltip:
+  ru: Выполняет прямое переопределение графики выбранных элементов на всех видах, где элементы видны. Плагин работает с элементами, выбранными до запуска плагина.
+  en_us: Performs a direct graphics override of the selected elements in all views where the elements are visible. The plugin works with elements selected before the plugin was launched.
+
+assembly: RevitOverridingGraphicsInViews.dll
+command_class: RevitOverridingGraphicsInViewsCommand
