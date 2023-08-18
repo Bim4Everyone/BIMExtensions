@@ -1,0 +1,10 @@
+title:
+  ru: Принять одно
+  en_us: Accept single
+
+tooltip:
+  ru: Размещение архитектурного проема по одному входящему заданию на отверстие
+  en_us: Place architecture opening by single incoming opening task
+
+assembly: RevitOpeningPlacement.dll
+command_class: PlaceOpeningRealCommand
