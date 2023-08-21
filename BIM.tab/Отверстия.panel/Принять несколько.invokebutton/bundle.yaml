@@ -3,8 +3,8 @@ title:
   en_us: Accept many
 
 tooltip:
-  ru: Размещение архитектурного проема по нескольким входящим заданиям на отверстия
-  en_us: Place architecture opening by many incoming opening tasks
+  ru: Размещение архитектурного прямоугольного проема по одному или нескольким входящим заданиям на отверстия
+  en_us: Place architecture rectangle opening by one or many incoming opening tasks
 
 assembly: RevitOpeningPlacement.dll
 command_class: PlaceUnitedOpeningRealCommand
