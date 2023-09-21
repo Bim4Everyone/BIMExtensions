@@ -3,8 +3,8 @@ title:
   en_us: Accept single
 
 tooltip:
-  ru: Размещение архитектурного проема по одному входящему заданию на отверстие
-  en_us: Place architecture opening by single incoming opening task
+  ru: Размещение одного проема по одному входящему заданию на отверстие
+  en_us: Place one opening by one incoming opening task
 
 assembly: RevitOpeningPlacement.dll
 command_class: PlaceOneOpeningRealByOneTaskCmd

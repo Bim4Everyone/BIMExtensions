@@ -4,7 +4,7 @@ title:
 
 tooltip:
   ru: Просмотр заданий на отверстия
-  en_us: View opening tasks
+  en_us: Watch opening tasks
 
 assembly: RevitOpeningPlacement.dll
 command_class: GetOpeningTasksCmd
