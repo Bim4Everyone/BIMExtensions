@@ -1,10 +1,10 @@
 title:
-  ru: Объединить задания
-  en_us: Unite tasks
+  ru: Объединить
+  en_us: Unite
 
 tooltip:
   ru: Размещение одного объединенного прямоугольного задания на отверстие на месте нескольких заданий
   en_us: Place single united rectangle opening task instead of many placed tasks
 
 assembly: RevitOpeningPlacement.dll
-command_class: UniteOpeningTasksCommand
+command_class: UniteOpeningTasksCmd

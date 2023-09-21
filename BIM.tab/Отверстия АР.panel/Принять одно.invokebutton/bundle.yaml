@@ -7,4 +7,4 @@ tooltip:
   en_us: Place architecture opening by single incoming opening task
 
 assembly: RevitOpeningPlacement.dll
-command_class: PlaceOpeningRealCommand
+command_class: PlaceOneOpeningRealByOneTaskCmd

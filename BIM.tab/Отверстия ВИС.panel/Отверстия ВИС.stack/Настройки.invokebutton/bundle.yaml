@@ -7,4 +7,4 @@ tooltip:
   en_us: Plugin settings for placing opening tasks
 
 assembly: RevitOpeningPlacement.dll
-command_class: SetOpeningTaskCommand
+command_class: SetOpeningTasksPlacementConfigCmd

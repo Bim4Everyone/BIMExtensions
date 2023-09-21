@@ -1,10 +1,10 @@
 title:
-  ru: Объединить и принять
-  en_us: Unite and accept
+  ru: С объединением
+  en_us: With union
 
 tooltip:
   ru: Размещение архитектурного прямоугольного проема по одному или нескольким входящим заданиям на отверстия
   en_us: Place architecture rectangle opening by one or many incoming opening tasks
 
 assembly: RevitOpeningPlacement.dll
-command_class: PlaceUnitedOpeningRealCommand
+command_class: PlaceOneOpeningRealByManyTasksCmd

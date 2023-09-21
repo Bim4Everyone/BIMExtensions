@@ -1,0 +1,10 @@
+title:
+  ru: Без объединения
+  en_us: Without union
+
+tooltip:
+  ru: Размещение одиночных отверстий в выбранном хосте на месте выбранных заданий
+  en_us: Place single openings in selected host for each selected task
+
+assembly: RevitOpeningPlacement.dll
+command_class: PlaceManyOpeningRealsByManyTasksInOneHostCmd

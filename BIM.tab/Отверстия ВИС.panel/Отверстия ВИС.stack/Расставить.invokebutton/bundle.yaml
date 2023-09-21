@@ -7,4 +7,4 @@ tooltip:
   en_us: Places opening tasks
 
 assembly: RevitOpeningPlacement.dll
-command_class: PlaceOpeningTaskCommand
+command_class: PlaceOpeningTasksCmd

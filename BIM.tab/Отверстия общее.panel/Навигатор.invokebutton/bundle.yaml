@@ -7,4 +7,4 @@ tooltip:
   en_us: View opening tasks
 
 assembly: RevitOpeningPlacement.dll
-command_class: GetOpeningTaskCommand
+command_class: GetOpeningTasksCmd

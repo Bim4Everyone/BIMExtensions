@@ -1,0 +1,10 @@
+title:
+  ru: Авторазмещение
+  en_us: Autoplacing
+
+tooltip:
+  ru: Автоматическое размещение одиночных отверстий в выбранных хостах по одному для каждого задания
+  en_us: Autoplace single openings in selected hosts so for each task will be created one opening
+
+assembly: RevitOpeningPlacement.dll
+command_class: PlaceManyOpeningRealsByManyTasksInManyHostsCmd
