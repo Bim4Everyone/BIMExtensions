@@ -7,3 +7,4 @@
 5. [DevExpress](https://www.devexpress.com/) за предоставление фреймворка.   
 6. [RevitAPIDocs](https://www.revitapidocs.com/) за предоставление онлайн справки по Revit API.  
 7. [RevitLookup](https://github.com/jeremytammik/RevitLookup) за предоставление плагина Revit.
+8. [pyRevit](https://github.com/eirannejad/pyRevit) за предоставление платформы расширений.
