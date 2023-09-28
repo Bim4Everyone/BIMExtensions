@@ -36,3 +36,6 @@ command_class: SetLevelSectionCommand
 
 author: dosymep
 help_url: "https://kb.a101.ru/pages/viewpage.action?pageId=67844245"
+
+min_revit_version: 2020
+max_revit_version: 2022

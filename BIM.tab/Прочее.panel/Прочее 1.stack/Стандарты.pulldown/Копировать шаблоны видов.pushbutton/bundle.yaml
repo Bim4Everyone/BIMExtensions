@@ -11,3 +11,6 @@ tooltip:
     
     2. Выберите проекты, в которые надо скопировать шаблоны и нажмите "ОК"
   en_us: Copies selected view templates from current open document to other open documents.
+
+min_revit_version: 2020
+max_revit_version: 2022

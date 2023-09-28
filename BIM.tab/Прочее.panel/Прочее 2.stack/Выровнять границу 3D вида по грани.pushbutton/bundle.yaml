@@ -12,3 +12,6 @@ tooltip:
 
 context: active-3d-view
 help_url: "https://kb.a101.ru/pages/viewpage.action?pageId=67830008"
+
+min_revit_version: 2020
+max_revit_version: 2022

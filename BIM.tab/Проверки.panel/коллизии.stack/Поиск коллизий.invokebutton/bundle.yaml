@@ -10,3 +10,6 @@ assembly: RevitClashDetective.dll
 command_class: DetectiveClashesCommand
 
 author: budaevaler
+
+min_revit_version: 2020
+max_revit_version: 2022

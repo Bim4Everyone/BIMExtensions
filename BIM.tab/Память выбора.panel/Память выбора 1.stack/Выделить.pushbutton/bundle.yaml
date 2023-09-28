@@ -12,3 +12,6 @@ en_us: >-
     Every project has its own selection memory saved in %appdata%/pyRevit folder as *.pym files
   
 help_url: "https://kb.a101.ru/pages/viewpage.action?pageId=67829989"
+
+min_revit_version: 2020
+max_revit_version: 2022

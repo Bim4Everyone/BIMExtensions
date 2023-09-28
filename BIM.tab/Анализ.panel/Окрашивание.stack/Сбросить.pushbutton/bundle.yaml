@@ -5,3 +5,6 @@ title:
 tooltip:
   ru: Сбрасывает переопределение графики у всех видимых элементов на виде
   en_us: Resets the graphic override for all visible elements in the view
+
+min_revit_version: 2020
+max_revit_version: 2022

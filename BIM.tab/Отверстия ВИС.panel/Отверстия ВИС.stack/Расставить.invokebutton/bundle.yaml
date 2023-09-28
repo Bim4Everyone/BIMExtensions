@@ -11,3 +11,6 @@ command_class: PlaceOpeningTasksCmd
 
 author: budaevaler, vlastroG
 help_url: "https://kb.a101.ru/pages/viewpage.action?pageId=116065713"
+
+min_revit_version: 2020
+max_revit_version: 2022

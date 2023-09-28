@@ -8,3 +8,6 @@ tooltip:
 
 assembly: RevitCreatingFiltersByValues.dll
 command_class: RevitCreatingFiltersByValuesCommand
+
+min_revit_version: 2020
+max_revit_version: 2022
