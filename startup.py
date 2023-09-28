@@ -26,6 +26,9 @@ clr.AddReference('dosymep.SimpleServices.dll')
 clr.AddReference('Serilog.dll')
 clr.AddReference('Serilog.Sinks.File.dll')
 
+clr.AddReference('Serilog.Sinks.Autodesk.Revit.dll')
+clr.AddReference('Serilog.Enrichers.Autodesk.Revit.dll')
+
 clr.AddReference('DevExpress.Xpf.Core.v21.2.dll')
 clr.AddReference('DevExpress.Data.Desktop.v21.2.dll')
 
