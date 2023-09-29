@@ -29,7 +29,7 @@
       "dependencies": [ "BIM4Everyone" ]
     },
     {
-      "builtin": "False",
+      "builtin": "True",
       "default_enabled": "False",
       "type": "extension",
       "rocket_mode_compatible": "True",
