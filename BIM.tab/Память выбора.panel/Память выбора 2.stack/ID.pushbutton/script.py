@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 import clr
+
 clr.AddReference("PresentationCore")
 
 from System.Windows import Clipboard
@@ -17,6 +18,7 @@ document = __revit__.ActiveUIDocument.Document
 uiDocument = __revit__.ActiveUIDocument
 
 
+@notification()
 @log_plugin(EXEC_PARAMS.command_name)
 def script_execute(plugin_logger):
     with forms.WarningBar(title="Выберите элемент связанного файла"):
