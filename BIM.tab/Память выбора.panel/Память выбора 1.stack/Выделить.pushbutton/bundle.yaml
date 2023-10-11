@@ -5,13 +5,13 @@ title:
 tooltip:
   ru: Выделяет в проекте элементы, находящиеся в памяти в данный момент. Работает как кнопка MR в калькуляторе.
 en_us: >-
-    Read selection from memory
-    
-    Works like the MR button in a calculator. This is a project-dependent memory. 
+  Read selection from memory
   
-    Every project has its own selection memory saved in %appdata%/pyRevit folder as *.pym files
+  Works like the MR button in a calculator. This is a project-dependent memory. 
   
+  Every project has its own selection memory saved in %appdata%/pyRevit folder as *.pym files
+
 help_url: "https://kb.a101.ru/pages/viewpage.action?pageId=67829989"
 
 min_revit_version: 2020
-max_revit_version: 2022
+max_revit_version: 2024

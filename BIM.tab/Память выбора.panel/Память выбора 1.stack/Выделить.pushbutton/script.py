@@ -6,6 +6,7 @@ from pyrevit import revit, DB
 from dosymep_libs.bim4everyone import *
 
 
+@notification()
 @log_plugin(EXEC_PARAMS.command_name)
 def script_execute(plugin_logger):
     try:
