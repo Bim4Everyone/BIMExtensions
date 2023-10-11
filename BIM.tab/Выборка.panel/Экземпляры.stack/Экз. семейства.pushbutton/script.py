@@ -1,10 +1,12 @@
 # -*- coding: utf-8 -*-
 
 import clr
+
 clr.AddReference("dosymep.Revit.dll")
 clr.AddReference("dosymep.Bim4Everyone.dll")
 
 import dosymep
+
 clr.ImportExtensions(dosymep.Revit)
 clr.ImportExtensions(dosymep.Bim4Everyone)
 
@@ -121,6 +123,7 @@ class SelectLevelFrom(forms.TemplateUserInputWindow):
         self.Close()
 
 
+@notification()
 @log_plugin(EXEC_PARAMS.command_name)
 def script_execute(plugin_logger):
     lvls = DB.FilteredElementCollector(revit.doc).OfClass(DB.Level)
