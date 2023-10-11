@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 import clr
+
 clr.AddReference('System')
 
 from System.Collections.Generic import List
@@ -12,6 +13,8 @@ from dosymep_libs.bim4everyone import *
 
 from Autodesk.Revit.DB import *
 
+
+@notification()
 @log_plugin(EXEC_PARAMS.command_name)
 def script_execute(plugin_logger):
     doc = __revit__.ActiveUIDocument.Document
@@ -33,5 +36,6 @@ def script_execute(plugin_logger):
     __revit__.ActiveUIDocument.Selection.SetElementIds(List[ElementId](groups))
 
     show_executed_script_notification()
+
 
 script_execute()
