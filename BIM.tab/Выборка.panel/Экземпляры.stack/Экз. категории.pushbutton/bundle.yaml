@@ -3,7 +3,7 @@ title:
   en_us: Instances of the category
 
 tooltip:
-  ru: >- 
+  ru: >-
     Выделяет все экземпляры семейств для категории выбранного экземпляра семейства.
     
     
@@ -17,4 +17,4 @@ autor: dosymep
 help_url: "https://kb.a101.ru/pages/viewpage.action?pageId=67829991"
 
 min_revit_version: 2020
-max_revit_version: 2022
+max_revit_version: 2024
