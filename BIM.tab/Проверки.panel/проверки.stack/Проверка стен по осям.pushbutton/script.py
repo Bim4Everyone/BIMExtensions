@@ -28,7 +28,6 @@ from dosymep.Bim4Everyone.Templates import ProjectParameters
 from dosymep.Bim4Everyone.SharedParams import SharedParamsConfig
 from dosymep.Bim4Everyone.ProjectParams import ProjectParamsConfig
 
-
 doc = __revit__.ActiveUIDocument.Document
 uidoc = __revit__.ActiveUIDocument
 view = doc.ActiveView
@@ -326,6 +325,7 @@ def check_walls():
                                                      "Да" if round((distance + 0.000000001) % scale, 8) == 0 else "Нет")
 
 
+@notification()
 @log_plugin(EXEC_PARAMS.command_name)
 def script_execute(plugin_logger):
     check_walls()
