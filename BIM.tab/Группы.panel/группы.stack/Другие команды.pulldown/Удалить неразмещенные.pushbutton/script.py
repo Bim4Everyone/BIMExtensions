@@ -6,6 +6,8 @@ from pyrevit import revit
 from pyrevit import EXEC_PARAMS
 from dosymep_libs.bim4everyone import *
 
+
+@notification()
 @log_plugin(EXEC_PARAMS.command_name)
 def script_execute(plugin_logger):
     doc = __revit__.ActiveUIDocument.Document
@@ -17,5 +19,6 @@ def script_execute(plugin_logger):
                 doc.Delete(group_type.Id)
 
     show_executed_script_notification()
+
 
 script_execute()
