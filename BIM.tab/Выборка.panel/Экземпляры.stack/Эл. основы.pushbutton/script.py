@@ -11,6 +11,7 @@ from pyrevit import EXEC_PARAMS
 from dosymep_libs.bim4everyone import *
 
 
+@notification()
 @log_plugin(EXEC_PARAMS.command_name)
 def script_execute(plugin_logger):
     doc = __revit__.ActiveUIDocument.Document
