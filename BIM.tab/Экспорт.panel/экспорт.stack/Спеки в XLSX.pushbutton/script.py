@@ -2,6 +2,7 @@
 import os
 
 import clr
+
 clr.AddReference('System')
 clr.AddReference('System.IO')
 clr.AddReference("PresentationCore")
@@ -14,6 +15,7 @@ clr.AddReference("dosymep.Revit.dll")
 clr.AddReference("dosymep.Bim4Everyone.dll")
 
 import dosymep
+
 clr.ImportExtensions(dosymep.Revit)
 clr.ImportExtensions(dosymep.Bim4Everyone)
 
@@ -26,10 +28,8 @@ from Autodesk.Revit.DB import *
 
 from dosymep_libs.bim4everyone import *
 
-
 from dosymep.Bim4Everyone.Templates import ProjectParameters
 from dosymep.Bim4Everyone.ProjectParams import ProjectParamsConfig
-
 
 from pyrevit import forms
 from pyrevit import script
@@ -154,7 +154,7 @@ class TabelsConverter(object):
             column_range = merget_cell.Right - column
             if row_range > 0 or column_range > 0:
                 current_worksheet.Cells[self.__currentRow,
-                                        self.__currentColumn, self.__currentRow + row_range, self.__currentColumn + column_range].Merge = True
+                self.__currentColumn, self.__currentRow + row_range, self.__currentColumn + column_range].Merge = True
 
 
 class CheckBoxOption:
@@ -172,7 +172,6 @@ class CheckBoxOption:
 
     def __str__(self):
         return self.name
-
 
 
 class PrintSheetsWindow(forms.WPFWindow):
@@ -280,6 +279,7 @@ class PrintSheetsWindow(forms.WPFWindow):
             script.exit()
 
 
+@notification()
 @log_plugin(EXEC_PARAMS.command_name)
 def script_execute(plugin_logger):
     doc = __revit__.ActiveUIDocument.Document
