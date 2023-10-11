@@ -3,6 +3,7 @@
 from pyrevit import EXEC_PARAMS
 from dosymep_libs.bim4everyone import *
 
+
 @notification()
 @log_plugin(EXEC_PARAMS.command_name)
 def script_execute(plugin_logger):
@@ -10,8 +11,8 @@ def script_execute(plugin_logger):
     document = __revit__.ActiveUIDocument.Document
     activeView = document.ActiveView
 
-    elementsInView = FilteredElementCollector(document, activeView.Id)\
-        .WhereElementIsNotElementType()\
+    elementsInView = FilteredElementCollector(document, activeView.Id) \
+        .WhereElementIsNotElementType() \
         .ToElements()
 
     settings = OverrideGraphicSettings()
