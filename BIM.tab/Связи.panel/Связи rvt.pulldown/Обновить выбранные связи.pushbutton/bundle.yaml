@@ -3,10 +3,10 @@ title:
   en_us: Update file links
 
 tooltip:
-  ru: >- 
+  ru: >-
     Обновляет выбранные связи на основе файлов из выбранной папки.
-  
-  
+    
+    
     1. Запустите скрипт.
     
     2. В открывшемся окне выберите те связи, которые надо обновить.
@@ -20,4 +20,4 @@ author: sssenya
 help_url: "https://kb.a101.ru/pages/viewpage.action?pageId=67830004"
 
 min_revit_version: 2020
-max_revit_version: 2022
+max_revit_version: 2024
