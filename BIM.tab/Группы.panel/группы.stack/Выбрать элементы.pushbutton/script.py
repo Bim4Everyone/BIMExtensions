@@ -1,10 +1,12 @@
 # -*- coding: utf-8 -*-
 
 import clr
+
 clr.AddReference("dosymep.Revit.dll")
 clr.AddReference("dosymep.Bim4Everyone.dll")
 
 import dosymep
+
 clr.ImportExtensions(dosymep.Revit)
 clr.ImportExtensions(dosymep.Bim4Everyone)
 
@@ -49,6 +51,7 @@ def get_group_elements(group):
                     yield group
 
 
+@notification()
 @log_plugin(EXEC_PARAMS.command_name)
 def script_execute(plugin_logger):
     elements = []
@@ -57,5 +60,6 @@ def script_execute(plugin_logger):
 
     selection.set_to([e.Id for e in elements])
     show_executed_script_notification()
+
 
 script_execute()
