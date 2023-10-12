@@ -1,10 +1,11 @@
 # coding=utf-8
 """Copy selected view templates to other open models."""
-#pylint: disable=import-error,invalid-name
+# pylint: disable=import-error,invalid-name
 from pyrevit import revit
 from pyrevit import forms
 from pyrevit.forms import *
 
+from dosymep_libs.bim4everyone import *
 from pyrevit import HOST_APP, EXEC_PARAMS, DOCS, BIN_DIR
 
 DEFAULT_INPUTWINDOW_WIDTH = 500
@@ -99,7 +100,7 @@ class SelectFromList(TemplateUserInputWindow):
                     TemplateListItem(item,
                                      checkable=self.multiselect,
                                      name_attr=self._nameattr)
-                    )
+                )
 
         return new_ctx
 
@@ -146,12 +147,12 @@ class SelectFromList(TemplateUserInputWindow):
                  for x in self._get_active_ctx()],
                 key=lambda x: x[1],
                 reverse=True
-                )
+            )
             # filter out any match with score less than 80
             self.list_lb.ItemsSource = \
                 ObservableCollection[TemplateListItem](
                     [x[0] for x in fuzzy_matches if x[1] >= 80]
-                    )
+                )
         else:
             self.checkall_b.Content = 'Выбрать все'
             self.uncheckall_b.Content = 'Сбросить выделение'
@@ -177,7 +178,7 @@ class SelectFromList(TemplateUserInputWindow):
                 return self._unwrap_options(
                     [x for x in self._get_active_ctx()
                      if x.state or x in self.list_lb.SelectedItems]
-                    )
+                )
         else:
             return self._unwrap_options([self.list_lb.SelectedItem])[0]
 
@@ -197,7 +198,7 @@ class SelectFromList(TemplateUserInputWindow):
         if state:
             # enable the info panel
             self.splitterCol.Width = System.Windows.GridLength(8)
-            self.infoCol.Width = System.Windows.GridLength(self.Width/2)
+            self.infoCol.Width = System.Windows.GridLength(self.Width / 2)
             self.show_element(self.infoSplitter)
             self.show_element(self.infoPanel)
         else:
@@ -206,37 +207,37 @@ class SelectFromList(TemplateUserInputWindow):
             self.hide_element(self.infoSplitter)
             self.hide_element(self.infoPanel)
 
-    def toggle_all(self, sender, args):    #pylint: disable=W0613
+    def toggle_all(self, sender, args):  # pylint: disable=W0613
         """Handle toggle all button to toggle state of all check boxes."""
         self._set_states(flip=True)
 
-    def check_all(self, sender, args):    #pylint: disable=W0613
+    def check_all(self, sender, args):  # pylint: disable=W0613
         """Handle check all button to mark all check boxes as checked."""
         self._set_states(state=True)
 
-    def uncheck_all(self, sender, args):    #pylint: disable=W0613
+    def uncheck_all(self, sender, args):  # pylint: disable=W0613
         """Handle uncheck all button to mark all check boxes as un-checked."""
         self._set_states(state=False)
 
-    def check_selected(self, sender, args):    #pylint: disable=W0613
+    def check_selected(self, sender, args):  # pylint: disable=W0613
         """Mark selected checkboxes as checked."""
         self._set_states(state=True, selected=True)
 
-    def uncheck_selected(self, sender, args):    #pylint: disable=W0613
+    def uncheck_selected(self, sender, args):  # pylint: disable=W0613
         """Mark selected checkboxes as unchecked."""
         self._set_states(state=False, selected=True)
 
-    def button_reset(self, sender, args):#pylint: disable=W0613
+    def button_reset(self, sender, args):  # pylint: disable=W0613
         if self.reset_func:
             all_items = self.list_lb.ItemsSource
             self.reset_func(all_items)
 
-    def button_select(self, sender, args):    #pylint: disable=W0613
+    def button_select(self, sender, args):  # pylint: disable=W0613
         """Handle select button click."""
         self.response = self._get_options()
         self.Close()
 
-    def search_txt_changed(self, sender, args):    #pylint: disable=W0613
+    def search_txt_changed(self, sender, args):  # pylint: disable=W0613
         """Handle text change in search box."""
         if self.info_panel:
             self._toggle_info_panel(state=False)
@@ -268,7 +269,7 @@ class SelectFromList(TemplateUserInputWindow):
         self.search_txt_changed(sender, args)
         self.search_tb.Focus()
 
-    def clear_search(self, sender, args):    #pylint: disable=W0613
+    def clear_search(self, sender, args):  # pylint: disable=W0613
         """Clear search box."""
         self.search_tb.Text = ' '
         self.search_tb.Clear()
@@ -295,21 +296,21 @@ def select_viewtemplates(title='Выберите шаблоны видов',
         width=width,
         multiselect=multiple,
         checked_only=True
-        )
+    )
 
     return selected_viewtemplates
 
 
 def select_open_docs(title='Select Open Documents',
                      button_name='OK',
-                     width=DEFAULT_INPUTWINDOW_WIDTH,    #pylint: disable=W0613
+                     width=DEFAULT_INPUTWINDOW_WIDTH,  # pylint: disable=W0613
                      multiple=True,
                      check_more_than_one=True,
                      filterfunc=None):
     # find open documents other than the active doc
-    open_docs = [d for d in revit.docs if not d.IsLinked]    #pylint: disable=E1101
+    open_docs = [d for d in revit.docs if not d.IsLinked]  # pylint: disable=E1101
     if check_more_than_one:
-        open_docs.remove(revit.doc)    #pylint: disable=E1101
+        open_docs.remove(revit.doc)  # pylint: disable=E1101
 
     if not open_docs:
         alert('Найден только один открытый проект. '
@@ -324,19 +325,24 @@ def select_open_docs(title='Select Open Documents',
         title=title,
         button_name=button_name,
         filterfunc=filterfunc
-        )
+    )
 
 
-selected_viewtemplates = select_viewtemplates(doc=revit.doc)
+@notification()
+@log_plugin(EXEC_PARAMS.command_name)
+def script_execute(plugin_logger):
+    selected_viewtemplates = select_viewtemplates(doc=revit.doc)
 
-
-if selected_viewtemplates:
-    dest_docs = select_open_docs(title='Выберите документ назначения')
-    if dest_docs:
-        for ddoc in dest_docs:
-            with revit.Transaction('Copy View Templates', doc=ddoc):
-                revit.create.copy_viewtemplates(
-                    selected_viewtemplates,
-                    src_doc=revit.doc,
-                    dest_doc=ddoc
+    if selected_viewtemplates:
+        dest_docs = select_open_docs(title='Выберите документ назначения')
+        if dest_docs:
+            for ddoc in dest_docs:
+                with revit.Transaction('Copy View Templates', doc=ddoc):
+                    revit.create.copy_viewtemplates(
+                        selected_viewtemplates,
+                        src_doc=revit.doc,
+                        dest_doc=ddoc
                     )
+
+
+script_execute()
