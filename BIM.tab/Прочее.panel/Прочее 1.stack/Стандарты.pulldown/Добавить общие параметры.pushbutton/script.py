@@ -1,14 +1,16 @@
 # coding=utf-8
 
 import clr
+
 clr.AddReference("dosymep.Revit.dll")
 clr.AddReference("dosymep.Bim4Everyone.dll")
 
 import dosymep
+
 clr.ImportExtensions(dosymep.Revit)
 clr.ImportExtensions(dosymep.Bim4Everyone)
 
-import pyevent #pylint: disable=import-error
+import pyevent  # pylint: disable=import-error
 from System.Windows.Input import ICommand
 
 from dosymep_libs.bim4everyone import *
@@ -22,7 +24,6 @@ from Autodesk.Revit.DB import *
 clr.AddReference("Microsoft.Office.Interop.Excel")
 import Microsoft.Office.Interop.Excel as Excel
 from System.Runtime.InteropServices import Marshal
-
 
 doc = __revit__.ActiveUIDocument.Document
 uiapp = __revit__
@@ -88,7 +89,6 @@ class MainWindowViewModel(Reactive):
         self.__pick_excel_file_command = PickExcelFileCommand(self)
         self.__pick_txt_file_command = PickTXTFileCommand(self)
 
-
     @property
     def PickExcelFileCommand(self):
         return self.__pick_excel_file_command
@@ -115,7 +115,7 @@ class MainWindowViewModel(Reactive):
 
 
 class MainWindow(WPFWindow):
-    def __init__(self,):
+    def __init__(self, ):
         self._context = None
         self.run = False
         self.xaml_source = op.join(op.dirname(__file__), 'MainWindow.xaml')
@@ -336,12 +336,12 @@ def script_execute(plugin_logger):
 
                     result_message += result
 
-                if not doc.IsFamilyDocument:
-                    vary_by_group = int(parameter[4])
-                    set_vary_by_group(doc,
-                                      param_name,
-                                      vary_by_group
-                                      )
+                    if not doc.IsFamilyDocument:
+                        vary_by_group = int(parameter[4])
+                        set_vary_by_group(doc,
+                                          param_name,
+                                          vary_by_group
+                                          )
             print result_message
         else:
             alert("Не указан путь к ФОП или файлу Excel", exitscript=True)
