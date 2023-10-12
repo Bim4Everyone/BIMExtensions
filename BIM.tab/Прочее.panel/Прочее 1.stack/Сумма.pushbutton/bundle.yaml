@@ -5,8 +5,8 @@ title:
 tooltip:
   ru: >-
     Суммирует значения параметров выделенных элементов.
-  
-  
+    
+    
     Для работы со скриптом сначала выберите необходимые семейства в проекте, 
     затем в открывшемся окне выберите параметр для суммирования значений.
   en_us: Adds the values of the parameters of the selected elements. Select an option to summarize.
@@ -14,4 +14,4 @@ tooltip:
 help_url: "https://kb.a101.ru/pages/viewpage.action?pageId=67830008"
 
 min_revit_version: 2020
-max_revit_version: 2022
+max_revit_version: 2024

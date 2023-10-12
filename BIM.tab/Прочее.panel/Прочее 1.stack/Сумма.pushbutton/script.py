@@ -7,6 +7,7 @@ from pyrevit import forms
 from pyrevit import script
 from pyrevit import coreutils
 from pyrevit import EXEC_PARAMS
+from pyrevit import HOST_APP
 from pyrevit.coreutils import pyutils
 
 from dosymep_libs.bim4everyone import *
@@ -61,25 +62,30 @@ def calc_param_total(element_list, param_name):
 
 def format_length(total):
     return '{} метров\n' \
-           '{} сантиметров'.format(total/3.28084,
-                                   (total/3.28084)*100)
+           '{} сантиметров'.format(total / 3.28084,
+                                   (total / 3.28084) * 100)
 
 
 def format_area(total):
     return '{} квадратных метров\n' \
-           '{} квадратных сантиметров'.format(total/10.7639,
-                                          (total/10.7639)*10000)
+           '{} квадратных сантиметров'.format(total / 10.7639,
+                                              (total / 10.7639) * 10000)
 
 
 def format_volume(total):
     return '{} кубических метров\n' \
-           '{} кубических сантиметров'.format(total/35.3147,
-                                         (total/35.3147)*1000000)
+           '{} кубических сантиметров'.format(total / 35.3147,
+                                              (total / 35.3147) * 1000000)
 
 
-formatter_funcs = {DB.ParameterType.Length: format_length,
-                   DB.ParameterType.Area: format_area,
-                   DB.ParameterType.Volume: format_volume}
+if HOST_APP.is_newer_than(2022, or_equal=True):
+    formatter_funcs = {DB.SpecTypeId.Length: format_length,
+                       DB.SpecTypeId.Area: format_area,
+                       DB.SpecTypeId.Volume: format_volume}
+else:
+    formatter_funcs = {DB.ParameterType.Length: format_length,
+                       DB.ParameterType.Area: format_area,
+                       DB.ParameterType.Volume: format_volume}
 
 
 def output_param_total(element_list, param_def):
@@ -114,8 +120,12 @@ def process_options(element_list):
         for param in el.ParametersMap:
             if is_calculable_param(param):
                 pdef = param.Definition
-                shared_params.add(ParamDef(pdef.Name,
-                                           pdef.ParameterType))
+                if HOST_APP.is_newer_than(2022, or_equal=True):
+                    shared_params.add(ParamDef(pdef.Name,
+                                               pdef.GetDataType()))
+                else:
+                    shared_params.add(ParamDef(pdef.Name,
+                                               pdef.ParameterType))
 
         # find element type parameters
         el_type = revit.doc.GetElement(el.GetTypeId())
@@ -123,8 +133,12 @@ def process_options(element_list):
             for type_param in el_type.ParametersMap:
                 if is_calculable_param(type_param):
                     pdef = type_param.Definition
-                    shared_params.add(ParamDef(pdef.Name,
-                                               pdef.ParameterType))
+                    if HOST_APP.is_newer_than(2022, or_equal=True):
+                        shared_params.add(ParamDef(pdef.Name,
+                                                   pdef.GetDataType()))
+                    else:
+                        shared_params.add(ParamDef(pdef.Name,
+                                                   pdef.ParameterType))
 
         param_sets.append(shared_params)
 
@@ -134,8 +148,12 @@ def process_options(element_list):
         for param_set in param_sets[1:]:
             all_shared_params = all_shared_params.intersection(param_set)
 
-        return {'{} <{}>'.format(x.name, x.type): x
-                for x in all_shared_params}
+        if HOST_APP.is_newer_than(2022, or_equal=True):
+            return {'{} <{}>'.format(x.name, str(x.type.TypeId).split(":")[-1].split("-")[0].capitalize()): x
+                    for x in all_shared_params}
+        else:
+            return {'{} <{}>'.format(x.name, x.type): x
+                    for x in all_shared_params}
 
 
 def process_sets(element_list):
@@ -149,13 +167,14 @@ def process_sets(element_list):
         if hasattr(el, 'LineStyle'):
             el_sets[el.LineStyle.Name].append(el)
         else:
-            eltype = revit.doc.GetElement(el.GetTypeId())
-            if eltype:
-                el_sets[revit.query.get_name(eltype)].append(el)
+            el_type = revit.doc.GetElement(el.GetTypeId())
+            if el_type:
+                el_sets[revit.query.get_name(el_type)].append(el)
 
     return el_sets
 
 
+@notification()
 @log_plugin(EXEC_PARAMS.command_name)
 def script_execute(plugin_logger):
     options = process_options(selection.elements)
