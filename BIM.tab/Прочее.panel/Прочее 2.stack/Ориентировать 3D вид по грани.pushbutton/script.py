@@ -37,6 +37,7 @@ def reorient():
         revit.uidoc.RefreshActiveView()
 
 
+@notification()
 @log_plugin(EXEC_PARAMS.command_name)
 def script_execute(plugin_logger):
     curview = revit.active_view
