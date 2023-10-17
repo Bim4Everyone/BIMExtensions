@@ -1,14 +1,12 @@
 # -*- coding: utf-8 -*-
 
 import clr
-
 clr.AddReference("PresentationCore")
 
 from System.Windows import Clipboard
 
 from Autodesk.Revit.DB import *
 from Autodesk.Revit.UI.Selection import *
-from Autodesk.Revit.Exceptions import *
 
 from pyrevit import forms
 from pyrevit import EXEC_PARAMS
@@ -22,24 +20,20 @@ uiDocument = __revit__.ActiveUIDocument
 @log_plugin(EXEC_PARAMS.command_name)
 def script_execute(plugin_logger):
     with forms.WarningBar(title="Выберите элемент связанного файла"):
-        try:
-            selected_element = uiDocument.Selection.PickObject(ObjectType.LinkedElement,
-                                                               "Выберите элемент связанного файла.")
+        selected_element = uiDocument.Selection.PickObject(ObjectType.LinkedElement,
+                                                           "Выберите элемент связанного файла")
 
-            linked_documents = [documentInstance.GetLinkDocument() for documentInstance in
-                                FilteredElementCollector(document).OfClass(RevitLinkInstance)
-                                if documentInstance.Id == selected_element.ElementId]
+        link_doc = document.GetElement(selected_element.ElementId)
+        if not link_doc:
+            forms.alert("Не был найден связанный документ.", exitscript=True)
 
-            linked_document = next(iter(linked_documents), None)
-            if linked_document:
-                linked_element = linked_document.GetElement(selected_element.LinkedElementId)
+        link_doc = link_doc.GetLinkDocument()
+        link_element = link_doc.GetElement(selected_element.LinkedElementId)
+        if not link_doc:
+            forms.alert("Не был найден элемент в связанных файлах.", exitscript=True)
 
-                Clipboard.SetDataObject(linked_element.Id.ToString())
-                print "{title}.rvt ID: {elementId}".format(title=linked_document.Title, elementId=linked_element.Id)
-            else:
-                forms.alert("Не был найден элемент в связанных файлах.", title="Сообщение")
-        except OperationCanceledException:
-            show_canceled_script_notification()
+        Clipboard.SetText(str(link_element.Id))
+        print "{title}.rvt ID: {elementId}".format(title=link_doc.Title, elementId=link_element.Id)
 
 
 script_execute()

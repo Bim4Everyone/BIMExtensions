@@ -1,19 +1,15 @@
-import os
-import os.path as op
-import pickle as pl
-import clr
+import pickle
 
+import clr
 clr.AddReference("dosymep.Revit.dll")
 
+import dosymep
+clr.ImportExtensions(dosymep.Revit)
+
 from pyrevit import revit
-from pyrevit import script
 from pyrevit import EXEC_PARAMS
 
 from dosymep_libs.bim4everyone import *
-
-import dosymep
-
-clr.ImportExtensions(dosymep.Revit)
 
 
 @notification()
@@ -22,20 +18,18 @@ def script_execute(plugin_logger):
     datafile = script.get_document_data_file("SelList", "pym")
 
     selection = revit.get_selection()
-    selected_ids = {str(elid.GetIdValue()) for elid in selection.element_ids}
+    selected_ids = {str(element_id.GetIdValue()) for element_id in selection.element_ids}
 
     try:
-        f = open(datafile, 'r')
-        prevsel = pl.load(f)
-        newsel = prevsel.difference(selected_ids)
-        f.close()
-        f = open(datafile, 'w')
-        pl.dump(newsel, f)
-        f.close()
+        with open(datafile, 'r') as f:
+            prev_selection = pickle.load(f)
+            new_selection = prev_selection.difference(selected_ids)
+
+        with open(datafile, 'w') as f:
+            pickle.dump(new_selection, f)
     except Exception:
-        f = open(datafile, 'w')
-        pl.dump([], f)
-        f.close()
+        with open(datafile, 'w') as f:
+            pickle.dump([], f)
 
 
 script_execute()

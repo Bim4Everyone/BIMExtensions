@@ -1,6 +1,5 @@
-import pickle as pl
+import pickle
 
-from pyrevit import script
 from pyrevit import EXEC_PARAMS
 from dosymep_libs.bim4everyone import *
 
@@ -10,9 +9,8 @@ from dosymep_libs.bim4everyone import *
 def script_execute(plugin_logger):
     datafile = script.get_document_data_file("SelList", "pym")
 
-    f = open(datafile, 'wb')
-    pl.dump([], f)
-    f.close()
+    with open(datafile, 'wb') as f:
+        pickle.dump([], f)
 
 
 script_execute()
