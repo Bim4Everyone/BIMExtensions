@@ -1,28 +1,27 @@
 # -*- coding: utf-8 -*-
 
 import clr
-
 clr.AddReference("dosymep.Revit.dll")
 clr.AddReference("dosymep.Bim4Everyone.dll")
 
 import dosymep
-
 clr.ImportExtensions(dosymep.Revit)
 clr.ImportExtensions(dosymep.Bim4Everyone)
 
 import math
 from abc import abstractmethod
 
+from Autodesk.Revit.DB import *
+from System.Collections.Generic import *
+
 from pyrevit import forms
-from pyrevit import script
 from pyrevit import revit
 from pyrevit import HOST_APP
 from pyrevit import EXEC_PARAMS
 
 from dosymep_libs.bim4everyone import *
 
-from System.Collections.Generic import *
-from Autodesk.Revit.DB import *
+
 
 from dosymep.Bim4Everyone.Templates import ProjectParameters
 from dosymep.Bim4Everyone.SharedParams import SharedParamsConfig
@@ -256,7 +255,7 @@ def get_cashed_elements(selection):
         elif isinstance(element, FamilyInstance):
             cashed_elements.append(CashedFamilyInstance(element))
 
-    groups = [element for element in selection if isinstance(element, Group)]
+    groups = [x for x in selection if isinstance(x, Group)]
     for group in groups:
         cashed_elements.extend(get_walls_from_group(group))
 
@@ -290,23 +289,28 @@ def get_scale():
 def check_walls():
     # настройка атрибутов
     project_parameters = ProjectParameters.Create(__revit__.Application)
-    project_parameters.SetupRevitParams(doc, ProjectParamsConfig.Instance.CheckIsNormalGrid,
+    project_parameters.SetupRevitParams(doc,
+                                        ProjectParamsConfig.Instance.CheckIsNormalGrid,
                                         ProjectParamsConfig.Instance.CheckCorrectDistanceGrid)
 
-    selection = uidoc.GetSelectedElements()
-    if len(list(selection)) == 0:
-        forms.alert("Выберите хотя бы одну ось, стену или колонну.", title="Предупреждение!", footer="dosymep",
-                    exitscript=True)
+    # TODO: взять категории из биндингов
+    # TODO: если ничего не выделено вызвать pick_objects
+    selection = [x for x in revit.get_selection()
+                 if x.Category and x.InAnyCategory(BuiltInCategory.OST_Grids,
+                                    BuiltInCategory.OST_IOSModelGroups,
+                                    BuiltInCategory.OST_Walls,
+                                    BuiltInCategory.OST_Columns,
+                                    BuiltInCategory.OST_CurtainWallPanels,
+                                    BuiltInCategory.OST_StructuralColumns)]
 
-    selection_grids = [CashedGrid(selected_element) for selected_element in selection if
-                       isinstance(selected_element, Grid)]
-    if len(selection_grids) == 0:
-        forms.alert("Выберите хотя бы одну ось.", title="Предупреждение!", footer="dosymep", exitscript=True)
+    selection_grids = [CashedGrid(x) for x in selection if x.InAnyCategory(BuiltInCategory.OST_Grids)]
+
+    if not selection_grids:
+        forms.alert("Выберите хотя бы одну ось.", exitscript=True)
 
     cashed_elements = get_cashed_elements(selection)
-    if len(cashed_elements) == 0:
-        forms.alert("Выберите хотя бы одну стену или колонну.", title="Предупреждение!", footer="dosymep",
-                    exitscript=True)
+    if not cashed_elements:
+        forms.alert("Выберите хотя бы одну стену или колонну.", exitscript=True)
 
     scale = get_scale()
     with revit.Transaction("BIM: Проверка стен"):
@@ -315,8 +319,8 @@ def check_walls():
             cashed_element.Element.SetParamValue(ProjectParamsConfig.Instance.CheckCorrectDistanceGrid, "Нет")
 
         for cashed_grid in selection_grids:
-            normal_walls = [cashed_element for cashed_element in cashed_elements if
-                            cashed_element.IsNormal(cashed_grid)]
+            normal_walls = [x for x in cashed_elements if x.IsNormal(cashed_grid)]
+
             for cashed_element in normal_walls:
                 cashed_element.Element.SetParamValue(ProjectParamsConfig.Instance.CheckIsNormalGrid, "Да")
 
@@ -329,7 +333,6 @@ def check_walls():
 @log_plugin(EXEC_PARAMS.command_name)
 def script_execute(plugin_logger):
     check_walls()
-    show_executed_script_notification()
 
 
 script_execute()
