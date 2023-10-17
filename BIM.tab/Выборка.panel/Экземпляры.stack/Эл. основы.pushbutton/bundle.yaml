@@ -4,15 +4,13 @@ title:
 
 tooltip:
   ru: >-
-    Выделяет все экземпляры семейств, размещенных на выбранной основе.
+    Выделяет все экземпляры семейств, размещенные на выбранной стене.
     
     
-    1. Выберите нужный элемент-основу
+    1. Выберите нужную стену
 
     2. Запустите скрипт
-  en_us: Selects all instances of families hosted on the selected canvas.
-
-context: selection
+  en_us: Selects all instances of families hosted on the selected wall.
 
 autor: dosymep
 help_url: "https://kb.a101.ru/pages/viewpage.action?pageId=67829991"

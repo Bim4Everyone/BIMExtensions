@@ -183,7 +183,6 @@ def script_execute(plugin_logger):
                                 break
 
         selection.set_to(matchlist)
-        show_executed_script_notification()
 
 
 script_execute()

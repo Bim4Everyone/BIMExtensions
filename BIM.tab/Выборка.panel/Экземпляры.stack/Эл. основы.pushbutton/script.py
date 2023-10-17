@@ -2,9 +2,7 @@
 
 from Autodesk.Revit.DB import *
 
-from pyrevit.framework import *
 from pyrevit import forms
-from pyrevit import script
 from pyrevit import revit
 from pyrevit import EXEC_PARAMS
 
@@ -14,38 +12,22 @@ from dosymep_libs.bim4everyone import *
 @notification()
 @log_plugin(EXEC_PARAMS.command_name)
 def script_execute(plugin_logger):
-    doc = __revit__.ActiveUIDocument.Document
-    uidoc = __revit__.ActiveUIDocument
-    error_collector = {}
-
-    selection = __revit__.ActiveUIDocument.Selection.GetElementIds()
-    temp = FilteredElementCollector(doc).OfClass(FamilyInstance).ToElements()
-    wallsweeps = FilteredElementCollector(doc).OfClass(WallSweep).ToElements()
-
-    associate = []
-    walls = []
-    for elid in selection:
-        el = doc.GetElement(elid)
-        if isinstance(el, Wall):
-            walls.append(elid)
-            associate.append(elid)
-
-    for t in temp:
-        if t.Host:
-            for wall in walls:
-                if str(t.Host.Id) == wall.ToString():
-                    associate.append(t.Id)
-                    break
-
-    for ws in wallsweeps:
-        for wall in walls:
-            if wall in ws.GetHostIds():
-                associate.append(ws.Id)
-                break
-
     selection = revit.get_selection()
-    selection.set_to(associate)
-    show_executed_script_notification()
+    selected_walls = {wall.Id for wall in selection.elements if isinstance(wall, Wall)}
+    if not selected_walls:
+        with forms.WarningBar(title="Выберите стены"):
+            picked_walls = revit.pick_elements_by_category(BuiltInCategory.OST_Walls)
+            selected_walls = {wall.Id for wall in picked_walls}
+
+    wall_sweeps = FilteredElementCollector(revit.doc).OfClass(WallSweep).ToElements()
+    wall_sweeps = [sweep.Id for sweep in wall_sweeps
+                   if selected_walls.intersection(sweep.GetHostIds())]
+
+    family_instances = FilteredElementCollector(revit.doc).OfClass(FamilyInstance).ToElements()
+    family_instances = [instance.Id for instance in family_instances
+                        if instance.Host and instance.Host.Id in selected_walls]
+
+    selection.set_to(selected_walls.union(wall_sweeps, family_instances))
 
 
 script_execute()
