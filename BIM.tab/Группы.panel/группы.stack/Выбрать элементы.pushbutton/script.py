@@ -16,10 +16,7 @@ from pyrevit import EXEC_PARAMS
 
 from dosymep_libs.bim4everyone import *
 
-__context__ = 'selection'
-
 doc = __revit__.ActiveUIDocument.Document
-selection = revit.get_selection()
 
 
 def is_group(element):
@@ -54,12 +51,13 @@ def get_group_elements(group):
 @notification()
 @log_plugin(EXEC_PARAMS.command_name)
 def script_execute(plugin_logger):
+    selection = revit.get_selection()
+
     elements = []
     for selected in selection:
         elements.extend(get_group(selected))
 
-    selection.set_to([e.Id for e in elements])
-    show_executed_script_notification()
+    selection.set_to(elements)
 
 
 script_execute()

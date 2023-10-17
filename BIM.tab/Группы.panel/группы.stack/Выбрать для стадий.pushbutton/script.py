@@ -1,23 +1,20 @@
 # -*- coding: utf-8 -*-
 
 import clr
-
 clr.AddReference("dosymep.Revit.dll")
 clr.AddReference("dosymep.Bim4Everyone.dll")
 
 import dosymep
-
 clr.ImportExtensions(dosymep.Revit)
 clr.ImportExtensions(dosymep.Bim4Everyone)
 
 from Autodesk.Revit.DB import *
+
 from pyrevit import revit, DB
 from pyrevit import EXEC_PARAMS
 from dosymep_libs.bim4everyone import *
 
 doc = __revit__.ActiveUIDocument.Document
-
-selection = revit.get_selection()
 
 
 def is_group(element):
@@ -50,10 +47,11 @@ def get_group_elements(group):
 
 
 def is_parameters_editable(element):
-    if element.IsExistsParam(BuiltInParameter.PHASE_CREATED) and element.IsExistsParam(
-            BuiltInParameter.PHASE_DEMOLISHED):
-        return not element.GetParam(BuiltInParameter.PHASE_CREATED).IsReadOnly and not element.GetParam(
-            BuiltInParameter.PHASE_DEMOLISHED).IsReadOnly
+    if (element.IsExistsParam(BuiltInParameter.PHASE_CREATED)
+            and element.IsExistsParam(BuiltInParameter.PHASE_DEMOLISHED)):
+
+        return (not element.GetParam(BuiltInParameter.PHASE_CREATED).IsReadOnly
+                and not element.GetParam(BuiltInParameter.PHASE_DEMOLISHED).IsReadOnly)
     return False
 
 
@@ -66,12 +64,13 @@ def filter_elements(elements):
 @notification()
 @log_plugin(EXEC_PARAMS.command_name)
 def script_execute(plugin_logger):
+    selection = revit.get_selection()
+
     elements = []
     for selected in selection:
         elements.extend(filter_elements(get_group(selected)))
 
-    selection.set_to([e.Id for e in elements])
-    show_executed_script_notification()
+    selection.set_to(elements)
 
 
 script_execute()

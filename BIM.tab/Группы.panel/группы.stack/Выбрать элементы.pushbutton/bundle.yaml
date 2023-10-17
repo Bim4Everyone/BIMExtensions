@@ -15,6 +15,7 @@ tooltip:
     First you need to select the groups in the view, then run the script.
 
 context: selection
+
 author: dosymep
 help_url: "https://kb.a101.ru/pages/viewpage.action?pageId=67830000"
 
