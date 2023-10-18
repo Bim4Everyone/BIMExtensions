@@ -314,7 +314,7 @@ def script_execute(plugin_logger):
     window = PrintSheetsWindow('selectViews.xaml', list=view, active_view=checked_view)
     window.ShowDialog()
 
-    sel_sheets = ''
+    sel_sheets = None
     if hasattr(window, 'response'):
         sheets = window.response
         sel_sheets = sheets['sheets']
@@ -324,35 +324,34 @@ def script_execute(plugin_logger):
         script.exit()
 
     folder_name = forms.pick_folder(title="Выберите папку для сохранения спецификаций")
-    if folder_name:
-        views = []
-        file_info = ''
+    if not folder_name:
+        script.exit()
 
-        for item in sel_sheets:
-            if file_info == '':
-                file_info = FileInfo(folder_name + "\\" + FilterString(item.name) + ".xlsx")
-            views.append(item.obj)
+    views = []
+    file_info = ''
 
-        converter = TabelsConverter(views, save2_1file)
-        package = converter.excel_file
-        try:
+    for item in sel_sheets:
+        if file_info == '':
+            file_info = FileInfo(folder_name + "\\" + FilterString(item.name) + ".xlsx")
+        views.append(item.obj)
+
+    converter = TabelsConverter(views, save2_1file)
+    package = converter.excel_file
+    try:
+        for p in package:
+            path_file = folder_name + "\\" + FilterString(p.name) + ".xlsx"
             count = 1
-            for p in package:
-                path_file = folder_name + "\\" + FilterString(p.name) + ".xlsx"
-                count = 1
-                while os.path.isfile(path_file):
-                    path_file = folder_name + "\\" + FilterString(p.name) + "-" + str(count) + ".xlsx"
-                    count += 1
+            while os.path.isfile(path_file):
+                path_file = folder_name + "\\" + FilterString(p.name) + "-" + str(count) + ".xlsx"
+                count += 1
 
-                file_info = FileInfo(path_file)
-                p.excel.SaveAs(file_info)
-                p.excel.Save()
-                p.excel.Dispose()
-
-            show_executed_script_notification()
-        except Exception as ex:
-            print "Не удалось сохранить спецификацию '{}'".format(item.name)
-            print "Исключение '{}'".format(ex)
+            file_info = FileInfo(path_file)
+            p.excel.SaveAs(file_info)
+            p.excel.Save()
+            p.excel.Dispose()
+    except Exception as ex:
+        print "Не удалось сохранить спецификацию '{}'".format(item.name)
+        print "Исключение '{}'".format(ex)
 
 
 script_execute()
