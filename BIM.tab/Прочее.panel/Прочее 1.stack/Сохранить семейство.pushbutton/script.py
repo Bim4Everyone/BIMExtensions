@@ -1,10 +1,11 @@
 # -*- coding: utf-8 -*-
 
 import os
+import re
 import os.path as op
 import tempfile
-import re
 
+from pyrevit import forms
 from pyrevit import EXEC_PARAMS
 from dosymep_libs.bim4everyone import *
 
@@ -35,24 +36,18 @@ def remove_backups():
 @log_plugin(EXEC_PARAMS.command_name)
 def script_execute(plugin_logger):
     if not document.IsFamilyDocument:
-        show_script_warning_notification("Сохранять разрешено только файлы семейств", exit_script=True)
+        forms.alert("Сохранять разрешено только файлы семейств", exitscript=True)
 
+    save_options = SaveAsOptions()
+    save_options.Compact = False
+    save_options.OverwriteExistingFile = True
+
+    document.Save()
+    document.SaveAs(temp_file_path, save_options)
     try:
-        save_options = SaveAsOptions()
-        save_options.Compact = False
-        save_options.OverwriteExistingFile = True
-
-        document.Save()
-        document.SaveAs(temp_file_path, save_options)
-        try:
-            document.SaveAs(file_path, save_options)
-        finally:
-            remove_backups()
-    except:
-        show_fatal_script_notification()
-        raise
-
-    show_executed_script_notification()
+        document.SaveAs(file_path, save_options)
+    finally:
+        remove_backups()
 
 
 script_execute()

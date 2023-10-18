@@ -1,18 +1,16 @@
 # coding=utf-8
+
 from collections import namedtuple
 
 from pyrevit import revit, DB
 from pyrevit.compat import safe_strtype
 from pyrevit import forms
-from pyrevit import script
 from pyrevit import coreutils
 from pyrevit import EXEC_PARAMS
 from pyrevit import HOST_APP
 from pyrevit.coreutils import pyutils
 
 from dosymep_libs.bim4everyone import *
-
-selection = revit.get_selection()
 
 logger = script.get_logger()
 output = script.get_output()
@@ -49,7 +47,7 @@ def calc_param_total(element_list, param_name):
             el_type = revit.doc.GetElement(el.GetTypeId())
             type_param = el_type.LookupParameter(param_name)
             if not type_param:
-                logger.error('Elemend with ID: {} '
+                logger.error('Element with ID: {} '
                              'does not have parameter: {}.'.format(el.Id,
                                                                    param_name))
             else:
@@ -177,25 +175,36 @@ def process_sets(element_list):
 @notification()
 @log_plugin(EXEC_PARAMS.command_name)
 def script_execute(plugin_logger):
-    options = process_options(selection.elements)
+    selection = revit.get_selection()
+    if not selection:
+        with forms.WarningBar(title="Выберите элементы"):
+            selection = revit.pick_rectangle("Выберите элементы")
+            if not selection:
+                script.exit()
 
-    if options:
-        selected_switch = \
-            forms.CommandSwitchWindow.show(sorted(options),
-                                           message='Значения параметра:')
+    options = process_options(selection)
+    if not options:
+        forms.alert("Не найдены параметры для расчета суммы.", exitscript=True)
 
-        # Calculating totals for each set and printing results
-        if selected_switch:
-            selected_option = options[selected_switch]
-            if selected_option:
-                for type_name, element_set \
-                        in process_sets(selection.elements).items():
-                    type_name = coreutils.escape_for_html(type_name)
-                    output.print_md('### Итого: {}'.format(type_name))
-                    output_param_total(element_set, selected_option)
-                    output.print_md('#### Список значений:')
-                    output_breakdown(element_set, selected_option)
-                    output.insert_divider(level='##')
+    selected_switch = \
+        forms.CommandSwitchWindow.show(sorted(options),
+                                       message='Значения параметра:')
+
+    if not selected_switch:
+        script.exit()
+
+    selected_option = options[selected_switch]
+    if not selected_option:
+        script.exit()
+
+    for type_name, element_set \
+            in process_sets(selection).items():
+        type_name = coreutils.escape_for_html(type_name)
+        output.print_md('### Итого: {}'.format(type_name))
+        output_param_total(element_set, selected_option)
+        output.print_md('#### Список значений:')
+        output_breakdown(element_set, selected_option)
+        output.insert_divider(level='##')
 
 
 script_execute()
