@@ -1,11 +1,10 @@
 # -*- coding: utf-8 -*-
-import clr
 
+import clr
 clr.AddReference("dosymep.Revit.dll")
 clr.AddReference("dosymep.Bim4Everyone.dll")
 
 import dosymep
-
 clr.ImportExtensions(dosymep.Revit)
 clr.ImportExtensions(dosymep.Bim4Everyone)
 
@@ -14,7 +13,6 @@ from Autodesk.Revit.DB import *
 from Autodesk.Revit.Exceptions import *
 
 from pyrevit import forms
-from pyrevit import script
 from pyrevit import revit
 from pyrevit import EXEC_PARAMS
 
@@ -47,23 +45,29 @@ def create_revit_links(selected_files, progress, cancellation_token):
     error_list = []
     error_version_list = []
 
-    with revit.Transaction("BIM: Связывание файлов", log_errors=False):
+    with revit.TransactionGroup("BIM: Связывание файлов"):
         count = float(len(selected_files.items()))
         for i, (file_name, file_name_path) in enumerate(selected_files.items()):
             progress.Report(int(round((i + 1) / count * 100)))
             cancellation_token.ThrowIfCancellationRequested()
 
             try:
-                link_file = ModelPathUtils.ConvertUserVisiblePathToModelPath(file_name_path)
+                with revit.Transaction("BIM: Связывание файлов", log_errors=False):
+                    link_file = ModelPathUtils.ConvertUserVisiblePathToModelPath(file_name_path)
 
-                link_options = RevitLinkOptions(True)
-                link_load_result = RevitLinkType.Create(document, link_file, link_options)
+                    link_load_result = RevitLinkType.Create(document,
+                                                            link_file,
+                                                            RevitLinkOptions(True))
 
-                revit_link_instance = RevitLinkInstance.Create(document, link_load_result.ElementId,
-                                                               ImportPlacement.Shared)
+                    if not LinkLoadResult.IsCodeSuccess(link_load_result.LoadResult):
+                        error_list.append(Path.GetFileName(file_name_path))
+                        continue
 
-                revit_link_type = document.GetElement(revit_link_instance.GetTypeId())
-                revit_link_type.Parameter[BuiltInParameter.WALL_ATTR_ROOM_BOUNDING].Set(1)
+                    revit_link_type = document.GetElement(link_load_result.ElementId)
+                    revit_link_type.Parameter[BuiltInParameter.WALL_ATTR_ROOM_BOUNDING].Set(1)
+
+                    RevitLinkInstance.Create(document,
+                                             link_load_result.ElementId, ImportPlacement.Shared)
             except InvalidOperationException:
                 error_list.append(Path.GetFileName(file_name_path))
             except Exception:
@@ -74,8 +78,9 @@ def create_revit_links(selected_files, progress, cancellation_token):
         error_message = "Файлы с другой системой координат:\r\n - " + "\r\n - ".join(error_list)
 
     if error_version_list:
-        error_message = error_message if error_message else "" + "\r\nФайлы с созданные в другой версии Revit:\r\n - " + "\r\n - ".join(
-            error_version_list)
+        error_message = error_message if error_message \
+            else ("\r\nФайлы с созданные в другой версии Revit:"
+                  "\r\n - ").format("\r\n - ".join(error_version_list))
 
     return error_message
 
