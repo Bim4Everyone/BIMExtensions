@@ -42,12 +42,19 @@ def script_execute(plugin_logger):
     save_options.Compact = False
     save_options.OverwriteExistingFile = True
 
-    document.Save()
-    document.SaveAs(temp_file_path, save_options)
-    try:
-        document.SaveAs(file_path, save_options)
-    finally:
-        remove_backups()
+    if document.PathName:
+        document.Save()
+        document.SaveAs(temp_file_path, save_options)
+        try:
+            document.SaveAs(file_path, save_options)
+        finally:
+            remove_backups()
+    else:
+        family_path = forms.save_file(title="Сохранить семейство", file_ext="rfa", default_name=document.Title)
+        if not family_path:
+            script.exit()
+
+        document.SaveAs(family_path, save_options)
 
 
 script_execute()
