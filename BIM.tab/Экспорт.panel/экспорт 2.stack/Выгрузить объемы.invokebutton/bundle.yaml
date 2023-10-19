@@ -1,0 +1,16 @@
+title:
+  ru: Выгрузить объемы
+  en_us: Export totals
+
+tooltip:
+  ru: Экспортирует объемы ВИС из заданных файлов в Excel.
+  en_us: Exports MEP data from selected documents to Excel.
+
+assembly: RevitMepTotals.dll
+command_class: RevitMepTotalsCommand
+
+author: vlastroG
+context: zero-doc
+
+min_revit_version: 2020
+max_revit_version: 2024
