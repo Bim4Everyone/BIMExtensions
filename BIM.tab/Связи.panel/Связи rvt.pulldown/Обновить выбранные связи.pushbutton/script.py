@@ -65,8 +65,15 @@ class UpdateLinksCommand(ICommand):
 
     def CanExecute(self, parameter):
         if not self.__view_model.folder_path:
+            self.__view_model.error_text = "Необходимо выбрать путь к папке."
             return False
 
+        links_to_update = [x for x in self.__view_model.links if x.is_checked]
+        if not links_to_update:
+            self.__view_model.error_text = "Необходимо выбрать связи."
+            return False
+
+        self.__view_model.error_text = None
         return True
 
     def __find_file(self, main_path, link_name, level=0):
@@ -162,6 +169,7 @@ class MainWindowViewModel(Reactive):
         self.__invert_command = InvertCommand(self)
         self.__set_true_command = UpdateStatesCommand(self, True)
         self.__set_false_command = UpdateStatesCommand(self, False)
+        self.__error_text = ""
 
     @property
     def PickFolderCommand(self):
@@ -199,6 +207,14 @@ class MainWindowViewModel(Reactive):
     def links(self, value):
         self.__links = value
 
+    @reactive
+    def error_text(self):
+        return self.__error_text
+
+    @error_text.setter
+    def error_text(self, value):
+        self.__error_text = value
+
 
 class MainWindow(WPFWindow):
     def __init__(self):
@@ -206,7 +222,12 @@ class MainWindow(WPFWindow):
         self.xaml_source = op.join(op.dirname(__file__), 'MainWindow.xaml')
         super(MainWindow, self).__init__(self.xaml_source)
 
-    def button_on_click(self, sender, e):
+    def ButtonOK_Click(self, sender, e):
+        self.DialogResult = True
+        self.Close()
+
+    def ButtonCancel_Click(self, sender, e):
+        self.DialogResult = False
         self.Close()
 
 
@@ -262,7 +283,8 @@ def script_execute(plugin_logger):
     links = get_links_from_document(doc)
     main_window = MainWindow()
     main_window.DataContext = MainWindowViewModel(links)
-    main_window.show_dialog()
+    if not main_window.show_dialog():
+        script.exit()
 
 
 script_execute()

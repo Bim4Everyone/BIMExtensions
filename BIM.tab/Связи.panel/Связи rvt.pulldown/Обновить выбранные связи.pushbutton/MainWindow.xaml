@@ -1,20 +1,21 @@
 <Window
-             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-             xmlns:local="clr-namespace:UpdateSelectedLinks"
-             Title="Связи"
-             mc:Ignorable="d"
-             WindowStartupLocation="CenterScreen"
-             Height="450" Width="400">
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:local="clr-namespace:UpdateSelectedLinks"
+    Title="Связи"
+    mc:Ignorable="d"
+    WindowStartupLocation="CenterScreen"
+    Height="450" Width="500"
+    MinHeight="450" MinWidth="500">
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="50"/>
             <RowDefinition Height="60"/>
             <RowDefinition/>
-            <RowDefinition Height="50" />
-            <RowDefinition Height="50" />
+            <RowDefinition Height="45"/>
+            <RowDefinition Height="45"/>
         </Grid.RowDefinitions>
 
         <Grid.ColumnDefinitions>
@@ -24,22 +25,31 @@
         </Grid.ColumnDefinitions>
 
         <Button
-            Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="3"
-            Margin="10,10,10,5" Content="Выбрать папку"
+            Grid.Row="0"
+            Grid.Column="0"
+            Grid.ColumnSpan="3"
+            Margin="10,10,10,5"
+            Content="Выбрать папку"
             Command="{Binding PickFolderCommand}"/>
 
         <TextBlock
-            Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="3"
-            Margin="10,5,10,5" TextWrapping="Wrap"
+            Grid.Row="1"
+            Grid.Column="0"
+            Grid.ColumnSpan="3"
+            Margin="10,5,10,5"
+            TextWrapping="Wrap"
             Text="{Binding folder_path}"/>
 
         <ListView
-            Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="3"
+            Grid.Row="2"
+            Grid.Column="0"
+            Grid.ColumnSpan="3"
             Margin="10,5,10,10"
             ItemsSource="{Binding links}">
             <ListView.View>
                 <GridView>
-                    <GridViewColumn Width="30">
+                    <GridViewColumn
+                        Width="30">
                         <GridViewColumn.CellTemplate>
                             <DataTemplate>
                                 <CheckBox IsChecked="{Binding is_checked}"/>
@@ -47,35 +57,63 @@
                         </GridViewColumn.CellTemplate>
                     </GridViewColumn>
                     <GridViewColumn
-                        Header="Имя связи" Width="180"
+                        Header="Имя связи"
+                        Width="230"
                         DisplayMemberBinding="{Binding link_name}"/>
                     <GridViewColumn
-                        Header="Статус связи" Width="140"
+                        Header="Статус связи"
+                        Width="140"
                         DisplayMemberBinding="{Binding link_status}"/>
                 </GridView>
             </ListView.View>
         </ListView>
 
         <Button
-            Grid.Row="3" Grid.Column="0"
-            Margin="10" Content="Выбрать все"
+            Grid.Row="3"
+            Grid.Column="0"
+            Margin="10"
+            Content="Выбрать все"
             Command="{Binding SetTrueCommand}"/>
 
         <Button
-            Grid.Row="3" Grid.Column="1"
-            Margin="10" Content="Снять выбор"
+            Grid.Row="3"
+            Grid.Column="1"
+            Margin="10"
+            Content="Снять выбор"
             Command="{Binding SetFalseCommand}"/>
 
         <Button
-            Grid.Row="3" Grid.Column="2"
-            Margin="10" Content="Инвертировать"
+            Grid.Row="3"
+            Grid.Column="2"
+            Margin="10"
+            Content="Инвертировать"
             Command="{Binding InvertCommand}"/>
 
-        <Button
-            Grid.Row="4" Grid.Column="2"
-            Command="{Binding UpdateLinksCommand}"
-            Click="button_on_click"
-            Margin="10" Content="Обновить"
-            />
+        <StackPanel
+            Grid.Row="4"
+            Grid.ColumnSpan="3"
+            Margin="0 10 10 0"
+            Orientation="Horizontal"
+            HorizontalAlignment="Right">
+            <TextBlock
+                Margin="5 0"
+                Text="{Binding error_text, FallbackValue=ErrorText}"
+                Foreground="Orange"
+                VerticalAlignment="Center" />
+            <Button
+                Content="Обновить"
+                Margin="10 0"
+                IsDefault="True"
+                Width="100"
+                Height="25"
+                Click="ButtonOK_Click"
+                Command="{Binding UpdateLinksCommand}" />
+            <Button
+                Content="Отмена"
+                IsCancel="true"
+                Width="80"
+                Height="25"
+                Click="ButtonCancel_Click" />
+        </StackPanel>
     </Grid>
 </Window>
