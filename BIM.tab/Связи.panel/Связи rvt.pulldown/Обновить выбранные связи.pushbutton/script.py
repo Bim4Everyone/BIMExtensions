@@ -131,7 +131,8 @@ class InvertCommand(ICommand):
 
     def Execute(self, parameter):
         for link in self.__view_model.links:
-            link.is_checked = not link.is_checked
+            if link.is_ws_open:
+                link.is_checked = not link.is_checked
 
 
 class UpdateStatesCommand(ICommand):
@@ -156,7 +157,8 @@ class UpdateStatesCommand(ICommand):
 
     def Execute(self, parameter):
         for link in self.__view_model.links:
-            link.is_checked = self.__value
+            if link.is_ws_open:
+                link.is_checked = self.__value
 
 
 class MainWindowViewModel(Reactive):
@@ -244,6 +246,15 @@ class LinkedFile(Reactive):
         else:
             self.is_checked = False
 
+        document = revit_link.Document
+        workset_table = document.GetWorksetTable()
+        workset_id = document.GetWorksetId(self.revit_link.Id)
+        workset = workset_table.GetWorkset(workset_id)
+
+        self.is_ws_open = workset.IsOpen
+        self.ws_status = workset.IsOpen
+
+
     @reactive
     def link_status(self):
         return self.__link_status
@@ -260,6 +271,25 @@ class LinkedFile(Reactive):
             self.__link_status = "Выгружена локально"
         else:
             self.__link_status = "???"
+
+    @reactive
+    def ws_status(self):
+        return self.__ws_status
+
+    @ws_status.setter
+    def ws_status(self, value):
+        if value:
+            self.__ws_status = "Открыт"
+        else:
+            self.__ws_status = "Закрыт"
+
+    @reactive
+    def is_ws_open(self):
+        return self.__is_ws_open
+
+    @is_ws_open.setter
+    def is_ws_open(self, value):
+        self.__is_ws_open = value
 
     @reactive
     def is_checked(self):
