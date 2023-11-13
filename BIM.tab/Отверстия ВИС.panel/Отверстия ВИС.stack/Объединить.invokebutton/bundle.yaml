@@ -12,7 +12,7 @@ command_class: UniteOpeningTasksCmd
 authors:
   - budaevaler
   - vlastroG
-help_url: "https://kb.a101.ru/pages/viewpage.action?pageId=116065713"
+help_url: "https://kb.a101.ru/pages/viewpage.action?pageId=116065720"
 
 min_revit_version: 2020
 max_revit_version: 2024
