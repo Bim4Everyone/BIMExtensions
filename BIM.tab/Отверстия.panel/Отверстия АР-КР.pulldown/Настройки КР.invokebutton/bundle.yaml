@@ -1,0 +1,16 @@
+title:
+  ru: Настройки КР
+  en_us: Settings KR
+
+tooltip:
+  ru: Настройки расстановки отверстий КР
+  en_us: Placement settings for KR openings
+
+assembly: RevitOpeningPlacement.dll
+command_class: SetOpeningRealsPlacementConfigCmd
+
+author: vlastroG
+help_url: "https://kb.a101.ru/pages/viewpage.action?pageId=116070289"
+
+min_revit_version: 2020
+max_revit_version: 2024
