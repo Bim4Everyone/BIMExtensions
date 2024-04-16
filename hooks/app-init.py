@@ -32,12 +32,7 @@ def check_updates():
     for repo_info in updater.get_all_extension_repos():
         try:
             if updater.has_pending_updates(repo_info):
-                logger.Warning("Репозиторий не на последнем коммите: \"{@RepoInfo}\"", to_dictionary(repo_info))
-                # сбрасываем репозиторий в исходное состояние
-                repo_info.repo.Reset(libgit.ResetMode.Hard, repo_info.repo.Head.Tip)
-                repo_info.repo.RemoveUntrackedFiles()
-                logger.Warning("Все изменения в локальном репозитории сброшены до текущего коммита: \"{@RepoInfo}\"",
-                               to_dictionary(repo_info))
+                logger.Warning("Репозиторий не был обновлен: \"{@RepoInfo}\"", to_dictionary(repo_info))
         except Exception:
             status_update = True
             logger.Warning("Ошибка обновления расширения: \"{@RepoInfo}\"", to_dictionary(repo_info))
