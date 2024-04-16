@@ -12,7 +12,10 @@ from Autodesk.Revit.ApplicationServices import LanguageType
 
 from pyrevit import HOST_APP
 from pyrevit import EXEC_PARAMS
+from pyrevit import script
 from pyrevit.userconfig import user_config
+from pyrevit.loader import sessionmgr
+from pyrevit.loader import sessioninfo
 
 from dosymep.Revit import *
 from dosymep.Bim4Everyone import *
@@ -37,8 +40,15 @@ def script_execute(plugin_logger):
         invoke_command(PlatformCommandIds.PlatformSettingsCommandId)
 
         user_config.reload()
-        from pyrevit.loader.sessionmgr import execute_command
-        execute_command("01dotbim-bim-установки-настройки-обновить")
+
+        logger = script.get_logger()
+        results = script.get_results()
+
+        # re-load pyrevit session.
+        logger.info('Reloading....')
+        sessionmgr.load_session()
+
+        results.newsession = sessioninfo.get_session_uuid()
     except OperationCanceledException:
         show_canceled_script_notification()
 
