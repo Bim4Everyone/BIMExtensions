@@ -4,7 +4,7 @@
 [![License MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE.md)
 [![Revit 2020-2024](https://img.shields.io/badge/Revit-2020--2024-blue.svg)](https://www.autodesk.com/products/revit/overview)
 
-Данная вкладка  содержит инструменты, 
+Данная вкладка содержит инструменты, 
 которые будут полезны проектировщикам всех разделов.
 
 ## Установка платформы
