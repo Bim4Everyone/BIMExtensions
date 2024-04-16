@@ -2,6 +2,26 @@
 
 import os
 import sys
+from pyrevit.versionmgr import updater
+import LibGit2Sharp as libgit
+
+
+def update_extensions():
+    for repo_info in updater.get_all_extension_repos():
+        try:
+            if updater.has_pending_updates(repo_info):
+                # сбрасываем репозиторий в исходное состояние
+                repo_info.repo.Reset(libgit.ResetMode.Hard, repo_info.repo.Head.Tip)
+                repo_info.repo.RemoveUntrackedFiles()
+
+                # пытаемся обновится
+                updater.update_repo(repo_info)
+        except Exception:
+            pass
+
+
+update_extensions()
+
 
 # при запуске pyrevit
 # не указывает путь до библиотеки
