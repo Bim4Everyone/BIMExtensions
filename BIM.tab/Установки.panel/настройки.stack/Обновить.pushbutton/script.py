@@ -20,7 +20,7 @@ def script_execute(plugin_logger):
         forms.alert('Вы уверены что хотите обновить?',
                           yes=True, no=True, exitscript=True)
 
-    # пытаемся обновится
+    # пытаемся  обновится
     path = os.path.abspath(__file__)
     repo_path = libgit.libgit.Repository.Discover(path)
     repo_info = libgit.get_repo(repo_path)
