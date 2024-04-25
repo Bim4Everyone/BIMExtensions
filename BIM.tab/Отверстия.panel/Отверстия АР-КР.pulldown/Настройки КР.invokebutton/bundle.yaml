@@ -10,7 +10,7 @@ assembly: RevitOpeningPlacement.dll
 command_class: SetOpeningRealsPlacementConfigCmd
 
 author: vlastroG
-help_url: "https://kb.a101.ru/pages/viewpage.action?pageId=116070289"
+help_url: "https://wiki.a101.ru/pages/viewpage.action?pageId=9210429"
 
 min_revit_version: 2020
 max_revit_version: 2024
