@@ -1,0 +1,18 @@
+title:
+  ru: "Конструктор\nсекций"
+  en_us: "Sections\nconstructor"
+
+tooltip:
+  ru: >- 
+    Конструирует типовые секции из экземпляров групп типовых этажей
+  en_us: >- 
+    Makes standard sections from standard floors group instances
+
+assembly: RevitSectionsConstructor.dll
+command_class: RevitSectionsConstructorCommand
+
+context: doc-workshared
+author: vlastroG
+
+min_revit_version: 2022
+max_revit_version: 2024
