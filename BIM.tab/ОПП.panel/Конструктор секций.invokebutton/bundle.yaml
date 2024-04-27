@@ -11,7 +11,7 @@ tooltip:
 assembly: RevitSectionsConstructor.dll
 command_class: RevitSectionsConstructorCommand
 
-context: doc-workshared
+context: doc-project
 author: vlastroG
 
 min_revit_version: 2022
