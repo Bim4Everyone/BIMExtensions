@@ -11,7 +11,7 @@ command_class: RevitMepTotalsCommand
 
 author: vlastroG
 context: zero-doc
-help_url: "https://kb.a101.ru/pages/viewpage.action?pageId=123568466"
+help_url: "https://wiki.a101.ru/pages/viewpage.action?pageId=9210536"
 
 min_revit_version: 2020
 max_revit_version: 2024

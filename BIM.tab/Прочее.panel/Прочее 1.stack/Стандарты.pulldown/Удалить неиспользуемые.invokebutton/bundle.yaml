@@ -10,6 +10,7 @@ assembly: RevitDeleteUnused.dll
 command_class: RevitDeleteUnusedCommand
 
 author: sssenya
+help_url: "https://wiki.a101.ru/pages/viewpage.action?pageId=9210910"
 
 min_revit_version: 2020
 max_revit_version: 2024
