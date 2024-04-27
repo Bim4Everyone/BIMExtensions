@@ -12,5 +12,7 @@ tooltip:
     2. Выберите проекты, в которые надо скопировать шаблоны и нажмите "ОК"
   en_us: Copies selected view templates from current open document to other open documents.
 
+help_url: "https://wiki.a101.ru/pages/viewpage.action?pageId=9210910"
+
 min_revit_version: 2020
 max_revit_version: 2024

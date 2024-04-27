@@ -10,6 +10,7 @@ assembly: RevitCreatingFiltersByValues.dll
 command_class: RevitCreatingFiltersByValuesCommand
 
 author: DivinN
+help_url: "https://wiki.a101.ru/pages/viewpage.action?pageId=9211165"
 
 min_revit_version: 2020
 max_revit_version: 2024

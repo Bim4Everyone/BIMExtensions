@@ -10,7 +10,7 @@ assembly: RevitCopyStandarts.dll
 command_class: CopyStandartsRevitCommand
 
 author: dosymep
-help_url: "https://kb.a101.ru/pages/viewpage.action?pageId=67830008"
+help_url: "https://wiki.a101.ru/pages/viewpage.action?pageId=9211140"
 
 min_revit_version: 2020
 max_revit_version: 2024
