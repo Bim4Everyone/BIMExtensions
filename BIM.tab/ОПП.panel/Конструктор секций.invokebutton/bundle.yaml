@@ -1,0 +1,52 @@
+title:
+  ru: "Конструктор\nсекций"
+  en_us: "Sections\nconstructor"
+
+tooltip:
+  ru: >- 
+    Создает rvt файлы секций на основе открытого проекта типовой секции (ТС). Геометрия секций создается за счет копирования/удаления групп типовых этажей из открытого проекта.
+
+    Для каждого типового этажа должна быть создана своя группа.
+
+
+    1. Открыть файл типовой секции, в котором созданы группы для типовых этажей.
+
+
+    2. Перейти на пустой лист без видов и закрыть остальные виды, чтобы избежать зависания Revit при отрисовке графики.
+
+
+    3. Запустить плагин и задать настройки копирования/удаления размещенных экземпляров групп.
+
+
+    4. Задать путь для сохранения нового проекта rvt.
+
+
+    5. Нажать "ОК"
+  en_us: >- 
+    Creates rvt files of building blocks based on an open project of a standard building block in residential complex. Building block geometry is created by copying/deleting group instances from an open project.
+    
+    For each typical floor in building block must be created its own group.
+    
+    
+    1. Open a rvt file of typical building block from residential complex with group instances for typical floors.
+    
+    
+    2. Go to a blank sheet with bo views and close other views to avoid Revit freezing when rendering graphics.
+    
+    
+    3. Launch the plugin and set the settings for copying/deleting existed group instances.
+    
+    
+    4. Set the path to save the new rvt project.
+    
+    
+    5. Click "OK".
+
+assembly: RevitSectionsConstructor.dll
+command_class: RevitSectionsConstructorCommand
+
+context: doc-project
+author: vlastroG
+
+min_revit_version: 2022
+max_revit_version: 2024
