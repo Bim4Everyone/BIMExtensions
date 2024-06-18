@@ -1,0 +1,18 @@
+title:
+  ru: Расставить по выбору
+  en_us: Place by select
+
+tooltip:
+  ru: Расстановка заданий на отверстия по выбранным элементам по заданным настройкам
+  en_us: Places all opening tasks by selected elements by configured settings
+
+assembly: RevitOpeningPlacement.dll
+command_class: PlaceOpeningTasksBySelectionCmd
+
+authors:
+  - budaevaler
+  - vlastroG
+help_url: "https://wiki.a101.ru/pages/viewpage.action?pageId=9210728"
+
+min_revit_version: 2020
+max_revit_version: 2024

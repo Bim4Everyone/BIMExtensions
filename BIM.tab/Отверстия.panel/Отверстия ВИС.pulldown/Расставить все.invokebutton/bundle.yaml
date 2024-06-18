@@ -1,10 +1,10 @@
 title:
-  ru: Расставить
-  en_us: Place
+  ru: Расставить все
+  en_us: Place all
 
 tooltip:
-  ru: Расстановка заданий на отверстия по заданным настройкам
-  en_us: Places opening tasks by configured settings
+  ru: Расстановка всех заданий на отверстия по заданным настройкам
+  en_us: Places all opening tasks by configured settings
 
 assembly: RevitOpeningPlacement.dll
 command_class: PlaceOpeningTasksCmd
