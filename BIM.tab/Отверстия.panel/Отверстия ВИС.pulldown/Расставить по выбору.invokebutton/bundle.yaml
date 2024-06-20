@@ -3,8 +3,48 @@ title:
   en_us: Place by select
 
 tooltip:
-  ru: Расстановка заданий на отверстия по выбранным элементам по заданным настройкам
-  en_us: Places all opening tasks by selected elements by configured settings
+  ru: >-
+    Расстановка заданий на отверстия по выбранным элементам по заданным настройкам.
+    
+    
+    Для запуска плагина необходимо, чтобы активный документ и все связанные документы удовлетворяли требованиям к именованию файлов моделей BIM-стандарта А101.
+    Также необходимо наличие в активном документе семейств для заданий на отверстия:
+
+    ОбщМд_Отв_Отверстие_Прямоугольное_В перекрытии
+
+    ОбщМд_Отв_Отверстие_Круглое_В перекрытии
+
+    ОбщМд_Отв_Отверстие_Прямоугольное_В стене
+
+    ОбщМд_Отв_Отверстие_Круглое_В стене
+
+
+    1. Открыть документ и запустить плагин.
+    
+    2. Выбрать элементы ВИС, по которым будут создаваться задания на отверстия.
+    
+    3. Нажать "Готово".
+  en_us: >-
+    Places all opening tasks by selected elements by configured settings.
+    
+    
+    Before you start the plugin, make sure your active document and all linked documents satisfy all naming rules of BIM-standard of A101 company.
+    Also make sure you have required families in active document:
+
+    ОбщМд_Отв_Отверстие_Прямоугольное_В перекрытии
+
+    ОбщМд_Отв_Отверстие_Круглое_В перекрытии
+
+    ОбщМд_Отв_Отверстие_Прямоугольное_В стене
+
+    ОбщМд_Отв_Отверстие_Круглое_В стене
+
+
+    1. Open document and start the plugin.
+    
+    2. Pick MEP elements to place opening tasks.
+    
+    3. Press "Finish".
 
 assembly: RevitOpeningPlacement.dll
 command_class: PlaceOpeningTasksBySelectionCmd

@@ -3,8 +3,47 @@ title:
   en_us: Unite
 
 tooltip:
-  ru: Замена размещенных нескольких заданий на одно объединенное
-  en_us: Replace created opening tasks to one united task
+  ru: >-
+    Замена размещенных нескольких заданий на одно объединенное.
+    
+    
+    Для запуска плагина необходимо наличие в активном документе семейств для заданий на отверстия:
+    
+    ОбщМд_Отв_Отверстие_Прямоугольное_В перекрытии
+    
+    ОбщМд_Отв_Отверстие_Круглое_В перекрытии
+    
+    ОбщМд_Отв_Отверстие_Прямоугольное_В стене
+    
+    ОбщМд_Отв_Отверстие_Круглое_В стене
+    
+    
+    1. Открыть документ и запустить плагин.
+
+    2. Выбрать несколько заданий на отверстия, которые будут объединены.
+
+    3. Нажать "Готово".
+
+  en_us: >-
+    Replace created opening tasks to one united task.
+    
+    
+    Before you start the plugin, make sure you have required families in active document:
+    
+    ОбщМд_Отв_Отверстие_Прямоугольное_В перекрытии
+    
+    ОбщМд_Отв_Отверстие_Круглое_В перекрытии
+    
+    ОбщМд_Отв_Отверстие_Прямоугольное_В стене
+    
+    ОбщМд_Отв_Отверстие_Круглое_В стене
+    
+    
+    1. Open document and start the plugin.
+
+    2. Pick opening tasks to unite.
+
+    3. Press "Finish".
 
 assembly: RevitOpeningPlacement.dll
 command_class: UniteOpeningTasksCmd

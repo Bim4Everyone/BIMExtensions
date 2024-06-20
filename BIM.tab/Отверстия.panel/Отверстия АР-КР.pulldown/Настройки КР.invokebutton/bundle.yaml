@@ -3,8 +3,22 @@ title:
   en_us: Settings KR
 
 tooltip:
-  ru: Настройки расстановки отверстий КР
-  en_us: Placement settings for KR openings
+  ru: >-
+    Настройки расстановки отверстий КР.
+    
+    1. Открыть документ и запустить плагин.
+
+    2. Выбрать раздел, задания на отверстия из которого будут обрабатываться: ВИС или АР.
+
+    3. Нажать "ОК"
+  en_us: >-
+    Placement settings for KR openings.
+    
+    1. Open document and start the plugin.
+    
+    2. Choose discipline of opening tasks: MEP (ВИС) or AR (АР)
+    
+    3. Press "OK".
 
 assembly: RevitOpeningPlacement.dll
 command_class: SetOpeningRealsPlacementConfigCmd

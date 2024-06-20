@@ -3,8 +3,22 @@ title:
   en_us: Navigator
 
 tooltip:
-  ru: Просмотр заданий на отверстия
-  en_us: Watch opening tasks
+  ru: >- 
+    Просмотр заданий на отверстия, сгруппированных по датам и статусам. Статусы определяются заново каждый раз при запуске плагина.
+  
+  
+    Для запуска плагина необходимо, чтобы активный документ и все связанные документы удовлетворяли требованиям к именованию файлов моделей BIM-стандарта А101.
+  
+  
+    1. Открыть документ и запустить плагин.
+  en_us: >- 
+    Watch opening tasks, grouped by date and status. Opening status overrides each time you start the plugin.
+  
+  
+    Before you start the plugin, make sure your active document and all linked documents satisfy all naming rules of BIM-standard of A101 company.
+  
+  
+    1. Open document and start the plugin.
 
 assembly: RevitOpeningPlacement.dll
 command_class: GetOpeningTasksCmd
