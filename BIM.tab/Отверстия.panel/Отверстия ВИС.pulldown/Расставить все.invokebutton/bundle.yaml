@@ -1,14 +1,15 @@
 title:
-  ru: Объединить
-  en_us: Unite
+  ru: Расставить все
+  en_us: Place all
 
 tooltip:
   ru: >-
-    Замена размещенных нескольких заданий на одно объединенное.
+    Расстановка всех заданий на отверстия по заданным настройкам.
     
     
-    Для запуска плагина необходимо наличие в активном документе семейств для заданий на отверстия:
-    
+    Для запуска плагина необходимо, чтобы активный документ и все связанные документы удовлетворяли требованиям к именованию файлов моделей BIM-стандарта А101.
+    Также необходимо наличие в активном документе семейств для заданий на отверстия:
+
     ОбщМд_Отв_Отверстие_Прямоугольное_В перекрытии
     
     ОбщМд_Отв_Отверстие_Круглое_В перекрытии
@@ -20,15 +21,12 @@ tooltip:
     
     1. Открыть документ и запустить плагин.
 
-    2. Выбрать несколько заданий на отверстия, которые будут объединены.
-
-    3. Нажать "Готово".
-
   en_us: >-
-    Replace created opening tasks to one united task.
+    Places all opening tasks by configured settings.
     
     
-    Before you start the plugin, make sure you have required families in active document:
+    Before you start the plugin, make sure your active document and all linked documents satisfy all naming rules of BIM-standard of A101 company.
+    Also make sure you have required families in active document:
     
     ОбщМд_Отв_Отверстие_Прямоугольное_В перекрытии
     
@@ -41,12 +39,8 @@ tooltip:
     
     1. Open document and start the plugin.
 
-    2. Pick opening tasks to unite.
-
-    3. Press "Finish".
-
 assembly: RevitOpeningPlacement.dll
-command_class: UniteOpeningTasksCmd
+command_class: PlaceOpeningTasksCmd
 
 authors:
   - budaevaler

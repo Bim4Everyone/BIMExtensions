@@ -3,8 +3,68 @@ title:
   en_us: Accept single
 
 tooltip:
-  ru: Размещение одного проема по одному входящему заданию на отверстие
-  en_us: Place one opening by one incoming opening task
+  ru: >-
+    Размещение одного проема по одному входящему заданию на отверстие
+    
+    
+    Для запуска плагина необходимо, чтобы активный документ и все связанные документы удовлетворяли требованиям к именованию файлов моделей BIM-стандарта А101.
+    Также необходимо наличие в активном документе семейств для отверстий. Для АР это:
+    
+    Окн_Отв_Прямоуг_Перекрытие
+    
+    Окн_Отв_Круг_Перекрытие
+    
+    Окн_Отв_Прямоуг_Стена
+    
+    Окн_Отв_Круг_Стена
+    
+    Для КР это:
+    
+    ОбщМд_Отверстие_Перекрытие_Прямоугольное
+    
+    ОбщМд_Отверстие_Стена_Прямоугольное
+    
+    ОбщМд_Отверстие_Стена_Круглое
+
+
+    1. Открыть документ и запустить плагин.
+
+    2. Выбрать хост, в котором будет размещено отверстие.
+
+    3. Выбрать задание на отверстие, по которому будет сформировано отверстие в заданном хосте.
+
+    4. Нажать "Готово".
+  en_us: >-
+    Place one opening by one incoming opening task
+    
+    
+    Before you start the plugin, make sure your active document and all linked documents satisfy all naming rules of BIM-standard of A101 company.
+    Also make sure you have required families in active document. For AR:
+    
+    Окн_Отв_Прямоуг_Перекрытие
+
+    Окн_Отв_Круг_Перекрытие
+
+    Окн_Отв_Прямоуг_Стена
+
+    Окн_Отв_Круг_Стена
+
+    For КR:
+
+    ОбщМд_Отверстие_Перекрытие_Прямоугольное
+
+    ОбщМд_Отверстие_Стена_Прямоугольное
+
+    ОбщМд_Отверстие_Стена_Круглое
+
+
+    1. Open document and start the plugin.
+
+    2. Pick host for opening.
+
+    3. Pick opening task to create real opening in selected host.
+
+    4. Press "Finish".
 
 assembly: RevitOpeningPlacement.dll
 command_class: PlaceOneOpeningRealByOneTaskCmd

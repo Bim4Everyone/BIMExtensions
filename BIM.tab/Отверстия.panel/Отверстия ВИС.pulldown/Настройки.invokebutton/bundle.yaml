@@ -3,8 +3,24 @@ title:
   en_us: Settings
 
 tooltip:
-  ru: Настройки расстановки заданий на отверстия
-  en_us: Settings for placing opening tasks
+  ru: >-
+    Настройки расстановки заданий на отверстия.
+    
+    
+    1. Открыть документ и запустить плагин.
+
+    2. Задать настройки расстановки заданий на отверстия
+
+    3. Нажать "ОК".
+  en_us: >-
+    Settings for placing opening tasks.
+    
+    
+    1. Open document and start the plugin.
+
+    2. Configure settings for opening tasks placing.
+
+    3. Press "OK".
 
 assembly: RevitOpeningPlacement.dll
 command_class: SetOpeningTasksPlacementConfigCmd
