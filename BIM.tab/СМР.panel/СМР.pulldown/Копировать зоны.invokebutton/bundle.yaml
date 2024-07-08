@@ -22,7 +22,7 @@ assembly: RevitCopingZones.dll
 command_class: RevitCopingZonesCommand
 
 author: dosymep
-help_url: "https://wiki.a101.ru/pages/viewpage.action?pageId=9211150"
+help_url: "https://kb.a101.ru/pages/viewpage.action?pageId=104598018"
 
 min_revit_version: 2020
 max_revit_version: 2024
