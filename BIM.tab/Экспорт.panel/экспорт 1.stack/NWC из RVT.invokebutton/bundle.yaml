@@ -7,6 +7,9 @@ tooltip:
     Экспортирует 3D вид "Navisworks" выбранных RVT-файлов в формат NWC. Каждая площадка rvt файла будет экспортирована в отдельный nwc файл.
     
     
+    Перед запуском плагина необходимо убедиться, что на ПК установлен плагин от Autodesk для экспорта в NWC.
+    
+    
     Важно иметь в виду, что из всех экспортируемых rvt файлов будут выгружены все связи.
     
     
@@ -19,6 +22,9 @@ tooltip:
     4. Нажать "ОК".
   en_us: >-
     Exports the "Navisworks" 3D view of selected RVT files in selected folder to NWC format. Each site of rvt file will be placed to separate nwc file.
+    
+    
+    Before you start the plugin, make sure that Autodesk NWC export plugin is installed on your machine.
     
     
     It's important to keep in mind that all links will be unloaded from all exporting rvt files.
