@@ -3,11 +3,43 @@ title:
   en_us: NWC from RVT
 
 tooltip:
-  ru: Экспортирует 3D вид "Navisworks" всех RVT-файлов из выбранной папки в формат NWC.
-  en_us: Exports the "Navisworks" 3D view of all RVT files in the selected folder to NWC format.
+  ru: >-
+    Экспортирует 3D вид "Navisworks" выбранных RVT-файлов в формат NWC. Каждая площадка rvt файла будет экспортирована в отдельный nwc файл.
+    
+    
+    Перед запуском плагина необходимо убедиться, что на ПК установлен плагин от Autodesk для экспорта в NWC.
+    
+    
+    Важно иметь в виду, что из всех экспортируемых rvt файлов будут выгружены все связи.
+    
+    
+    1. Запустить плагин.
+    
+    2. Выбрать папку-источник с файлами rvt и целевую папку, в которую будут помещены nwc файлы.
+    
+    3. Выбрать файлы из папки-источника, которые надо экспортировать, указать, надо ли экспортировать помещения.
+    
+    4. Нажать "ОК".
+  en_us: >-
+    Exports the "Navisworks" 3D view of selected RVT files in selected folder to NWC format. Each site of rvt file will be placed to separate nwc file.
+    
+    
+    Before you start the plugin, make sure that Autodesk NWC export plugin is installed on your machine.
+    
+    
+    It's important to keep in mind that all links will be unloaded from all exporting rvt files.
+    
+    
+    1. Start the plugin.
+    
+    2. Select source folder with rvt files, select target folder for nwc files.
+    
+    3. Select files from source folder for export, choose whether to export rooms.
+    
+    4. Press "OK".
 
 assembly: RevitServerFolders.dll
-command_class: ExportNwcFileCommand
+command_class: NavisworksExportCommand
 
 author: dosymep
 context: zero-doc

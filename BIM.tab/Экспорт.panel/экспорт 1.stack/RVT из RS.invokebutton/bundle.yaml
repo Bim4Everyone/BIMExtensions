@@ -6,13 +6,34 @@ tooltip:
   ru: >-
     Пересохраняет с отсоединением RVT-файлы из Revit Server в указанную папку.
     
-    Дополнительно можно сохранить NWC из пересохраняемых файлов.
+    
+    Важно иметь в виду, что из всех пересохраненных rvt файлов будут выгружены все связи.
+    
+    
+    1. Запустить плагин.
+
+    2. Выбрать папку с RS и целевую папку, в которую будут сохранены файлы.
+
+    3. Выбрать файлы из папки RS, которые надо экспортировать.
+
+    4. Нажать "ОК".
   en_us: >-
     Resaves detached RVT files from Revit Server to the specified folder.
-    Additionally, you can NWC from resaved files.
+    
+    
+    It's important to keep in mind that all links will be unloaded from all resaved rvt files.
+    
+    
+    1. Start the plugin.
+    
+    2. Select source RS folder, select target folder.
+    
+    3. Select files from RS folder for export.
+    
+    4. Press "OK".
 
 assembly: RevitServerFolders.dll
-command_class: ExportRvtFileCommand
+command_class: FileServerExportCommand
 
 author: dosymep
 context: zero-doc
