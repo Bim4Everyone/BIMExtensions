@@ -57,6 +57,8 @@ clr.AddReference('Serilog.Enrichers.Autodesk.Revit.dll')
 clr.AddReference('DevExpress.Xpf.Core.v21.2.dll')
 clr.AddReference('DevExpress.Data.Desktop.v21.2.dll')
 
+clr.AddReference('DevExpress.Dialogs.v21.2.Core.dll')
+
 from pyrevit import HOST_APP
 from pyrevit.userconfig import user_config
 
