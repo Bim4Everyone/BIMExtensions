@@ -93,8 +93,8 @@
       "description": "ОВиВК",
       "author": "Redomine",
       "author_profile": "https://github.com/Redomine",
-      "url": "https://github.com/Bim4Everyone/HVACExtension.git",
-      "website": "https://github.com/Bim4Everyone/HVACExtension.git",
+      "url": "https://github.com/Bim4Everyone/HVACExtension",
+      "website": "https://github.com/Bim4Everyone/HVACExtension",
       "image": "",
       "dependencies": [ "BIM4Everyone" ]
     },
