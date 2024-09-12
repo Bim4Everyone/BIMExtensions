@@ -1,6 +1,6 @@
 title:
-  ru: Выгрузить объемы
-  en_us: Export totals
+  ru: "Выгрузить\nобъемы"
+  en_us: "Export\ntotals"
 
 tooltip:
   ru: Экспортирует объемы ВИС из заданных файлов в Excel.
