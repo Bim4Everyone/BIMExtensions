@@ -1,0 +1,25 @@
+title:
+  ru: Перенос параметров
+  en_us: Transfer of parameters
+
+tooltip:
+  ru: >- 
+    Выполняет копирование значений одного или нескольких параметров в указанный параметр.
+    
+    Есть возможность указать префиксы и суффиксы.
+    
+    Перед запуском плагина выберите элементы для работы.
+  en_us: >-
+    Copies the values of one or more parameters to the specified parameter.
+    
+    It is possible to specify prefixes and suffixes.
+
+    Before running the plugin, select the elements to work with.
+
+assembly: RevitValueModifier.dll
+command_class: RevitValueModifierCommand
+
+author: DivinN
+
+min_revit_version: 2022
+max_revit_version: 2024
