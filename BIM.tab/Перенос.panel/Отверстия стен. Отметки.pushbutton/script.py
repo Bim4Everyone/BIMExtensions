@@ -133,7 +133,7 @@ class CreateCommand(ICommand):
                 self.set_parameter(element, UNIQUE, view_3D)
 
 
-        alert("Канец!")
+        alert("Выполнено успешно!")
         return True
 
     def analize_fam(self, list_id):
