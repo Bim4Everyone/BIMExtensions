@@ -1,0 +1,20 @@
+title:
+  ru: Экземпляры категории
+  en_us: Instances of the category
+
+tooltip:
+  ru: >-
+    Выделяет на текущем виде все экземпляры всех семейств для категории выбранного экземпляра семейства.
+    
+    
+    1. Выберите нужный элемент 
+
+    2. Запустите скрипт
+  en_us: Selects all family instances for the category of the selected family instance.
+
+context: selection
+autor: dosymep
+help_url: "https://kb.a101.ru/pages/viewpage.action?pageId=67829991"
+
+min_revit_version: 2020
+max_revit_version: 2024
