@@ -1,0 +1,13 @@
+title:
+  ru: Отверстия стен. Маркировка сплошная
+  en_us: Wall openings. Marking continuous
+
+tooltip:
+  ru: Текст
+  en_us: Text
+
+engine:
+  clean: false
+
+min_revit_version: 2022
+max_revit_version: 2024
