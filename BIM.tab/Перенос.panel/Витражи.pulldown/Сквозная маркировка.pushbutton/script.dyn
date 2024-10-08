@@ -2,20 +2,11 @@
   "Uuid": "eb458331-a780-459f-a709-00366be25ece",
   "IsCustomNode": false,
   "Description": null,
-  "Name": "Витражи - №4_Сквозная маркировка",
+  "Name": "script",
   "ElementResolver": {
     "ResolutionMap": {}
   },
-  "Inputs": [
-    {
-      "Id": "b7e0469a74cf4e48850e8ef5d25823bf",
-      "Name": "Выбрать  Excell-файл",
-      "Type": "string",
-      "Value": "Файл не выбран.",
-      "Description": "Возможность выбрать файл в системе и получить путь к нему.",
-      "SelectedIndex": 0
-    }
-  ],
+  "Inputs": [],
   "Outputs": [],
   "Nodes": [
     {
@@ -49,27 +40,6 @@
       ],
       "Replication": "Disabled",
       "Description": "Выполнение встроенного сценария Python."
-    },
-    {
-      "ConcreteType": "CoreNodeModels.Input.Filename, CoreNodeModels",
-      "HintPath": "Z:\\BIM\\Отработка скриптов\\Витражи\\Витражи\\Файл не выбран",
-      "InputValue": "Файл не выбран.",
-      "NodeType": "ExtensionNode",
-      "Id": "b7e0469a74cf4e48850e8ef5d25823bf",
-      "Inputs": [],
-      "Outputs": [
-        {
-          "Id": "87a432718017496eb52a45ad4e606842",
-          "Name": "",
-          "Description": "Filename",
-          "UsingDefaultValue": false,
-          "Level": 2,
-          "UseLevels": false,
-          "KeepListStructure": false
-        }
-      ],
-      "Replication": "Disabled",
-      "Description": "Возможность выбрать файл в системе и получить путь к нему."
     },
     {
       "ConcreteType": "PythonNodeModels.PythonStringNode, PythonNodeModels",
@@ -123,52 +93,51 @@
       ],
       "Replication": "Disabled",
       "Description": "Выполнение встроенного сценария Python."
+    },
+    {
+      "ConcreteType": "PythonNodeModels.PythonNode, PythonNodeModels",
+      "NodeType": "PythonScriptNode",
+      "Code": "import clr\r\nclr.AddReference('ProtoGeometry')\r\nclr.AddReference(\"System.Windows.Forms\")\r\nfrom Autodesk.DesignScript.Geometry import *\r\nclr.AddReference(\"RevitServices\")\r\nimport RevitServices\r\nfrom RevitServices.Persistence import DocumentManager\r\nfrom RevitServices.Transactions import TransactionManager\r\nclr.AddReference(\"RevitAPI\")\r\nimport Autodesk\r\nfrom Autodesk.Revit.DB import *\r\ndoc = DocumentManager.Instance.CurrentDBDocument\r\nuiapp = DocumentManager.Instance.CurrentUIApplication\r\napp = uiapp.Application\r\nfrom System.Collections.Generic import *\r\nuidoc = DocumentManager.Instance.CurrentUIApplication.ActiveUIDocument\r\nfrom operator import itemgetter\r\nclr.AddReference(\"RevitNodes\")\r\nimport Revit\r\nclr.ImportExtensions(Revit.Elements)\r\nimport itertools\r\nfrom itertools import groupby\r\nimport os\r\nimport System\r\nfrom System.Windows.Forms import SaveFileDialog, OpenFileDialog, DialogResult\r\n\r\n\r\nopenFileDialog = OpenFileDialog()\r\n\r\nopenFileDialog.Title = \"Выберите Excel-файл\"\r\nopenFileDialog.InitialDirectory = \"c:\\\\\"\r\nopenFileDialog.Filter = \"Excel Files|*.xls;*.xlsx;*.xlsm\"\r\nopenFileDialog.FilterIndex = 1\r\nopenFileDialog.RestoreDirectory = True\r\n\r\nif openFileDialog.ShowDialog() == DialogResult.OK:\r\n\tfilePath = openFileDialog.FileName\r\n\r\nOUT = filePath",
+      "Engine": "IronPython2",
+      "VariableInputPorts": true,
+      "Id": "6bf02cc2eee2440cad8e7cdebf9d7536",
+      "Inputs": [],
+      "Outputs": [
+        {
+          "Id": "1a3c3c5441fa49b9ad637f54f978f47f",
+          "Name": "OUT",
+          "Description": "Результат сценария Python",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Disabled",
+      "Description": "Выполнение встроенного сценария Python."
     }
   ],
   "Connectors": [
     {
-      "Start": "87a432718017496eb52a45ad4e606842",
-      "End": "e409f37c9c1d40b5b2eba1cce0c28fa8",
-      "Id": "8a1844373dc0440a8d45d59ee698766c"
-    },
-    {
       "Start": "f7b529f8917e44c2b6c5f79069b60fc9",
       "End": "c551c988403142b09b9a06515ac2e009",
       "Id": "f6fce817228341478452f96021dbd624"
+    },
+    {
+      "Start": "1a3c3c5441fa49b9ad637f54f978f47f",
+      "End": "e409f37c9c1d40b5b2eba1cce0c28fa8",
+      "Id": "499ca85f447a4ed8905003b516bed1a7"
     }
   ],
   "Dependencies": [],
   "NodeLibraryDependencies": [],
-  "Thumbnail": "",
-  "GraphDocumentationURL": null,
-  "ExtensionWorkspaceData": [
-    {
-      "ExtensionGuid": "28992e1d-abb9-417f-8b1b-05e053bee670",
-      "Name": "Properties",
-      "Version": "2.12",
-      "Data": {}
-    },
-    {
-      "ExtensionGuid": "DFBD9CC0-DB40-457A-939E-8C8555555A9D",
-      "Name": "Generative Design",
-      "Version": "1.10",
-      "Data": {}
-    }
-  ],
-  "Author": "None provided",
-  "Linting": {
-    "activeLinter": "Нет",
-    "activeLinterId": "7b75fb44-43fd-4631-a878-29f4d5d8399a",
-    "warningCount": 0,
-    "errorCount": 0
-  },
   "Bindings": [],
   "View": {
     "Dynamo": {
       "ScaleFactor": 1.0,
       "HasRunWithoutCrash": true,
       "IsVisibleInDynamoLibrary": true,
-      "Version": "2.12.1.8246",
+      "Version": "2.10.1.3976",
       "RunType": "Manual",
       "RunPeriod": "1000"
     },
@@ -197,16 +166,6 @@
       },
       {
         "ShowGeometry": true,
-        "Name": "Выбрать  Excell-файл",
-        "Id": "b7e0469a74cf4e48850e8ef5d25823bf",
-        "IsSetAsInput": true,
-        "IsSetAsOutput": false,
-        "Excluded": false,
-        "X": -886.93724670835741,
-        "Y": -41.931836933470834
-      },
-      {
-        "ShowGeometry": true,
         "Name": "Python Script From String",
         "Id": "2bb83a611d9e44909f01779ba0280344",
         "IsSetAsInput": false,
@@ -224,6 +183,16 @@
         "Excluded": true,
         "X": -1246.6314665947139,
         "Y": 343.64848956351557
+      },
+      {
+        "ShowGeometry": true,
+        "Name": "Выбор Excel-файла",
+        "Id": "6bf02cc2eee2440cad8e7cdebf9d7536",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": -850.59209858024,
+        "Y": -40.003609694332283
       }
     ],
     "Annotations": [
@@ -231,17 +200,17 @@
         "Id": "a09dd9ef1c44472f86ad1c40548d1ec4",
         "Title": "ИСХОДНЫЕ ДАННЫЕ",
         "Nodes": [
-          "b7e0469a74cf4e48850e8ef5d25823bf",
-          "67fde038abb540ab96dc3083bfc3f492"
+          "67fde038abb540ab96dc3083bfc3f492",
+          "6bf02cc2eee2440cad8e7cdebf9d7536"
         ],
         "Left": -897.65907358624156,
-        "Top": -137.93183693347083,
-        "Width": 241.72182687788415,
-        "Height": 261.53763077278853,
+        "Top": -136.40360969433229,
+        "Width": 240.0,
+        "Height": 259.80940353364997,
         "FontSize": 36.0,
-        "InitialTop": -41.931836933470834,
+        "InitialTop": -40.003609694332283,
         "InitialHeight": 246.53763077278853,
-        "TextblockHeight": 86.0,
+        "TextblockHeight": 86.4,
         "Background": "#FFFF7BAC"
       },
       {
@@ -252,13 +221,13 @@
           "4e387157b63d4684bbfda0362dc35909"
         ],
         "Left": -1256.6314665947139,
-        "Top": 289.96772797428753,
-        "Width": 307.22482321422012,
-        "Height": 157.68076158922804,
+        "Top": 289.76772797428754,
+        "Width": 306.22482321422012,
+        "Height": 158.48076158922805,
         "FontSize": 36.0,
         "InitialTop": 342.96772797428753,
         "InitialHeight": 145.68076158922804,
-        "TextblockHeight": 43.0,
+        "TextblockHeight": 43.2,
         "Background": "#FFFFFFFF"
       },
       {
@@ -268,13 +237,13 @@
           "fee21a25cfe44490980fdd69c5559592"
         ],
         "Left": -1268.3380228275935,
-        "Top": -135.56593710163202,
-        "Width": 319.0,
-        "Height": 434.0,
+        "Top": -135.165937101632,
+        "Width": 319.20000000000005,
+        "Height": 433.79999999999995,
         "FontSize": 36.0,
         "InitialTop": 4.4340628983679835,
         "InitialHeight": 145.0,
-        "TextblockHeight": 130.0,
+        "TextblockHeight": 129.6,
         "Background": "#FF848484"
       },
       {
@@ -306,8 +275,8 @@
         "Background": "#FFC1D676"
       }
     ],
-    "X": 1996.3592810741388,
-    "Y": 383.78936357588174,
-    "Zoom": 1.5484138573083139
+    "X": 879.37215324790259,
+    "Y": 337.29669502916119,
+    "Zoom": 0.53909526453530721
   }
 }
