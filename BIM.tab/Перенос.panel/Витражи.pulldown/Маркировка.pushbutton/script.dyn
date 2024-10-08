@@ -1,0 +1,471 @@
+{
+  "Uuid": "3c9d0464-8643-5ffe-96e5-ab1769818209",
+  "IsCustomNode": false,
+  "Description": "",
+  "Name": "Витражи - №3_Маркировка",
+  "ElementResolver": {
+    "ResolutionMap": {
+      "List": {
+        "Key": "DSCore.List",
+        "Value": "DSCoreNodes.dll"
+      },
+      "List.Count": {
+        "Key": "DSCore.List",
+        "Value": "DSCoreNodes.dll"
+      }
+    }
+  },
+  "Inputs": [
+    {
+      "Id": "50d10333169b499a83f6adcc53d923a1",
+      "Name": "Префикс маркировки",
+      "Type": "string",
+      "Value": "ВНХ-",
+      "Description": "Создание строки.",
+      "SelectedIndex": 0
+    },
+    {
+      "Id": "21b97e3de4d246f180c42ee5bcbd5bf7",
+      "Name": "Начать нумерацию с номера -",
+      "Type": "string",
+      "Value": "1",
+      "Description": "Создание строки.",
+      "SelectedIndex": 0
+    },
+    {
+      "Id": "3df02ba9ee634f78a0c424aeaed4a708",
+      "Name": "Суффикс маркировки",
+      "Type": "string",
+      "Value": "",
+      "Description": "Создание строки.",
+      "SelectedIndex": 0
+    }
+  ],
+  "Outputs": [],
+  "Nodes": [
+    {
+      "ConcreteType": "PythonNodeModels.PythonNode, PythonNodeModels",
+      "NodeType": "PythonScriptNode",
+      "Code": "import clr\r\nclr.AddReference('ProtoGeometry')\r\nclr.AddReference(\"System.Windows.Forms\")\r\nfrom Autodesk.DesignScript.Geometry import *\r\nclr.AddReference(\"RevitServices\")\r\nimport RevitServices\r\nfrom RevitServices.Persistence import DocumentManager\r\nfrom RevitServices.Transactions import TransactionManager\r\nclr.AddReference(\"RevitAPI\")\r\nimport Autodesk\r\nfrom Autodesk.Revit.DB import *\r\nfrom System.Collections.Generic import *\r\nfrom operator import itemgetter\r\nclr.AddReference(\"RevitNodes\")\r\nimport Revit\r\nclr.ImportExtensions(Revit.Elements)\r\nimport itertools\r\nfrom itertools import groupby\r\nimport os\r\nimport System\r\nfrom datetime import datetime\r\nfrom System.Windows.Forms import MessageBox\r\nimport math\r\n\r\n\r\ndef location_up (element):\r\n\t\r\n\tpoint_down = element.Location.Point.Z * 304.8\r\n\thieght = element.LookupParameter('ФОП_РАЗМ_Высота проёма').AsDouble() * 304.8\r\n\tpoint_up = point_down + hieght\t\r\n\t\r\n\treturn round(point_up)\r\n\t\r\n\t\r\n# Функция, которая из всех выделенных групп, берет по одной\r\ndef group_instance (list_id):\r\n\t\r\n\tall_elements = []\t\r\n\tfor id in list_id:\t\r\n\t\tnoname_element = doc.GetElement(id)\t\t\r\n\t\tif \"Группы модели\" == noname_element.Category.Name:\t\t\r\n\t\t\tall_elements.append(noname_element)\r\n\t\t\r\n\tgroups = {}\t\t\r\n\tfor group in all_elements:\r\n\t\tgroupby_value = group.Name\r\n\t\t\t\t\t\r\n\t\tif groupby_value in groups:\r\n\t\t\tgroups[groupby_value].append(group)\t\t\t\t\r\n\t\telse:\r\n\t\t\tgroups[groupby_value] = [group]\t\r\n\t\r\n\telements = []\t\r\n\tfor element in groups.Values:\r\n\t\telements.append(element[0])\r\n\t\r\n\treturn elements\r\n\t\r\n\t\r\n# Функция, которая возвращает членов группы\r\ndef group_members (group):\r\n\r\n\tgr_members_ids = group.GetMemberIds()\t\r\n\t\t\r\n\tlist_of_members = []\r\n\tfor id in gr_members_ids:\t\t\r\n\t\tmember = doc.GetElement(id)\r\n\t\tlist_of_members.append(member)\r\n\r\n\treturn list_of_members \r\n\t\r\n\t\r\ndef get_area (group):\r\n\t\r\n\tmain_members = []\t\t\t\r\n\tfor gr_member in group_members (group):\r\n\t\tif \"Окн_Вит_Витраж\" == gr_member.Name:\r\n\t\t\tmain_members.append(gr_member)\t\r\n\t\r\n\tgroups = {}\r\n\tfor element in main_members:\t\t\r\n\t\t\r\n\t\tif str(location_up (element)) in groups:\r\n\t\t\tgroups[str(location_up (element))].append(element)\t\t\t\t\r\n\t\telse:\r\n\t\t\tgroups[str(location_up (element))] = [element]\r\n\t\t\t\r\n\tlist_mains_mont = []\t\r\n\tlist_corners_mont = []\t\r\n\tlist_height_mont = []\t\r\n\t# Цикл по сгруппированным модулям по каждой высоте\t\r\n\tfor items in groups.items():\t\t\t\t\r\n\t\t\r\n\t\theight_mont = []\t\t\r\n\t\tmains_width_mont = []\t\t\r\n\t\tleft_corners_width_mont = []\t\r\n\t\tright_corners_width_mont = []\t\t\t\t\r\n\t\t# Цикл внутри каждой высоты\t\r\n\t\tfor item in items[1]:\r\n\t\t\t\r\n\t\t\tif 0 == item.LookupParameter('Левый_Угловой').AsInteger() and 0 == item.LookupParameter('Правый_Угловой').AsInteger():\t\t\t\t\t\t\t\r\n\t\t\t\tmains_width_mont.append(item.LookupParameter('ФОП_РАЗМ_Ширина проёма').AsDouble() * 304.8)\t\t\t\t\r\n\t\t\t\theight_mont.append(item.LookupParameter('ФОП_РАЗМ_Высота проёма').AsDouble() * 304.8)\t\t\t\t\r\n\t\t\t\t\r\n\t\t\telif 1 == item.LookupParameter('Левый_Угловой').AsInteger():\t\r\n\t\t\t\tleft_corners_width_mont.append(item.LookupParameter('ФОП_РАЗМ_Ширина проёма').AsDouble() * 304.8)\r\n\t\t\t\theight_mont.append(item.LookupParameter('ФОП_РАЗМ_Высота проёма').AsDouble() * 304.8)\t\t\t\t\r\n\t\t\t\t\r\n\t\t\telif 1 == item.LookupParameter('Правый_Угловой').AsInteger():\r\n\t\t\t\tright_corners_width_mont.append(item.LookupParameter('ФОП_РАЗМ_Ширина проёма').AsDouble() * 304.8)\t\t\t\t\r\n\t\t\t\theight_mont.append(item.LookupParameter('ФОП_РАЗМ_Высота проёма').AsDouble() * 304.8)\t\r\n\t\t\r\n\t\tsum_width_main_mont = sum(mains_width_mont)\t\t\r\n\t\t\r\n\t\tsum_width_left_corners_mont = sum(left_corners_width_mont)\t\t\r\n\t\tsum_width_right_corners_mont = sum(right_corners_width_mont)\r\n\t\t\r\n\t\tlist_mains_mont.append(sum_width_main_mont)\t\t\r\n\t\tlist_corners_mont.append(sum_width_left_corners_mont)\r\n\t\tlist_corners_mont.append(sum_width_right_corners_mont)\t\t\r\n\t\t\t\r\n\t\tlist_height_mont.append(max(height_mont))\t\t\r\n\t\r\n\tmax_mains_mont = max(list_mains_mont)\t\r\n\tmax_corners_mont = max(list_corners_mont)\t\r\n\tsum_height_mont = sum(list_height_mont)\t\r\n\t\r\n\tif round(max_corners_mont) == 0:\r\n\t\tcorners_mont = ''\r\n\telse:\r\n\t\tcorners_mont = 'x' + str(int(round(max_corners_mont)))\t\r\n\t\t\r\n\tmains_mont = str(int(round(max_mains_mont)))\r\n\theight_mont = 'x' + str(int(round(sum_height_mont))) + '(h)'\t\r\n\t\r\n\tgabarit_mont = mains_mont + height_mont + corners_mont\t\t\r\n\t\r\n\tlist_gab = gabarit_mont.Split('x')\r\n\t\r\n\tlist_int_gab = []\r\n\tfor gab in list_gab:\r\n\t\tlist_int_gab.append(float(gab.Replace('(h)','')))\r\n\t\r\n\tif len (list_int_gab) == 2:\r\n\t\tarea = (list_int_gab[0] / 1000) * (list_int_gab[1] / 1000)\r\n\telse:\r\n\t\tarea = ((list_int_gab[0] / 1000) * (list_int_gab[1] / 1000)) + ((list_int_gab[1] / 1000) * (list_int_gab[2] / 1000))\r\n\t\r\n\treturn area\r\n\r\n\r\n# функция маркировки элементов\r\ndef numeration (list, prefix, suffix):\r\n\t\r\n\tfor count, element in enumerate (list):\t\t\t\r\n\t\t\r\n\t\tnum = count + start\t\r\n\t\tname = prefix + str(num) + suffix\r\n\t\t\r\n\t\ttry:\r\n\t\t\telement[0].LookupParameter('ФОП_Марка типа').Set(name)\t\t\t\r\n\t\texcept:\r\n\t\t\telement[0].LookupParameter('ФОП_Марка Типа').Set(name)\r\n\t\t\t\r\n\r\n# --------------------------------------------------------------------------------------------\r\n\r\ndoc = DocumentManager.Instance.CurrentDBDocument\r\nuiapp = DocumentManager.Instance.CurrentUIApplication\r\napp = uiapp.Application\r\nuidoc = DocumentManager.Instance.CurrentUIApplication.ActiveUIDocument\r\n\r\n# Префикс для маркировки \r\nprefix = IN[0]\r\n# число, с которого начинаем маркировку\r\nstart = int(IN[1])\r\n# Суффикс для маркировки \r\nsuffix = IN[2]\r\n\r\n\r\n# --------------------------------------------------------------------------------------------\r\n\r\n# Выбераем элементы в модели\r\nselected_ids = uidoc.Selection.GetElementIds()\r\n\r\n# Отделяем только по одному экземпляру из всех выделенных групп\r\nall_groups = group_instance (selected_ids)\r\n\r\n\r\nTransactionManager.Instance.EnsureInTransaction(doc)\r\n\r\nlist_groups = []\r\nfor gro in all_groups:\r\n\ttype = doc.GetElement(gro.GetTypeId())\t\r\n\tlist_groups.append([type, get_area (gro)])\r\n\t\r\n\r\nsorted_list_group = sorted(list_groups, key = itemgetter(1))\r\n\r\nnumeration (sorted_list_group, prefix, suffix)\r\n\r\n\r\nOUT = sorted_list_group\r\n\r\nTransactionManager.Instance.TransactionTaskDone()\r\n\r\n\r\n",
+      "Engine": "IronPython2",
+      "VariableInputPorts": true,
+      "Id": "0459500a4a7f4b71a221c9a7dbaa4030",
+      "Inputs": [
+        {
+          "Id": "9f908943ef9a4452b3d7260df35ae2db",
+          "Name": "IN[0]",
+          "Description": "Input #0",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        },
+        {
+          "Id": "b5971cabef474665bd428446da5308a5",
+          "Name": "IN[1]",
+          "Description": "Input #1",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        },
+        {
+          "Id": "fa4a085a9e4945b2aae1683d0fea4d27",
+          "Name": "IN[2]",
+          "Description": "Input #2",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        },
+        {
+          "Id": "5fbe6a3b1c5444e9a2a7a77a7825c12e",
+          "Name": "IN[3]",
+          "Description": "Input #3",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Outputs": [
+        {
+          "Id": "25009e91e39b4d6eb7a52da9037f360c",
+          "Name": "OUT",
+          "Description": "Результат сценария Python",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Disabled",
+      "Description": "Выполнение встроенного сценария Python."
+    },
+    {
+      "ConcreteType": "PythonNodeModels.PythonStringNode, PythonNodeModels",
+      "Engine": "IronPython2",
+      "VariableInputPorts": true,
+      "NodeType": "ExtensionNode",
+      "Id": "fa37145c6d3e451497743fbf1b9f7cd5",
+      "Inputs": [
+        {
+          "Id": "8792e14bbbe04624a69e9a2ecc8041e8",
+          "Name": "script",
+          "Description": "Сценарий Python для запуска.",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Outputs": [
+        {
+          "Id": "0732ae51aa9f4a8b97accf6c219a8dd8",
+          "Name": "OUT",
+          "Description": "Результат сценария Python",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Disabled",
+      "Description": "Выполнение сценария Python из строки."
+    },
+    {
+      "ConcreteType": "PythonNodeModels.PythonNode, PythonNodeModels",
+      "NodeType": "PythonScriptNode",
+      "Code": "import codecs\r\nimport os.path\r\n\r\npath = r\"W:\\Проектный институт\\Отд.стандарт.BIM и RD\\BIM-Ресурсы\\4-Dynamo\\Архив\\BIM-отдел\\Dynamo_new_report.py\"\r\n\r\nresult = \"\"\r\n\r\nif os.path.exists(path):\r\n\twith codecs.open(path, 'r', encoding=\"utf-8\") as file:\r\n\t\tfor line in file.readlines():\r\n\t\t\tresult += line\r\n\r\nOUT = result",
+      "Engine": "IronPython2",
+      "VariableInputPorts": true,
+      "Id": "57486744a81746dab9b21eed76dc7c10",
+      "Inputs": [],
+      "Outputs": [
+        {
+          "Id": "dd00b3cc9dff450388acb342357f1336",
+          "Name": "OUT",
+          "Description": "Результат сценария Python",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Disabled",
+      "Description": "Выполнение встроенного сценария Python."
+    },
+    {
+      "ConcreteType": "CoreNodeModels.Input.StringInput, CoreNodeModels",
+      "NodeType": "StringInputNode",
+      "InputValue": "ВНХ-",
+      "Id": "50d10333169b499a83f6adcc53d923a1",
+      "Inputs": [],
+      "Outputs": [
+        {
+          "Id": "90cdb44acf044a7faf3d515ef6ad7b00",
+          "Name": "",
+          "Description": "String",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Disabled",
+      "Description": "Создание строки."
+    },
+    {
+      "ConcreteType": "CoreNodeModels.Input.StringInput, CoreNodeModels",
+      "NodeType": "StringInputNode",
+      "InputValue": "1",
+      "Id": "21b97e3de4d246f180c42ee5bcbd5bf7",
+      "Inputs": [],
+      "Outputs": [
+        {
+          "Id": "3cde27a342134613887e70ab03b91a1d",
+          "Name": "",
+          "Description": "String",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Disabled",
+      "Description": "Создание строки."
+    },
+    {
+      "ConcreteType": "CoreNodeModels.Input.BoolSelector, CoreNodeModels",
+      "NodeType": "BooleanInputNode",
+      "InputValue": false,
+      "Id": "888095c180a946268e4e49cfc4f6121a",
+      "Inputs": [],
+      "Outputs": [
+        {
+          "Id": "67301206059149b8932494798f128c45",
+          "Name": "",
+          "Description": "Boolean",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Disabled",
+      "Description": "Выбор между значениями true и false."
+    },
+    {
+      "ConcreteType": "CoreNodeModels.Input.StringInput, CoreNodeModels",
+      "NodeType": "StringInputNode",
+      "InputValue": "",
+      "Id": "3df02ba9ee634f78a0c424aeaed4a708",
+      "Inputs": [],
+      "Outputs": [
+        {
+          "Id": "8b46007fe6df4edf89df03f1baa702c4",
+          "Name": "",
+          "Description": "String",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Disabled",
+      "Description": "Создание строки."
+    }
+  ],
+  "Connectors": [
+    {
+      "Start": "dd00b3cc9dff450388acb342357f1336",
+      "End": "8792e14bbbe04624a69e9a2ecc8041e8",
+      "Id": "d48ee6cba33149da8c6ac2c67c7e3eca"
+    },
+    {
+      "Start": "90cdb44acf044a7faf3d515ef6ad7b00",
+      "End": "9f908943ef9a4452b3d7260df35ae2db",
+      "Id": "1bee278a732143618ec9fa0276f94bec"
+    },
+    {
+      "Start": "3cde27a342134613887e70ab03b91a1d",
+      "End": "b5971cabef474665bd428446da5308a5",
+      "Id": "dd4192f68b2e4c24833a8cb262e7d2be"
+    },
+    {
+      "Start": "67301206059149b8932494798f128c45",
+      "End": "5fbe6a3b1c5444e9a2a7a77a7825c12e",
+      "Id": "742619cd285d410eb071072d9e3ccaf6"
+    },
+    {
+      "Start": "8b46007fe6df4edf89df03f1baa702c4",
+      "End": "fa4a085a9e4945b2aae1683d0fea4d27",
+      "Id": "0b2c86877c364c4a96563fd93b05e4fe"
+    }
+  ],
+  "Dependencies": [],
+  "NodeLibraryDependencies": [],
+  "Thumbnail": "",
+  "GraphDocumentationURL": null,
+  "ExtensionWorkspaceData": [
+    {
+      "ExtensionGuid": "28992e1d-abb9-417f-8b1b-05e053bee670",
+      "Name": "Properties",
+      "Version": "2.12",
+      "Data": {}
+    },
+    {
+      "ExtensionGuid": "DFBD9CC0-DB40-457A-939E-8C8555555A9D",
+      "Name": "Generative Design",
+      "Version": "1.10",
+      "Data": {}
+    }
+  ],
+  "Author": "None provided",
+  "Linting": {
+    "activeLinter": "Нет",
+    "activeLinterId": "7b75fb44-43fd-4631-a878-29f4d5d8399a",
+    "warningCount": 0,
+    "errorCount": 0
+  },
+  "Bindings": [],
+  "View": {
+    "Dynamo": {
+      "ScaleFactor": 1.0,
+      "HasRunWithoutCrash": true,
+      "IsVisibleInDynamoLibrary": true,
+      "Version": "2.12.1.8246",
+      "RunType": "Manual",
+      "RunPeriod": "1000"
+    },
+    "Camera": {
+      "Name": "Фоновый просмотр",
+      "EyeX": -18.639432049313044,
+      "EyeY": 50.739627788617071,
+      "EyeZ": 58.882612508353446,
+      "LookX": 14.880000114440918,
+      "LookY": -16.1200008392334,
+      "LookZ": -71.919998168945313,
+      "UpX": 0.0,
+      "UpY": 1.0,
+      "UpZ": 0.0
+    },
+    "NodeViews": [
+      {
+        "ShowGeometry": true,
+        "Name": "Маркировка",
+        "Id": "0459500a4a7f4b71a221c9a7dbaa4030",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": -5186.3648411385211,
+        "Y": -181.44042692865435
+      },
+      {
+        "ShowGeometry": true,
+        "Name": "Python Script From String",
+        "Id": "fa37145c6d3e451497743fbf1b9f7cd5",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": -5832.0775118298516,
+        "Y": 26.238029256165248
+      },
+      {
+        "ShowGeometry": true,
+        "Name": "Python Script",
+        "Id": "57486744a81746dab9b21eed76dc7c10",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": true,
+        "X": -5942.3023350440717,
+        "Y": 26.918790845393289
+      },
+      {
+        "ShowGeometry": true,
+        "Name": "Префикс маркировки",
+        "Id": "50d10333169b499a83f6adcc53d923a1",
+        "IsSetAsInput": true,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": -5561.549415086849,
+        "Y": -234.13366079510172
+      },
+      {
+        "ShowGeometry": true,
+        "Name": "Начать нумерацию с номера -",
+        "Id": "21b97e3de4d246f180c42ee5bcbd5bf7",
+        "IsSetAsInput": true,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": -5581.5000329280629,
+        "Y": -156.02757105169746
+      },
+      {
+        "ShowGeometry": true,
+        "Name": "Перезапуск",
+        "Id": "888095c180a946268e4e49cfc4f6121a",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": -5517.9692138468754,
+        "Y": 16.588338086406338
+      },
+      {
+        "ShowGeometry": true,
+        "Name": "Суффикс маркировки",
+        "Id": "3df02ba9ee634f78a0c424aeaed4a708",
+        "IsSetAsInput": true,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": -5559.8485201415288,
+        "Y": -75.864665852130315
+      }
+    ],
+    "Annotations": [
+      {
+        "Id": "139822746ede4bc9a753b154de668792",
+        "Title": "ИСХОДНЫЕ ДАННЫЕ",
+        "Nodes": [
+          "50d10333169b499a83f6adcc53d923a1",
+          "21b97e3de4d246f180c42ee5bcbd5bf7",
+          "888095c180a946268e4e49cfc4f6121a",
+          "83eddba6bda943d0b48787f995acfb45"
+        ],
+        "Left": -5591.5000329280629,
+        "Top": -371.06890631909584,
+        "Width": 302.0,
+        "Height": 455.65724440550218,
+        "FontSize": 36.0,
+        "InitialTop": -275.06890631909584,
+        "InitialHeight": 436.65724440550218,
+        "TextblockHeight": 86.0,
+        "Background": "#FFFF7BAC"
+      },
+      {
+        "Id": "6c34f2dd6e8d4a498c9491ab69b4516c",
+        "Title": "Для разработчика",
+        "Nodes": [
+          "fa37145c6d3e451497743fbf1b9f7cd5",
+          "57486744a81746dab9b21eed76dc7c10"
+        ],
+        "Left": -5952.3023350440717,
+        "Top": -26.761970743834752,
+        "Width": 307.22482321422012,
+        "Height": 157.68076158922804,
+        "FontSize": 36.0,
+        "InitialTop": 26.238029256165248,
+        "InitialHeight": 145.68076158922804,
+        "TextblockHeight": 43.0,
+        "Background": "#FFFFFFFF"
+      },
+      {
+        "Id": "7313dd87a8d4477790e53d9263a7dfad",
+        "Title": "ОПИСАНИЕ!\r\nПРОЧИТАТЬ ПЕРЕД ЗАПУСКОМ!",
+        "Nodes": [
+          "d30a7c399e5f46c69888adf369456b1d"
+        ],
+        "Left": -5950.1223609721,
+        "Top": -446.07224652086,
+        "Width": 319.0,
+        "Height": 391.0,
+        "FontSize": 36.0,
+        "InitialTop": -306.07224652086,
+        "InitialHeight": 145.0,
+        "TextblockHeight": 130.0,
+        "Background": "#FF848484"
+      },
+      {
+        "Id": "83eddba6bda943d0b48787f995acfb45",
+        "Title": "Префикс для маркировки",
+        "Nodes": [],
+        "Left": -5529.9476021710861,
+        "Top": -275.06890631909584,
+        "Width": 0.0,
+        "Height": 0.0,
+        "FontSize": 36.0,
+        "InitialTop": 0.0,
+        "InitialHeight": 0.0,
+        "TextblockHeight": 0.0,
+        "Background": "#FFC1D676"
+      },
+      {
+        "Id": "d30a7c399e5f46c69888adf369456b1d",
+        "Title": "Скрипт \"Витражи - №3_Маркировка\"\r\nВерсия 2.1\r\nРазработал: Козлов Павел\r\n________________________________________________________\r\n\r\nЧТО ДЕЛАЕТ: \r\nМаркирует группы по возрастанию площади\r\n_______________________________________________________\r\n\r\nКАК ПОЛЬЗОВАТЬСЯ: \r\n1. Выбрать группу(ы) витража в модели или в спецификации\r\n2. Запустить скрипт\r\n\r\n",
+        "Nodes": [],
+        "Left": -5940.1223609721,
+        "Top": -306.07224652086,
+        "Width": 0.0,
+        "Height": 0.0,
+        "FontSize": 36.0,
+        "InitialTop": 0.0,
+        "InitialHeight": 0.0,
+        "TextblockHeight": 0.0,
+        "Background": "#FFC1D676"
+      }
+    ],
+    "X": 8295.701527235804,
+    "Y": 725.300507723581,
+    "Zoom": 1.3413216591883175
+  }
+}
