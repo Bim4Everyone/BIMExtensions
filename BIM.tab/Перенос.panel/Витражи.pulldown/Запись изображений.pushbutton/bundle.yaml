@@ -3,11 +3,27 @@ title:
   en_us: Recording images
 
 tooltip:
-  ru: Текст
-  en_us: Text
+  ru: >-
+    Плагин автоматически экспортирует чертежные виды, затем импортирует их в проект, 
+    и присваивает выбранным группам витражей. В результате работы скрипта, 
+    заполнятся параметр типа группы витража "ФОП_Изображение типа".
+    
+    
+    Перед запуском плагина необходимо выбрать группу витража.
+  en_us: >-
+    The plugin automatically exports drawing views, then imports them 
+    into the project and assigns them to the selected stained glass groups. 
+    As a result of the script, the stained glass group type parameter 
+    "ФОП_Изображение типа" will be filled.
+    
+    
+    Before running the plugin, you need to select a stained glass group.
 
 engine:
   clean: false
+
+author: KozlovP
+help_url: "https://kb.a101.ru/pages/viewpage.action?pageId=134097160"
 
 min_revit_version: 2022
 max_revit_version: 2024
