@@ -1,0 +1,313 @@
+{
+  "Uuid": "eb458331-a780-459f-a709-00366be25ece",
+  "IsCustomNode": false,
+  "Description": null,
+  "Name": "Витражи - №4_Сквозная маркировка",
+  "ElementResolver": {
+    "ResolutionMap": {}
+  },
+  "Inputs": [
+    {
+      "Id": "b7e0469a74cf4e48850e8ef5d25823bf",
+      "Name": "Выбрать  Excell-файл",
+      "Type": "string",
+      "Value": "Файл не выбран.",
+      "Description": "Возможность выбрать файл в системе и получить путь к нему.",
+      "SelectedIndex": 0
+    }
+  ],
+  "Outputs": [],
+  "Nodes": [
+    {
+      "ConcreteType": "PythonNodeModels.PythonNode, PythonNodeModels",
+      "NodeType": "PythonScriptNode",
+      "Code": "import clr\r\nclr.AddReference('ProtoGeometry')\r\nclr.AddReference(\"System.Windows.Forms\")\r\nfrom Autodesk.DesignScript.Geometry import *\r\nclr.AddReference(\"RevitServices\")\r\nimport RevitServices\r\nfrom RevitServices.Persistence import DocumentManager\r\nfrom RevitServices.Transactions import TransactionManager\r\nclr.AddReference(\"RevitAPI\")\r\nimport Autodesk\r\nfrom Autodesk.Revit.DB import *\r\nfrom System.Collections.Generic import *\r\nfrom operator import itemgetter\r\nclr.AddReference(\"RevitNodes\")\r\nimport Revit\r\nclr.ImportExtensions(Revit.Elements)\r\nimport itertools\r\nfrom itertools import groupby\r\nimport os\r\nimport System\r\nfrom System.Windows.Forms import SaveFileDialog, OpenFileDialog\r\nclr.AddReference(\"Microsoft.Office.Interop.Excel\")\r\nimport Microsoft.Office.Interop.Excel as Excel\r\nfrom System.Runtime.InteropServices import Marshal\r\n\r\n\r\n\r\n# Функция, которая из всех выделенных групп, берет по одной\r\ndef group_instance (list_id):\r\n\t\r\n\tall_elements = []\t\r\n\tfor id in list_id:\t\r\n\t\tnoname_element = doc.GetElement(id)\t\t\r\n\t\tif \"Группы модели\" == noname_element.Category.Name:\t\t\r\n\t\t\tall_elements.append(noname_element)\r\n\t\t\r\n\tgroups = {}\t\t\r\n\tfor group in all_elements:\r\n\t\tgroupby_value = group.Name\r\n\t\t\t\t\t\r\n\t\tif groupby_value in groups:\r\n\t\t\tgroups[groupby_value].append(group)\t\t\t\t\r\n\t\telse:\r\n\t\t\tgroups[groupby_value] = [group]\t\r\n\t\r\n\telements = []\t\r\n\tfor element in groups.Values:\r\n\t\telements.append(element[0])\r\n\t\r\n\treturn elements\r\n\t\r\n\r\ndef read_from_excel(path):\r\n    excel = Excel.ApplicationClass()\r\n    excel.Visible = False\r\n    excel.DisplayAlerts = False\r\n    names = []\r\n    try:\r\n        workbook = excel.Workbooks.Open(path)\r\n        ws = workbook.Worksheets(1)\r\n        row_end = 200\r\n        \r\n        for i in range(2, row_end):\r\n            if ws.Cells(i, 1).Text:\r\n                names.append ([ws.Cells(i, 1).Text, ws.Cells(i, 2).Text])\r\n            \t\r\n    finally:\r\n        excel.ActiveWorkbook.Close(False)\r\n        Marshal.ReleaseComObject(ws)\r\n        Marshal.ReleaseComObject(workbook)\r\n        Marshal.ReleaseComObject(excel)\r\n    return names\r\n\r\n\r\ndef set_marks (list, excell_list):\r\n\t\r\n\tfor data in excell_list: \r\n\t\tfor element in list:\r\n\t\t\tif data[1] == element.GroupType.LookupParameter('Имя типа').AsValueString():\t\t\t\t\t\r\n\t\t\t\ttry:\r\n\t\t\t\t\telement.GroupType.LookupParameter('ФОП_Марка типа').Set(data[0])\r\n\t\t\t\texcept:\r\n\t\t\t\t\telement.GroupType.LookupParameter('ФОП_Марка Типа').Set(data[0])\r\n\r\n\r\n# --------------------------------------------------------------------------------------------\r\n\r\n\r\ndoc = DocumentManager.Instance.CurrentDBDocument\r\nuiapp = DocumentManager.Instance.CurrentUIApplication\r\napp = uiapp.Application\r\nuidoc = DocumentManager.Instance.CurrentUIApplication.ActiveUIDocument\r\n\r\n\r\nPATH = IN[1]\r\nEXCELL_DATA = read_from_excel (PATH)\r\n\r\n\r\n# Выбераем элементы в модели\r\nselected_ids = uidoc.Selection.GetElementIds()\r\n\r\n# Отделяем только по одному экземпляру из всех выделенных групп\r\nall_groups = group_instance (selected_ids)\r\n\r\n\t\t\r\nTransactionManager.Instance.EnsureInTransaction(doc)\r\n\r\n\t\r\nset_marks (all_groups, EXCELL_DATA)\r\n\r\n\r\nTransactionManager.Instance.TransactionTaskDone()\r\n\r\n\r\n\r\n\r\n\r\n",
+      "Engine": "IronPython2",
+      "VariableInputPorts": true,
+      "Id": "7e0fe17593bf4524a4ff9d316cf1bb11",
+      "Inputs": [
+        {
+          "Id": "e409f37c9c1d40b5b2eba1cce0c28fa8",
+          "Name": "IN[0]",
+          "Description": "Input #0",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Outputs": [
+        {
+          "Id": "6febafa696274a1fab933b513b1e12d5",
+          "Name": "OUT",
+          "Description": "Результат сценария Python",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Disabled",
+      "Description": "Выполнение встроенного сценария Python."
+    },
+    {
+      "ConcreteType": "CoreNodeModels.Input.Filename, CoreNodeModels",
+      "HintPath": "Z:\\BIM\\Отработка скриптов\\Витражи\\Витражи\\Файл не выбран",
+      "InputValue": "Файл не выбран.",
+      "NodeType": "ExtensionNode",
+      "Id": "b7e0469a74cf4e48850e8ef5d25823bf",
+      "Inputs": [],
+      "Outputs": [
+        {
+          "Id": "87a432718017496eb52a45ad4e606842",
+          "Name": "",
+          "Description": "Filename",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Disabled",
+      "Description": "Возможность выбрать файл в системе и получить путь к нему."
+    },
+    {
+      "ConcreteType": "PythonNodeModels.PythonStringNode, PythonNodeModels",
+      "Engine": "IronPython2",
+      "VariableInputPorts": true,
+      "NodeType": "ExtensionNode",
+      "Id": "2bb83a611d9e44909f01779ba0280344",
+      "Inputs": [
+        {
+          "Id": "c551c988403142b09b9a06515ac2e009",
+          "Name": "script",
+          "Description": "Сценарий Python для запуска.",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Outputs": [
+        {
+          "Id": "096b2de9e6c940c187b53e01bcf29155",
+          "Name": "OUT",
+          "Description": "Результат сценария Python",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Disabled",
+      "Description": "Выполнение сценария Python из строки."
+    },
+    {
+      "ConcreteType": "PythonNodeModels.PythonNode, PythonNodeModels",
+      "NodeType": "PythonScriptNode",
+      "Code": "import codecs\r\nimport os.path\r\n\r\npath = r\"W:\\Проектный институт\\Отд.стандарт.BIM и RD\\BIM-Ресурсы\\4-Dynamo\\Архив\\BIM-отдел\\Dynamo_new_report.py\"\r\n\r\nresult = \"\"\r\n\r\nif os.path.exists(path):\r\n\twith codecs.open(path, 'r', encoding=\"utf-8\") as file:\r\n\t\tfor line in file.readlines():\r\n\t\t\tresult += line\r\n\r\nOUT = result",
+      "Engine": "IronPython2",
+      "VariableInputPorts": true,
+      "Id": "4e387157b63d4684bbfda0362dc35909",
+      "Inputs": [],
+      "Outputs": [
+        {
+          "Id": "f7b529f8917e44c2b6c5f79069b60fc9",
+          "Name": "OUT",
+          "Description": "Результат сценария Python",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Disabled",
+      "Description": "Выполнение встроенного сценария Python."
+    }
+  ],
+  "Connectors": [
+    {
+      "Start": "87a432718017496eb52a45ad4e606842",
+      "End": "e409f37c9c1d40b5b2eba1cce0c28fa8",
+      "Id": "8a1844373dc0440a8d45d59ee698766c"
+    },
+    {
+      "Start": "f7b529f8917e44c2b6c5f79069b60fc9",
+      "End": "c551c988403142b09b9a06515ac2e009",
+      "Id": "f6fce817228341478452f96021dbd624"
+    }
+  ],
+  "Dependencies": [],
+  "NodeLibraryDependencies": [],
+  "Thumbnail": "",
+  "GraphDocumentationURL": null,
+  "ExtensionWorkspaceData": [
+    {
+      "ExtensionGuid": "28992e1d-abb9-417f-8b1b-05e053bee670",
+      "Name": "Properties",
+      "Version": "2.12",
+      "Data": {}
+    },
+    {
+      "ExtensionGuid": "DFBD9CC0-DB40-457A-939E-8C8555555A9D",
+      "Name": "Generative Design",
+      "Version": "1.10",
+      "Data": {}
+    }
+  ],
+  "Author": "None provided",
+  "Linting": {
+    "activeLinter": "Нет",
+    "activeLinterId": "7b75fb44-43fd-4631-a878-29f4d5d8399a",
+    "warningCount": 0,
+    "errorCount": 0
+  },
+  "Bindings": [],
+  "View": {
+    "Dynamo": {
+      "ScaleFactor": 1.0,
+      "HasRunWithoutCrash": true,
+      "IsVisibleInDynamoLibrary": true,
+      "Version": "2.12.1.8246",
+      "RunType": "Manual",
+      "RunPeriod": "1000"
+    },
+    "Camera": {
+      "Name": "Фоновый просмотр",
+      "EyeX": -17.0,
+      "EyeY": 24.0,
+      "EyeZ": 50.0,
+      "LookX": 12.0,
+      "LookY": -13.0,
+      "LookZ": -58.0,
+      "UpX": 0.0,
+      "UpY": 1.0,
+      "UpZ": 0.0
+    },
+    "NodeViews": [
+      {
+        "ShowGeometry": true,
+        "Name": "Сквозная маркировка",
+        "Id": "7e0fe17593bf4524a4ff9d316cf1bb11",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": -559.34678593903914,
+        "Y": -41.610580382919636
+      },
+      {
+        "ShowGeometry": true,
+        "Name": "Выбрать  Excell-файл",
+        "Id": "b7e0469a74cf4e48850e8ef5d25823bf",
+        "IsSetAsInput": true,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": -886.93724670835741,
+        "Y": -41.931836933470834
+      },
+      {
+        "ShowGeometry": true,
+        "Name": "Python Script From String",
+        "Id": "2bb83a611d9e44909f01779ba0280344",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": -1136.4066433804937,
+        "Y": 342.96772797428753
+      },
+      {
+        "ShowGeometry": true,
+        "Name": "Python Script",
+        "Id": "4e387157b63d4684bbfda0362dc35909",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": true,
+        "X": -1246.6314665947139,
+        "Y": 343.64848956351557
+      }
+    ],
+    "Annotations": [
+      {
+        "Id": "a09dd9ef1c44472f86ad1c40548d1ec4",
+        "Title": "ИСХОДНЫЕ ДАННЫЕ",
+        "Nodes": [
+          "b7e0469a74cf4e48850e8ef5d25823bf",
+          "67fde038abb540ab96dc3083bfc3f492"
+        ],
+        "Left": -897.65907358624156,
+        "Top": -137.93183693347083,
+        "Width": 241.72182687788415,
+        "Height": 261.53763077278853,
+        "FontSize": 36.0,
+        "InitialTop": -41.931836933470834,
+        "InitialHeight": 246.53763077278853,
+        "TextblockHeight": 86.0,
+        "Background": "#FFFF7BAC"
+      },
+      {
+        "Id": "fb920d5ff33b454ea12576099c439c00",
+        "Title": "Для разработчика",
+        "Nodes": [
+          "2bb83a611d9e44909f01779ba0280344",
+          "4e387157b63d4684bbfda0362dc35909"
+        ],
+        "Left": -1256.6314665947139,
+        "Top": 289.96772797428753,
+        "Width": 307.22482321422012,
+        "Height": 157.68076158922804,
+        "FontSize": 36.0,
+        "InitialTop": 342.96772797428753,
+        "InitialHeight": 145.68076158922804,
+        "TextblockHeight": 43.0,
+        "Background": "#FFFFFFFF"
+      },
+      {
+        "Id": "906cce968fca40f7a9f46d743a32ec03",
+        "Title": "ОПИСАНИЕ!\r\nПРОЧИТАТЬ ПЕРЕД ЗАПУСКОМ!",
+        "Nodes": [
+          "fee21a25cfe44490980fdd69c5559592"
+        ],
+        "Left": -1268.3380228275935,
+        "Top": -135.56593710163202,
+        "Width": 319.0,
+        "Height": 434.0,
+        "FontSize": 36.0,
+        "InitialTop": 4.4340628983679835,
+        "InitialHeight": 145.0,
+        "TextblockHeight": 130.0,
+        "Background": "#FF848484"
+      },
+      {
+        "Id": "67fde038abb540ab96dc3083bfc3f492",
+        "Title": "Выбрать заранее подготовленный и пронумерованный файл",
+        "Nodes": [],
+        "Left": -887.65907358624156,
+        "Top": 59.6057938393177,
+        "Width": 0.0,
+        "Height": 0.0,
+        "FontSize": 36.0,
+        "InitialTop": 0.0,
+        "InitialHeight": 0.0,
+        "TextblockHeight": 0.0,
+        "Background": "#FFC1D676"
+      },
+      {
+        "Id": "fee21a25cfe44490980fdd69c5559592",
+        "Title": "Скрипт \"Витражи - №4_Сквозная маркировка\"\r\nВерсия 2.1\r\nРазработал: Козлов Павел\r\n________________________________________________________\r\n\r\nЧТО ДЕЛАЕТ: \r\nМаркирует группы по заранее подготовленному EXCELL - файлу\r\n_______________________________________________________\r\n\r\nКАК ПОЛЬЗОВАТЬСЯ: \r\n1. Выбрать группу(ы) витража в модели или в спецификации\r\n2. Выбрать заранее подготовленный EXCELL - файл\r\n3. Запустить скрипт\r\n\r\n",
+        "Nodes": [],
+        "Left": -1258.3380228275935,
+        "Top": 4.4340628983679835,
+        "Width": 0.0,
+        "Height": 0.0,
+        "FontSize": 36.0,
+        "InitialTop": 0.0,
+        "InitialHeight": 0.0,
+        "TextblockHeight": 0.0,
+        "Background": "#FFC1D676"
+      }
+    ],
+    "X": 1996.3592810741388,
+    "Y": 383.78936357588174,
+    "Zoom": 1.5484138573083139
+  }
+}
