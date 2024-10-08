@@ -8,17 +8,21 @@ tooltip:
     
     1. Открыть документ и запустить плагин.
     
-    2. Выбрать файл Excel для импорта.
+    2. Выберите категорию для спецификации.
     
-    3. Нажать "ОК".
+    3. Выбрать файл Excel для импорта.
+    
+    4. Нажать "Открыть".
   en_us: >- 
     Plugin imports worksheets from selected Excel file into Revit schedules.
     
     1. Open document and start the plugin.
     
-    2. Select Excel file to import.
+    2. Select schedule category.
     
-    3. Press "ОК".
+    3. Select Excel file to import.
+    
+    4. Press "Open".
 
 assembly: RevitScheduleImport.dll
 command_class: RevitScheduleImportCommand
