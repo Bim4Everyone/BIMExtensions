@@ -10,7 +10,7 @@ tooltip:
     
     До запуска нужно убедиться, что группа витража находится в толще стены  
     (в том месте, куда необходимо вставить проем).
-    Перед запуском плагина нужно выбрать группу витража.
+    Перед запуском плагина нужно выбрать группу витража и стену.
   en_us: >-
     The plugin automatically inserts an opening instance into the wall 
     and sets its dimensions based on the dimensions of the stained glass window. 
@@ -19,7 +19,7 @@ tooltip:
 
     Before launching, you need to make sure that the stained glass window group 
     is in the thickness of the wall (in the place where you need to insert the opening). 
-    Before launching the plugin, you need to select a stained glass window group.
+    Before launching the plugin, you need to select a stained glass window group and wall.
 
 engine:
   clean: false
