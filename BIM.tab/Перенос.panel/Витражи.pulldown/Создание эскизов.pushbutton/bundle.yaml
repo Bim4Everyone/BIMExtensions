@@ -3,11 +3,28 @@ title:
   en_us: Creating sketches
 
 tooltip:
-  ru: Текст
-  en_us: Text
+  ru: >-
+    Плагин создает чертежные виды в соответствии с выделяемыми витражами (в модели или спецификации) 
+    и именами их типов. Расставляет 2D-ассоциированные семейства в эти виды, 
+    с размерами и условными обозначениями.
+    Для корректной работы скрипта, нужно чтобы в параметре "ФОП_Марка типа" группы было какое-то значение.
+    
+    
+    Перед запуском плагина необходимо выбрать группу витража.
+  en_us: >-
+    The plugin creates drawing views in accordance with the selected 
+    stained glass windows (in the model or specification) and their type names. 
+    It places 2D-associated families in these views, with dimensions and symbols. 
+    For the script to work correctly, the parameter "ФОП_Марка типа" of the group must have some value.
+    
+    
+    Before running the plugin, you need to select a stained glass group.
 
 engine:
   clean: false
+
+author: KozlovP
+help_url: "https://kb.a101.ru/pages/viewpage.action?pageId=134097158"
 
 min_revit_version: 2022
 max_revit_version: 2024
