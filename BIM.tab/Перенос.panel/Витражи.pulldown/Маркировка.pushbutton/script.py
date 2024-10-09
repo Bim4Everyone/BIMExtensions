@@ -73,7 +73,7 @@ class CreateCommand(ICommand):
         # Отделяем только по одному экземпляру из всех выделенных групп
         all_groups = self.group_instance(selected_ids)
 
-        with revit.Transaction("BIM: Получаем 3D-вид"):
+        with revit.Transaction("BIM: Маркировка"):
             list_groups = []
             for gro in all_groups:
                 element_type = doc.GetElement(gro.GetTypeId())
@@ -105,15 +105,15 @@ class CreateCommand(ICommand):
 
         groups = {}
         for group in all_elements:
-            groupby_value = group.Name
+            group_by_value = group.Name
 
-            if groupby_value in groups:
-                groups[groupby_value].append(group)
+            if group_by_value in groups:
+                groups[group_by_value].append(group)
             else:
-                groups[groupby_value] = [group]
+                groups[group_by_value] = [group]
 
         elements = []
-        for element in groups.Values:
+        for element in groups.values():
             elements.append(element[0])
 
         return elements
@@ -194,11 +194,11 @@ class CreateCommand(ICommand):
 
         gabarit_mont = mains_mont + height_mont + corners_mont
 
-        list_gab = gabarit_mont.Split('x')
+        list_gab = gabarit_mont.split('x')
 
         list_int_gab = []
         for gab in list_gab:
-            list_int_gab.append(float(gab.Replace('(h)', '')))
+            list_int_gab.append(float(gab.replace('(h)', '')))
 
         if len(list_int_gab) == 2:
             area = (list_int_gab[0] / 1000) * (list_int_gab[1] / 1000)
@@ -211,7 +211,7 @@ class CreateCommand(ICommand):
     # функция маркировки элементов
     def numeration(self, list, start, prefix, suffix):
         for count, element in enumerate(list):
-            num = count + start
+            num = str(count) + start
             name = prefix + str(num) + suffix
 
             try:
@@ -237,7 +237,7 @@ class MainWindow(WPFWindow):
 class MainWindowViewModel(Reactive):
     def __init__(self):
         Reactive.__init__(self)
-        self.__marking_prefix = ""
+        self.__marking_prefix = "ВНХ-"
         self.__start_number = "1"
         self.__marking_suffix = ""
         self.__error_text = ""
