@@ -2,7 +2,7 @@
   "Uuid": "3c9d0464-8643-5ffe-96e5-ab1769818209",
   "IsCustomNode": false,
   "Description": "",
-  "Name": "Витражи - №6_Запись изображений",
+  "Name": "script",
   "ElementResolver": {
     "ResolutionMap": {
       "List": {
@@ -21,7 +21,7 @@
     {
       "ConcreteType": "PythonNodeModels.PythonNode, PythonNodeModels",
       "NodeType": "PythonScriptNode",
-      "Code": "import clr\r\nclr.AddReference('ProtoGeometry')\r\nclr.AddReference(\"System.Windows.Forms\")\r\nfrom Autodesk.DesignScript.Geometry import *\r\nclr.AddReference(\"RevitServices\")\r\nimport RevitServices\r\nfrom RevitServices.Persistence import DocumentManager\r\nfrom RevitServices.Transactions import TransactionManager\r\nclr.AddReference(\"RevitAPI\")\r\nimport Autodesk\r\nfrom Autodesk.Revit.DB import *\r\nfrom System.Collections.Generic import *\r\nfrom operator import itemgetter\r\nclr.AddReference(\"RevitNodes\")\r\nimport Revit\r\nclr.ImportExtensions(Revit.Elements)\r\nimport itertools\r\nfrom itertools import groupby\r\nimport os\r\n\r\n\r\n# Функция, которая из всех выделенных групп, берет по одной\r\ndef group_instance (list_id):\r\n\t\r\n\tall_elements = []\t\r\n\tfor id in list_id:\t\r\n\t\tnoname_element = doc.GetElement(id)\t\t\r\n\t\tif \"Группы модели\" == noname_element.Category.Name:\t\t\r\n\t\t\tall_elements.append(noname_element)\r\n\t\t\r\n\tgroups = {}\t\t\r\n\tfor group in all_elements:\r\n\t\tgroupby_value = group.Name\r\n\t\t\t\t\t\r\n\t\tif groupby_value in groups:\r\n\t\t\tgroups[groupby_value].append(group)\t\t\t\t\r\n\t\telse:\r\n\t\t\tgroups[groupby_value] = [group]\t\r\n\t\r\n\telements = []\t\r\n\tfor element in groups.Values:\r\n\t\telements.append(element[0])\r\n\t\r\n\treturn elements\r\n\t\r\n\r\ndef export_view (view):\r\n\r\n\tdoc_name = 'Эскиз_Витража'\r\n\toutput_path = os.path.dirname(doc.PathName) \r\n\r\n\tif not os.path.exists(output_path):\r\n\t\toutput_path = os.path.join(os.path.join(os.environ['USERPROFILE']),'Desktop') \r\n    \r\n\toc_name = os.path.basename(doc.PathName)  \r\n\tfilePath = os.path.join(output_path, doc_name)\r\n\t\r\n\tids = [view.Id]\r\n\tviewIds = List[ElementId](ids)\r\n\r\n\tieo = ImageExportOptions()\r\n\tieo.ExportRange = ExportRange.SetOfViews\r\n\tieo.SetViewsAndSheets(viewIds)\r\n\tieo.FilePath = filePath\r\n\tieo.HLRandWFViewsFileType = ImageFileType.PNG\r\n\tieo.ImageResolution = ImageResolution.DPI_300\r\n\tieo.FitDirection = FitDirectionType.Horizontal\r\n\tieo.PixelSize = 1800\r\n\tieo.ShadowViewsFileType = ImageFileType.PNG\r\n\tieo.ZoomType = ZoomFitType.FitToPage\r\n\tdoc.ExportImage(ieo)\r\n\r\n\timages_fullpath = filePath + ieo.GetFileName(doc, view.Id) + \".\" + ieo.HLRandWFViewsFileType.ToString()\r\n\t\r\n\treturn images_fullpath\r\n\r\n\r\ndef import_view (path, doc):\r\n\t\r\n\tits = ImageTypeSource.Import\r\n\tito = ImageTypeOptions(path, False, its)\t\r\n\tim_type = ImageType.Create(doc, ito)\r\n\t\r\n\treturn im_type\t\r\n\r\n# --------------------------------------------------------------------------------------------\r\n\r\ndoc = DocumentManager.Instance.CurrentDBDocument\r\nuiapp = DocumentManager.Instance.CurrentUIApplication\r\napp = uiapp.Application\r\nuidoc = DocumentManager.Instance.CurrentUIApplication.ActiveUIDocument\r\n\r\n\r\n# Выбераем элементы в модели\r\nselected_ids = uidoc.Selection.GetElementIds()\r\n\r\n# Отделяем только по одному экземпляру из всех выделенных групп\r\nall_groups = group_instance (selected_ids)\r\n\r\n\r\nprefix = 'Эскиз_Витража_'\r\n\r\n#коллектор всех видов\r\nall_views = FilteredElementCollector(doc).OfCategory(BuiltInCategory.OST_Views) \r\n\r\n\t\r\nTransactionManager.Instance.EnsureInTransaction(doc) \r\n\r\nselected_views = []\r\n\r\n\r\nfor view in all_views:\r\n\tfor group in all_groups:\r\n\t\ttry:\r\n\t\t\tif prefix + (group.GroupType.LookupParameter('ФОП_Марка типа').AsValueString()) == view.Name:\t\t\t\t\t\r\n\t\t\t\tgroup.GroupType.LookupParameter('ФОП_Изображение типа').Set( import_view (export_view (view), doc).Id)\t\t\r\n\t\t\t\tselected_views.append(view.Name)\r\n\t\texcept:\r\n\t\t\tif prefix + (group.GroupType.LookupParameter('ФОП_Марка Типа').AsValueString()) == view.Name:\t\t\t\t\t\t\t\r\n\t\t\t\tgroup.GroupType.LookupParameter('ФОП_Изображение типа').Set( import_view (export_view (view), doc).Id)\t\t\t\r\n\t\t\t\tselected_views.append(view)\r\n\r\n\r\n\r\nOUT = all_groups\r\n\r\nTransactionManager.Instance.TransactionTaskDone()\r\n\r\n\r\n\r\n",
+      "Code": "import clr\r\nclr.AddReference('ProtoGeometry')\r\nclr.AddReference(\"System.Windows.Forms\")\r\nfrom Autodesk.DesignScript.Geometry import *\r\nclr.AddReference(\"RevitServices\")\r\nimport RevitServices\r\nfrom RevitServices.Persistence import DocumentManager\r\nfrom RevitServices.Transactions import TransactionManager\r\nclr.AddReference(\"RevitAPI\")\r\nimport Autodesk\r\nfrom Autodesk.Revit.DB import *\r\nfrom System.Collections.Generic import *\r\nfrom operator import itemgetter\r\nclr.AddReference(\"RevitNodes\")\r\nimport Revit\r\nclr.ImportExtensions(Revit.Elements)\r\nimport itertools\r\nfrom itertools import groupby\r\nimport os\r\n\r\n\r\n# Функция, которая из всех выделенных групп, берет по одной\r\ndef group_instance (list_id):\r\n\t\r\n\tall_elements = []\t\r\n\tfor id in list_id:\t\r\n\t\tnoname_element = doc.GetElement(id)\t\t\r\n\t\tif \"Группы модели\" == noname_element.Category.Name:\t\t\r\n\t\t\tall_elements.append(noname_element)\r\n\t\t\r\n\tgroups = {}\t\t\r\n\tfor group in all_elements:\r\n\t\tgroupby_value = group.Name\r\n\t\t\t\t\t\r\n\t\tif groupby_value in groups:\r\n\t\t\tgroups[groupby_value].append(group)\t\t\t\t\r\n\t\telse:\r\n\t\t\tgroups[groupby_value] = [group]\t\r\n\t\r\n\telements = []\t\r\n\tfor element in groups.Values:\r\n\t\telements.append(element[0])\r\n\t\r\n\treturn elements\r\n\t\r\n\r\ndef export_view (view):\r\n\r\n\tdoc_name = 'Эскиз_Витража'\r\n\toutput_path = os.path.dirname(doc.PathName) \r\n\r\n\tif not os.path.exists(output_path):\r\n\t\toutput_path = os.path.join(os.path.join(os.environ['USERPROFILE']),'Desktop') \r\n    \r\n\toc_name = os.path.basename(doc.PathName)  \r\n\tfilePath = os.path.join(output_path, doc_name)\r\n\t\r\n\tids = [view.Id]\r\n\tviewIds = List[ElementId](ids)\r\n\r\n\tieo = ImageExportOptions()\r\n\tieo.ExportRange = ExportRange.SetOfViews\r\n\tieo.SetViewsAndSheets(viewIds)\r\n\tieo.FilePath = filePath\r\n\tieo.HLRandWFViewsFileType = ImageFileType.PNG\r\n\tieo.ImageResolution = ImageResolution.DPI_300\r\n\tieo.FitDirection = FitDirectionType.Horizontal\r\n\tieo.PixelSize = 1800\r\n\tieo.ShadowViewsFileType = ImageFileType.PNG\r\n\tieo.ZoomType = ZoomFitType.FitToPage\r\n\tdoc.ExportImage(ieo)\r\n\r\n\timages_fullpath = filePath + ieo.GetFileName(doc, view.Id) + \".\" + ieo.HLRandWFViewsFileType.ToString()\r\n\t\r\n\treturn images_fullpath\r\n\r\n\r\ndef import_view (path, doc):\r\n\t\r\n\tits = ImageTypeSource.Import\r\n\tito = ImageTypeOptions(path, False, its)\t\r\n\tim_type = ImageType.Create(doc, ito)\r\n\t\r\n\treturn im_type\t\r\n\r\n# --------------------------------------------------------------------------------------------\r\n\r\ndoc = DocumentManager.Instance.CurrentDBDocument\r\nuiapp = DocumentManager.Instance.CurrentUIApplication\r\napp = uiapp.Application\r\nuidoc = DocumentManager.Instance.CurrentUIApplication.ActiveUIDocument\r\n\r\n\r\n# Выбераем элементы в модели\r\nselected_ids = uidoc.Selection.GetElementIds()\r\n\r\n# Отделяем только по одному экземпляру из всех выделенных групп\r\nall_groups = group_instance (selected_ids)\r\n\r\n\r\nprefix = 'Эскиз_Витража_'\r\n\r\n#коллектор всех видов\r\nall_views = FilteredElementCollector(doc).OfCategory(BuiltInCategory.OST_Views) \r\n\r\n\t\r\nt = Transaction(doc, 'BIM: Запись изображений')\r\nt.Start()\r\n\r\nselected_views = []\r\n\r\n\r\nfor view in all_views:\r\n\tfor group in all_groups:\r\n\t\ttry:\r\n\t\t\tif prefix + (group.GroupType.LookupParameter('ФОП_Марка типа').AsValueString()) == view.Name:\t\t\t\t\t\r\n\t\t\t\tgroup.GroupType.LookupParameter('ФОП_Изображение типа').Set( import_view (export_view (view), doc).Id)\t\t\r\n\t\t\t\tselected_views.append(view.Name)\r\n\t\texcept:\r\n\t\t\tif prefix + (group.GroupType.LookupParameter('ФОП_Марка Типа').AsValueString()) == view.Name:\t\t\t\t\t\t\t\r\n\t\t\t\tgroup.GroupType.LookupParameter('ФОП_Изображение типа').Set( import_view (export_view (view), doc).Id)\t\t\t\r\n\t\t\t\tselected_views.append(view)\r\n\r\n\r\n\r\nOUT = all_groups\r\n\r\nt.Commit()\r\n\r\n\r\n\r\n",
       "Engine": "IronPython2",
       "VariableInputPorts": true,
       "Id": "d070f32ec6d642abafef4354ea77f583",
@@ -103,36 +103,13 @@
   ],
   "Dependencies": [],
   "NodeLibraryDependencies": [],
-  "Thumbnail": "",
-  "GraphDocumentationURL": null,
-  "ExtensionWorkspaceData": [
-    {
-      "ExtensionGuid": "28992e1d-abb9-417f-8b1b-05e053bee670",
-      "Name": "Properties",
-      "Version": "2.12",
-      "Data": {}
-    },
-    {
-      "ExtensionGuid": "DFBD9CC0-DB40-457A-939E-8C8555555A9D",
-      "Name": "Generative Design",
-      "Version": "1.10",
-      "Data": {}
-    }
-  ],
-  "Author": "None provided",
-  "Linting": {
-    "activeLinter": "Нет",
-    "activeLinterId": "7b75fb44-43fd-4631-a878-29f4d5d8399a",
-    "warningCount": 0,
-    "errorCount": 0
-  },
   "Bindings": [],
   "View": {
     "Dynamo": {
       "ScaleFactor": 1.0,
       "HasRunWithoutCrash": true,
       "IsVisibleInDynamoLibrary": true,
-      "Version": "2.12.1.8246",
+      "Version": "2.10.1.3976",
       "RunType": "Manual",
       "RunPeriod": "1000"
     },
@@ -188,13 +165,13 @@
           "d30a7c399e5f46c69888adf369456b1d"
         ],
         "Left": -5826.7647548183595,
-        "Top": -817.42448873812157,
-        "Width": 319.0,
-        "Height": 434.0,
+        "Top": -817.02448873812159,
+        "Width": 319.19999999999982,
+        "Height": 433.8,
         "FontSize": 36.0,
         "InitialTop": -677.42448873812157,
         "InitialHeight": 145.0,
-        "TextblockHeight": 130.0,
+        "TextblockHeight": 129.6,
         "Background": "#FF848484"
       },
       {
@@ -205,13 +182,13 @@
           "9447082075c8449b8d956da5f40d8253"
         ],
         "Left": -5814.4286353187936,
-        "Top": -387.64194992833023,
-        "Width": 307.22482321421921,
-        "Height": 157.68076158922804,
+        "Top": -387.84194992833022,
+        "Width": 306.22482321421921,
+        "Height": 158.48076158922802,
         "FontSize": 36.0,
         "InitialTop": -334.64194992833023,
         "InitialHeight": 145.68076158922804,
-        "TextblockHeight": 43.0,
+        "TextblockHeight": 43.2,
         "Background": "#FFFFFFFF"
       },
       {
@@ -229,8 +206,8 @@
         "Background": "#FFC1D676"
       }
     ],
-    "X": 8391.87649443973,
-    "Y": 1360.5188165123943,
+    "X": 7766.2764944397295,
+    "Y": 1088.5188165123943,
     "Zoom": 1.4062585002946566
   }
 }
