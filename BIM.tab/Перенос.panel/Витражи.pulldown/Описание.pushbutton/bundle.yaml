@@ -16,8 +16,6 @@ tooltip:
 
 
     Before running the plugin, you need to select a stained glass group.
-engine:
-  clean: false
 
 author: KozlovPS
 help_url: "https://kb.a101.ru/pages/viewpage.action?pageId=134097152"
