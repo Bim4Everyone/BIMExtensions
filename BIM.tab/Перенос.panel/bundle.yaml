@@ -1,6 +1,7 @@
 layout:
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
   - Отверстия стен. Отметки
 =======
   - Маркировка
@@ -8,3 +9,6 @@ layout:
 =======
   - Отверстия стен. Маркировка сплошная
 >>>>>>> origin/DivinN/RevitWallOpenings.MarkingContinuous
+=======
+  - Витражи
+>>>>>>> origin/DivinN/RevitStainedGlass

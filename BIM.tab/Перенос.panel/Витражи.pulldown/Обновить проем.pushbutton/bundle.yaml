@@ -1,0 +1,24 @@
+title:
+  ru: Обновить проем
+  en_us: Update the opening
+
+tooltip:
+  ru: >-
+    Плагин автоматически обновляет экземпляр проема в стене, если изменились габариты или позиция витража.
+    
+    
+    Перед запуском плагина необходимо выбрать группу витража и экземпляр проема.
+  en_us: >-
+    The plugin automatically updates the instance of the opening 
+    in the wall if the dimensions or position of the stained glass window have changed.
+
+
+    Before launching the plugin, you need to select a stained glass group and an opening instance.
+engine:
+  clean: false
+
+author: KozlovPS
+help_url: "https://kb.a101.ru/pages/viewpage.action?pageId=134097136"
+
+min_revit_version: 2022
+max_revit_version: 2024

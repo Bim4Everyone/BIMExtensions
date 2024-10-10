@@ -1,0 +1,26 @@
+title:
+  ru: Габариты и ограждения
+  en_us: Dimensions and guards
+
+tooltip:
+  ru: >-
+    Плагин подсчитывает габариты витража (группы витража) без монтажных зазоров, 
+    габариты с учётом монтажных зазоров, площадь ограждения и записывает в соответствующие параметры типа группы.
+    
+    
+    Перед запуском плагина необходимо выбрать группу витража.
+  en_us: >-
+    The plugin calculates the dimensions of the stained glass window (stained glass group) 
+    without installation gaps, the dimensions taking into account installation gaps, 
+    the area of the fence and writes them into the corresponding parameters of the group type.
+
+
+    Before running the plugin, you need to select a stained glass group.
+engine:
+  clean: false
+
+author: KozlovPS
+help_url: "https://kb.a101.ru/pages/viewpage.action?pageId=134097150"
+
+min_revit_version: 2022
+max_revit_version: 2024

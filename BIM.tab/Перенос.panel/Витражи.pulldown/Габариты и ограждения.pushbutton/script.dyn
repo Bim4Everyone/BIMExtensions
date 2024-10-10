@@ -1,0 +1,258 @@
+{
+  "Uuid": "3c9d0464-8643-5ffe-96e5-ab1769818209",
+  "IsCustomNode": false,
+  "Description": "",
+  "Name": "script",
+  "ElementResolver": {
+    "ResolutionMap": {
+      "List": {
+        "Key": "DSCore.List",
+        "Value": "DSCoreNodes.dll"
+      },
+      "List.Count": {
+        "Key": "DSCore.List",
+        "Value": "DSCoreNodes.dll"
+      }
+    }
+  },
+  "Inputs": [],
+  "Outputs": [],
+  "Nodes": [
+    {
+      "ConcreteType": "PythonNodeModels.PythonNode, PythonNodeModels",
+      "NodeType": "PythonScriptNode",
+      "Code": "import clr\r\nclr.AddReference('ProtoGeometry')\r\nclr.AddReference(\"System.Windows.Forms\")\r\nfrom Autodesk.DesignScript.Geometry import *\r\nclr.AddReference(\"RevitServices\")\r\nimport RevitServices\r\nfrom RevitServices.Persistence import DocumentManager\r\nfrom RevitServices.Transactions import TransactionManager\r\nclr.AddReference(\"RevitAPI\")\r\nimport Autodesk\r\nfrom Autodesk.Revit.DB import *\r\nfrom System.Collections.Generic import *\r\nfrom operator import itemgetter\r\nclr.AddReference(\"RevitNodes\")\r\nimport Revit\r\nclr.ImportExtensions(Revit.Elements)\r\nimport itertools\r\nfrom itertools import groupby\r\nimport os\r\nimport System\r\nfrom datetime import datetime\r\nfrom System.Windows.Forms import MessageBox\r\nimport math\r\n\r\n\r\n# Функция, которая из всех выделенных групп, берет по одной\r\ndef group_instance (list_id):\r\n\t\r\n\tall_elements = []\t\r\n\tfor id in list_id:\t\r\n\t\tnoname_element = doc.GetElement(id)\t\t\r\n\t\tif \"Группы модели\" == noname_element.Category.Name:\t\t\r\n\t\t\tall_elements.append(noname_element)\r\n\t\t\r\n\tgroups = {}\t\t\r\n\tfor group in all_elements:\r\n\t\tgroupby_value = group.Name\r\n\t\t\t\t\t\r\n\t\tif groupby_value in groups:\r\n\t\t\tgroups[groupby_value].append(group)\t\t\t\t\r\n\t\telse:\r\n\t\t\tgroups[groupby_value] = [group]\t\r\n\t\r\n\telements = []\t\r\n\tfor element in groups.Values:\r\n\t\telements.append(element[0])\r\n\t\r\n\treturn elements\r\n\r\n\r\n# Функция, которая возвращает членов группы\r\ndef group_members (group):\r\n\r\n\tgr_members_ids = group.GetMemberIds()\t\r\n\t\t\r\n\tlist_of_members = []\r\n\tfor id in gr_members_ids:\t\t\r\n\t\tmember = doc.GetElement(id)\r\n\t\tlist_of_members.append(member)\r\n\r\n\treturn list_of_members \r\n\r\n\r\ndef location_up (element):\r\n\t\r\n\tpoint_down = element.Location.Point.Z * 304.8\r\n\thieght = element.LookupParameter('ФОП_РАЗМ_Высота проёма').AsDouble() * 304.8\r\n\tpoint_up = point_down + hieght\t\r\n\t\r\n\treturn round(point_up)\r\n\r\n\r\n# Функция, которая возвращает размеры группы\r\ndef dimensions (group):\r\n\t\r\n\tmain_members = []\r\n\t\t\t\r\n\tfor gr_member in group_members (group):\r\n\t\tif \"Окн_Вит_Витраж\" == gr_member.Name:\r\n\t\t\tmain_members.append(gr_member)\t\r\n\t\r\n\t\r\n\tgroups = {}\r\n\tfor element in main_members:\t\t\r\n\t\t\r\n\t\tif str(location_up (element)) in groups:\r\n\t\t\tgroups[str(location_up (element))].append(element)\t\t\t\t\r\n\t\telse:\r\n\t\t\tgroups[str(location_up (element))] = [element]\r\n\t\r\n\tgood = list(groups.items())\r\n\t\r\n\t\r\n\tlist_mains = []\r\n\tlist_mains_mont = []\r\n\tlist_corners = []\r\n\tlist_corners_mont = []\r\n\tlist_height = []\r\n\tlist_height_mont = []\r\n\tlist_ogr = []\r\n\t\r\n\t\r\n\t# Цикл по сгруппированным модулям по каждой высоте\t\r\n\tfor items in groups.items():\r\n\t\t\t\t\r\n\t\theight = []\t\t\r\n\t\theight_mont = []\r\n\t\t\r\n\t\tmains_width = []\r\n\t\tmains_width_mont = []\t\t\r\n\t\t\r\n\t\tleft_corners_width = []\r\n\t\tleft_corners_width_mont = []\t\t\r\n\t\t\r\n\t\tright_corners_width = []\r\n\t\tright_corners_width_mont = []\r\n\r\n\t\togr = []\r\n\t\t\t\t\r\n\t\t# Цикл внутри каждой высоты\t\r\n\t\tfor item in items[1]:\r\n\t\t\t\r\n\t\t\tif 0 == item.LookupParameter('Левый_Угловой').AsInteger() and 0 == item.LookupParameter('Правый_Угловой').AsInteger():\t\t\t\t\r\n\t\t\t\t\r\n\t\t\t\tmains_width.append(item.LookupParameter('ФОП_РАЗМ_Ширина').AsDouble() * 304.8)\t\t\t\t\r\n\t\t\t\tmains_width_mont.append(item.LookupParameter('ФОП_РАЗМ_Ширина проёма').AsDouble() * 304.8)\t\t\t\t\r\n\t\t\t\theight.append(item.LookupParameter('ФОП_РАЗМ_Высота').AsDouble() * 304.8)\r\n\t\t\t\theight_mont.append(item.LookupParameter('ФОП_РАЗМ_Высота проёма').AsDouble() * 304.8)\r\n\t\t\t\togr.append(item.LookupParameter('ФОП_РАЗМ_Площадь ограждения').AsDouble())\r\n\t\t\t\t\r\n\t\t\telif 1 == item.LookupParameter('Левый_Угловой').AsInteger():\t\t\t\t\r\n\t\t\t\t\r\n\t\t\t\tleft_corners_width.append(item.LookupParameter('ФОП_РАЗМ_Ширина').AsDouble() * 304.8)\t\t\t\t\r\n\t\t\t\tleft_corners_width_mont.append(item.LookupParameter('ФОП_РАЗМ_Ширина проёма').AsDouble() * 304.8)\t\t\t\t\r\n\t\t\t\theight.append(item.LookupParameter('ФОП_РАЗМ_Высота').AsDouble() * 304.8)\r\n\t\t\t\theight_mont.append(item.LookupParameter('ФОП_РАЗМ_Высота проёма').AsDouble() * 304.8)\r\n\t\t\t\togr.append(item.LookupParameter('ФОП_РАЗМ_Площадь ограждения').AsDouble())\r\n\t\t\t\t\r\n\t\t\telif 1 == item.LookupParameter('Правый_Угловой').AsInteger():\r\n\t\t\t\r\n\t\t\t\tright_corners_width.append(item.LookupParameter('ФОП_РАЗМ_Ширина').AsDouble() * 304.8)\t\t\t\t\r\n\t\t\t\tright_corners_width_mont.append(item.LookupParameter('ФОП_РАЗМ_Ширина проёма').AsDouble() * 304.8)\t\t\t\t\r\n\t\t\t\theight.append(item.LookupParameter('ФОП_РАЗМ_Высота').AsDouble() * 304.8)\r\n\t\t\t\theight_mont.append(item.LookupParameter('ФОП_РАЗМ_Высота проёма').AsDouble() * 304.8)\t\r\n\t\t\t\togr.append(item.LookupParameter('ФОП_РАЗМ_Площадь ограждения').AsDouble())\r\n\t\t\r\n\t\t\r\n\t\tsum_width_main = sum(mains_width)\r\n\t\tsum_width_main_mont = sum(mains_width_mont)\t\t\r\n\t\tsum_width_left_corners = sum(left_corners_width)\r\n\t\tsum_width_left_corners_mont = sum(left_corners_width_mont)\t\t\r\n\t\tsum_width_right_corners = sum(right_corners_width)\r\n\t\tsum_width_right_corners_mont = sum(right_corners_width_mont)\r\n\r\n\t\tlist_mains.append(sum_width_main)\r\n\t\tlist_mains_mont.append(sum_width_main_mont)\r\n\t\tlist_corners.append(sum_width_left_corners)\r\n\t\tlist_corners.append(sum_width_right_corners)\r\n\t\tlist_corners_mont.append(sum_width_left_corners_mont)\r\n\t\tlist_corners_mont.append(sum_width_right_corners_mont)\t\t\t\r\n\t\t\r\n\t\tlist_height.append(max(height))\t\t\r\n\t\tlist_height_mont.append(max(height_mont))\t\t\r\n\t\t\r\n\t\tlist_ogr.append(sum(ogr))\r\n\t\r\n\tmax_mains = max(list_mains)\r\n\tmax_mains_mont = max(list_mains_mont)\r\n\t\r\n\tmax_corners = max(list_corners)\r\n\tmax_corners_mont = max(list_corners_mont)\r\n\t\r\n\tsum_height = sum(list_height)\r\n\tsum_height_mont = sum(list_height_mont)\r\n\t\r\n\t\r\n\t\r\n\tif round(max_corners_mont) == 0:\r\n\t\tcorners_mont = ''\r\n\telse:\r\n\t\tcorners_mont = 'x' + str(int(round(max_corners_mont)))\t\r\n\t\t\r\n\tmains_mont = str(int(round(max_mains_mont)))\r\n\theight_mont = 'x' + str(int(round(sum_height_mont))) + '(h)'\t\r\n\t\r\n\tgabarit_mont = mains_mont + height_mont + corners_mont\r\n\t\r\n\t\r\n\tif round(max_corners) == 0:\r\n\t\tcorners = ''\r\n\telse:\r\n\t\tcorners = 'x' + str(int(round(max_corners)))\r\n\t\t\r\n\tmains = str(int(round(max_mains)))\r\n\theight = 'x' + str(int(round(sum_height))) + '(h)'\t\r\n\t\r\n\tgabarit = mains + height + corners\r\n\t\r\n\togr_sum = sum(list_ogr)\r\n\t\r\n\t\r\n\treturn  gabarit_mont, gabarit, ogr_sum\r\n\t\t\r\n\r\n\r\n# --------------------------------------------------------------------------------------------\r\n\r\ndoc = DocumentManager.Instance.CurrentDBDocument\r\nuiapp = DocumentManager.Instance.CurrentUIApplication\r\napp = uiapp.Application\r\nuidoc = DocumentManager.Instance.CurrentUIApplication.ActiveUIDocument\r\n\r\n# --------------------------------------------------------------------------------------------\r\n\r\n# Выбераем элементы в модели\r\nselected_ids = uidoc.Selection.GetElementIds()\r\n\r\n# Отделяем только по одному экземпляру из всех выделенных групп\r\nall_groups = group_instance (selected_ids)\r\n\r\n\r\nt = Transaction(doc, 'BIM: Габариты, ограждения')\r\nt.Start()\r\n\r\nfor gro in all_groups:\r\n\t\r\n\ttype = doc.GetElement(gro.GetTypeId())\r\n\ttype.LookupParameter('ФОП_РАЗМ_Габариты проёма').Set(dimensions (gro)[0])\r\n\ttype.LookupParameter('ФОП_РАЗМ_Габариты').Set(dimensions (gro)[1])\r\n\ttype.LookupParameter('ФОП_РАЗМ_Площадь ограждения').Set(dimensions (gro)[2])\r\n\r\n\r\nt.Commit()\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n",
+      "Engine": "IronPython2",
+      "VariableInputPorts": true,
+      "Id": "0459500a4a7f4b71a221c9a7dbaa4030",
+      "Inputs": [
+        {
+          "Id": "9f908943ef9a4452b3d7260df35ae2db",
+          "Name": "IN[0]",
+          "Description": "Input #0",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Outputs": [
+        {
+          "Id": "25009e91e39b4d6eb7a52da9037f360c",
+          "Name": "OUT",
+          "Description": "Результат сценария Python",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Disabled",
+      "Description": "Выполнение встроенного сценария Python."
+    },
+    {
+      "ConcreteType": "PythonNodeModels.PythonStringNode, PythonNodeModels",
+      "Engine": "IronPython2",
+      "VariableInputPorts": true,
+      "NodeType": "ExtensionNode",
+      "Id": "fa37145c6d3e451497743fbf1b9f7cd5",
+      "Inputs": [
+        {
+          "Id": "8792e14bbbe04624a69e9a2ecc8041e8",
+          "Name": "script",
+          "Description": "Сценарий Python для запуска.",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Outputs": [
+        {
+          "Id": "0732ae51aa9f4a8b97accf6c219a8dd8",
+          "Name": "OUT",
+          "Description": "Результат сценария Python",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Disabled",
+      "Description": "Выполнение сценария Python из строки."
+    },
+    {
+      "ConcreteType": "PythonNodeModels.PythonNode, PythonNodeModels",
+      "NodeType": "PythonScriptNode",
+      "Code": "import codecs\r\nimport os.path\r\n\r\npath = r\"W:\\Проектный институт\\Отд.стандарт.BIM и RD\\BIM-Ресурсы\\4-Dynamo\\Архив\\BIM-отдел\\Dynamo_new_report.py\"\r\n\r\nresult = \"\"\r\n\r\nif os.path.exists(path):\r\n\twith codecs.open(path, 'r', encoding=\"utf-8\") as file:\r\n\t\tfor line in file.readlines():\r\n\t\t\tresult += line\r\n\r\nOUT = result",
+      "Engine": "IronPython2",
+      "VariableInputPorts": true,
+      "Id": "57486744a81746dab9b21eed76dc7c10",
+      "Inputs": [],
+      "Outputs": [
+        {
+          "Id": "dd00b3cc9dff450388acb342357f1336",
+          "Name": "OUT",
+          "Description": "Результат сценария Python",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Disabled",
+      "Description": "Выполнение встроенного сценария Python."
+    },
+    {
+      "ConcreteType": "CoreNodeModels.Input.BoolSelector, CoreNodeModels",
+      "NodeType": "BooleanInputNode",
+      "InputValue": true,
+      "Id": "888095c180a946268e4e49cfc4f6121a",
+      "Inputs": [],
+      "Outputs": [
+        {
+          "Id": "67301206059149b8932494798f128c45",
+          "Name": "",
+          "Description": "Boolean",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Disabled",
+      "Description": "Выбор между значениями true и false."
+    }
+  ],
+  "Connectors": [
+    {
+      "Start": "dd00b3cc9dff450388acb342357f1336",
+      "End": "8792e14bbbe04624a69e9a2ecc8041e8",
+      "Id": "d48ee6cba33149da8c6ac2c67c7e3eca"
+    },
+    {
+      "Start": "67301206059149b8932494798f128c45",
+      "End": "9f908943ef9a4452b3d7260df35ae2db",
+      "Id": "aa07921f67904ece8724667f44831d8a"
+    }
+  ],
+  "Dependencies": [],
+  "NodeLibraryDependencies": [],
+  "Bindings": [],
+  "View": {
+    "Dynamo": {
+      "ScaleFactor": 1.0,
+      "HasRunWithoutCrash": true,
+      "IsVisibleInDynamoLibrary": true,
+      "Version": "2.10.1.3976",
+      "RunType": "Manual",
+      "RunPeriod": "1000"
+    },
+    "Camera": {
+      "Name": "Фоновый просмотр",
+      "EyeX": -18.639432049313044,
+      "EyeY": 50.739627788617071,
+      "EyeZ": 58.882612508353446,
+      "LookX": 14.880000114440918,
+      "LookY": -16.1200008392334,
+      "LookZ": -71.919998168945313,
+      "UpX": 0.0,
+      "UpY": 1.0,
+      "UpZ": 0.0
+    },
+    "NodeViews": [
+      {
+        "ShowGeometry": true,
+        "Name": "Габариты, ограждения",
+        "Id": "0459500a4a7f4b71a221c9a7dbaa4030",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": -5343.0175512195219,
+        "Y": -348.23519205197385
+      },
+      {
+        "ShowGeometry": true,
+        "Name": "Python Script From String",
+        "Id": "fa37145c6d3e451497743fbf1b9f7cd5",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": -5815.5209336205535,
+        "Y": -61.226061712605542
+      },
+      {
+        "ShowGeometry": true,
+        "Name": "Python Script",
+        "Id": "57486744a81746dab9b21eed76dc7c10",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": true,
+        "X": -5925.7457568347736,
+        "Y": -60.5453001233775
+      },
+      {
+        "ShowGeometry": true,
+        "Name": "Перезапуск",
+        "Id": "888095c180a946268e4e49cfc4f6121a",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": -5564.6154523176556,
+        "Y": -348.01352137976073
+      }
+    ],
+    "Annotations": [
+      {
+        "Id": "7313dd87a8d4477790e53d9263a7dfad",
+        "Title": "ОПИСАНИЕ!\r\nПРОЧИТАТЬ ПЕРЕД ЗАПУСКОМ!",
+        "Nodes": [
+          "d30a7c399e5f46c69888adf369456b1d"
+        ],
+        "Left": -5948.8235110859432,
+        "Top": -549.16861034076612,
+        "Width": 319.19999999999982,
+        "Height": 405.0,
+        "FontSize": 36.0,
+        "InitialTop": -409.5686103407661,
+        "InitialHeight": 145.0,
+        "TextblockHeight": 129.6,
+        "Background": "#FF848484"
+      },
+      {
+        "Id": "6c34f2dd6e8d4a498c9491ab69b4516c",
+        "Title": "Для разработчика",
+        "Nodes": [
+          "fa37145c6d3e451497743fbf1b9f7cd5",
+          "57486744a81746dab9b21eed76dc7c10"
+        ],
+        "Left": -5935.7457568347736,
+        "Top": -114.42606171260555,
+        "Width": 306.22482321422012,
+        "Height": 158.48076158922805,
+        "FontSize": 36.0,
+        "InitialTop": -61.226061712605542,
+        "InitialHeight": 145.68076158922804,
+        "TextblockHeight": 43.2,
+        "Background": "#FFFFFFFF"
+      },
+      {
+        "Id": "d30a7c399e5f46c69888adf369456b1d",
+        "Title": "Скрипт \"Витражи - №1_Габариты, ограждения\"\r\nВерсия 2.1\r\nРазработал: Козлов Павел\r\n________________________________________________________\r\n\r\nЧТО ДЕЛАЕТ: \r\nЗаписывает габариты группы и площадь ограждения\r\n_______________________________________________________\r\n\r\nКАК ПОЛЬЗОВАТЬСЯ: \r\n1. Выбрать группу(ы) витража в модели или в спецификации\r\n2. Запустить скрипт\r\n\r\n",
+        "Nodes": [],
+        "Left": -5938.8235110859432,
+        "Top": -409.5686103407661,
+        "Width": 0.0,
+        "Height": 0.0,
+        "FontSize": 36.0,
+        "InitialTop": 0.0,
+        "InitialHeight": 0.0,
+        "TextblockHeight": 0.0,
+        "Background": "#FFC1D676"
+      }
+    ],
+    "X": 5145.0485906409176,
+    "Y": 544.09526632019333,
+    "Zoom": 0.83979341350941794
+  }
+}

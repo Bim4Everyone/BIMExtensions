@@ -1,0 +1,34 @@
+title:
+  ru: Собрать группу
+  en_us: Create a group
+
+tooltip:
+  ru: >-
+    Автоматически создает группу из витражей, козырьков и прочих элементов, 
+    присваивая ей имя, соответствующее регламенту. 
+    
+    Так-же данный скрипт делает множество проверок при сборке, 
+    что позволяет избежать ошибки при дальнейшем моделировании.
+    
+    
+    Перед запуском плагина, выберите на 3D-виде или на Плане этажа все элементы, 
+    которые нужно сгруппировать в один витраж.
+  en_us: >-
+    Automatically creates a group of stained glass windows, canopies and other elements, 
+    assigning it a name that corresponds to the regulations.
+
+    This script also makes many checks during assembly, 
+    which allows you to avoid errors during further modeling.
+
+
+    Before launching the plugin, select all the elements in the 3D view 
+    or on the Floor Plan that need to be grouped into one stained glass window.
+
+engine:
+  clean: false
+
+author: KozlovPS
+help_url: "https://kb.a101.ru/pages/viewpage.action?pageId=134096719"
+
+min_revit_version: 2022
+max_revit_version: 2024

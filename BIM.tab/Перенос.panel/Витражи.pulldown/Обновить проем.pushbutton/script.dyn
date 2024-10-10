@@ -1,0 +1,258 @@
+{
+  "Uuid": "3c9d0464-8643-5ffe-96e5-ab1769818209",
+  "IsCustomNode": false,
+  "Description": "",
+  "Name": "script",
+  "ElementResolver": {
+    "ResolutionMap": {
+      "List": {
+        "Key": "DSCore.List",
+        "Value": "DSCoreNodes.dll"
+      },
+      "List.Count": {
+        "Key": "DSCore.List",
+        "Value": "DSCoreNodes.dll"
+      }
+    }
+  },
+  "Inputs": [],
+  "Outputs": [],
+  "Nodes": [
+    {
+      "ConcreteType": "PythonNodeModels.PythonStringNode, PythonNodeModels",
+      "Engine": "IronPython2",
+      "VariableInputPorts": true,
+      "NodeType": "ExtensionNode",
+      "Id": "fa37145c6d3e451497743fbf1b9f7cd5",
+      "Inputs": [
+        {
+          "Id": "8792e14bbbe04624a69e9a2ecc8041e8",
+          "Name": "script",
+          "Description": "Сценарий Python для запуска.",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Outputs": [
+        {
+          "Id": "0732ae51aa9f4a8b97accf6c219a8dd8",
+          "Name": "OUT",
+          "Description": "Результат сценария Python",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Disabled",
+      "Description": "Выполнение сценария Python из строки."
+    },
+    {
+      "ConcreteType": "PythonNodeModels.PythonNode, PythonNodeModels",
+      "NodeType": "PythonScriptNode",
+      "Code": "import codecs\r\nimport os.path\r\n\r\npath = r\"W:\\Проектный институт\\Отд.стандарт.BIM и RD\\BIM-Ресурсы\\4-Dynamo\\Архив\\BIM-отдел\\Dynamo_new_report.py\"\r\n\r\nresult = \"\"\r\n\r\nif os.path.exists(path):\r\n\twith codecs.open(path, 'r', encoding=\"utf-8\") as file:\r\n\t\tfor line in file.readlines():\r\n\t\t\tresult += line\r\n\r\nOUT = result",
+      "Engine": "IronPython2",
+      "VariableInputPorts": true,
+      "Id": "57486744a81746dab9b21eed76dc7c10",
+      "Inputs": [],
+      "Outputs": [
+        {
+          "Id": "dd00b3cc9dff450388acb342357f1336",
+          "Name": "OUT",
+          "Description": "Результат сценария Python",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Disabled",
+      "Description": "Выполнение встроенного сценария Python."
+    },
+    {
+      "ConcreteType": "PythonNodeModels.PythonNode, PythonNodeModels",
+      "NodeType": "PythonScriptNode",
+      "Code": "import clr\r\nclr.AddReference('ProtoGeometry')\r\nclr.AddReference(\"System.Windows.Forms\")\r\nfrom Autodesk.DesignScript.Geometry import *\r\nclr.AddReference(\"RevitServices\")\r\nimport RevitServices\r\nfrom RevitServices.Persistence import DocumentManager\r\nfrom RevitServices.Transactions import TransactionManager\r\nclr.AddReference(\"RevitAPI\")\r\nimport Autodesk\r\nfrom Autodesk.Revit.DB import *\r\nfrom System.Collections.Generic import *\r\nfrom operator import itemgetter\r\nclr.AddReference(\"RevitNodes\")\r\nimport Revit\r\nclr.ImportExtensions(Revit.Elements)\r\nimport itertools\r\nfrom itertools import groupby\r\nimport os\r\nimport System\r\n\r\n\r\n\r\n# Функция, которая возвращает членов группы\r\ndef group_members (group):\r\n\r\n\tgr_members_ids = group.GetMemberIds()\t\r\n\t\t\r\n\tlist_of_members = []\r\n\tfor id in gr_members_ids:\t\t\r\n\t\tmember = doc.GetElement(id)\r\n\t\tlist_of_members.append(member)\r\n\r\n\treturn list_of_members \r\n\r\n\r\ndef location_up (element):\r\n\t\r\n\tpoint_down = element.Location.Point.Z\r\n\thieght = element.LookupParameter('ФОП_РАЗМ_Высота проёма').AsDouble()\r\n\tpoint_up = point_down + hieght\t\r\n\t\r\n\treturn round(point_up)\r\n\r\n\r\n# Функция, которая возвращает размеры группы\r\ndef dimensions (ells, condition):\r\n\t\r\n\tif condition == 0:\r\n\t\tlist_members = group_members (ells)\r\n\telse:\r\n\t\tlist_members = ells\r\n\t\r\n\tmain_members = []\t\t\t\r\n\tfor gr_member in list_members:\r\n\t\tif \"Окн_Вит_Витраж\" == gr_member.Name:\r\n\t\t\tmain_members.append(gr_member)\t\r\n\t\r\n\tgroups = {}\r\n\tfor element in main_members:\r\n\t\r\n\t\tif str(location_up (element)) in groups:\r\n\t\t\tgroups[str(location_up (element))].append(element)\t\t\t\t\r\n\t\telse:\r\n\t\t\tgroups[str(location_up (element))] = [element]\t\t\r\n\t\r\n\tlist_mains_mont = []\t\r\n\tlist_height_mont = []\t\r\n\t# Цикл по сгруппированным модулям по каждой высоте\t\r\n\tfor items in groups.items():\t\t\t\t\r\n\t\t\t\r\n\t\theight_mont = []\t\t\r\n\t\tmains_width_mont = []\t\t\r\n\t\t# Цикл внутри каждой высоты\t\r\n\t\tfor item in items[1]:\r\n\t\t\tif condition == 0:\r\n\t\t\t\tif 0 == item.LookupParameter('Левый_Угловой').AsInteger() and 0 == item.LookupParameter('Правый_Угловой').AsInteger():\t\t\t\t\t\t\t\t\t\r\n\t\t\t\t\tmains_width_mont.append(item.LookupParameter('ФОП_РАЗМ_Ширина проёма').AsDouble())\t\t\t\t\r\n\t\t\t\t\theight_mont.append(item.LookupParameter('ФОП_РАЗМ_Высота проёма').AsDouble())\t\t\t\t\t\t\t\t\r\n\t\t\telse:\r\n\t\t\t\tmains_width_mont.append(item.LookupParameter('ФОП_РАЗМ_Ширина проёма').AsDouble())\t\t\t\t\r\n\t\t\t\theight_mont.append(item.LookupParameter('ФОП_РАЗМ_Высота проёма').AsDouble())\r\n\t\t\t\t\r\n\t\tsum_width_main_mont = sum(mains_width_mont)\t\t\r\n\t\tlist_mains_mont.append(sum_width_main_mont)\t\t\t\t\r\n\t\tlist_height_mont.append(max(height_mont))\r\n\t\r\n\tmains_mont = max(list_mains_mont)\t\r\n\theight_mont = sum(list_height_mont)\t\r\n\t\r\n\treturn height_mont, mains_mont\r\n\t\r\n\r\n\t\r\n\t\r\ndef xyz_group (ells, condition):\t\r\n\t\r\n\tif condition == 0:\r\n\t\tlist_mems = group_members (ells)\r\n\telse:\r\n\t\tlist_mems = ells\r\n\t\t\r\n\tmain_members = []\t\t\t\r\n\tfor gr_member in list_mems:\r\n\t\tif \"Окн_Вит_Витраж\" == gr_member.Name:\r\n\t\t\tmain_members.append(gr_member)\r\n\r\n\tgroups = {}\r\n\tfor element in main_members:\r\n\t\r\n\t\tif str(location_up (element)) in groups:\r\n\t\t\tgroups[str(location_up (element))].append(element)\t\t\t\t\r\n\t\telse:\r\n\t\t\tgroups[str(location_up (element))] = [element]\r\n\t\t\t\r\n\tmax_z_list = []\r\n\tfor each in groups.items()[0][1]:\t\r\n\t\th = each.LookupParameter('ФОП_РАЗМ_Высота проёма').AsDouble()\t\t\r\n\t\tmax_z_list.append([h, each])\r\n\t\r\n\tmax_z = max(max_z_list)\r\n\tground_z = max_z[1].Location.Point.Z - max_z[1].LookupParameter('Монтажный_Зазор_Снизу').AsDouble()\r\n\t\r\n\tmin_x_list = []\r\n\tmin_y_list = []\t\r\n\tmax_x_list = []\t\r\n\tmax_y_list = []\r\n\t\r\n\tfor main_member in main_members:\r\n\t\tif condition == 0:\r\n\t\t\tif 0 == main_member.LookupParameter('Левый_Угловой').AsInteger() and 0 == main_member.LookupParameter('Правый_Угловой').AsInteger():\t\t\t\t\r\n\t\t\t\tmin_x_list.append(main_member.get_BoundingBox(doc.ActiveView).Min.X)\r\n\t\t\t\tmin_y_list.append(main_member.get_BoundingBox(doc.ActiveView).Min.Y)\t\t\t\r\n\t\t\t\tmax_x_list.append(main_member.get_BoundingBox(doc.ActiveView).Max.X)\r\n\t\t\t\tmax_y_list.append(main_member.get_BoundingBox(doc.ActiveView).Max.Y)\t\t\t\t\t\t\r\n\t\telse:\r\n\t\t\tmin_x_list.append(main_member.get_BoundingBox(doc.ActiveView).Min.X)\r\n\t\t\tmin_y_list.append(main_member.get_BoundingBox(doc.ActiveView).Min.Y)\t\t\t\r\n\t\t\tmax_x_list.append(main_member.get_BoundingBox(doc.ActiveView).Max.X)\r\n\t\t\tmax_y_list.append(main_member.get_BoundingBox(doc.ActiveView).Max.Y)\r\n\t\t\t\r\n\tmid_x = min(min_x_list) + ((max(max_x_list) - min(min_x_list)) / 2)\r\n\tmid_y = min(min_y_list) + ((max(max_y_list) - min(min_y_list)) / 2)\r\n\txyz_point = XYZ(mid_x, mid_y, ground_z)\t\r\n\t\r\n\treturn  xyz_point\r\n\r\n\r\n# Функция, по мусору\r\ndef garbage (list_id):\t\r\n\t\r\n\telements = []\r\n\tproem = []\t\r\n\tfor id in list_id:\t\r\n\t\tnoname_element = doc.GetElement(id)\t\t\r\n\t\t\r\n\t\tif \"Окна\" == noname_element.Category.Name and \"Окн_Вит_Проем\" == noname_element.Name:\r\n\t\t\tproem.append(noname_element)\r\n\t\telif \"Группы модели\" == noname_element.Category.Name or \"Окна\" == noname_element.Category.Name:\t\t\r\n\t\t\telements.append(noname_element)\r\n\t\r\n\tif \"Группы модели\" == elements[0].Category.Name:\r\n\t\treturn elements[0], proem[0]\r\n\t\r\n\telse:\r\n\t\treturn elements, proem[0]\r\n\r\n# --------------------------------------------------------------------------------------------\t\t\t\r\n# --------------------------------------------------------------------------------------------\r\n# Переменные\r\n# --------------------------------------------------------------------------------------------\t\t\t\r\n# --------------------------------------------------------------------------------------------\r\n\r\n\r\ndoc = DocumentManager.Instance.CurrentDBDocument\r\nuiapp = DocumentManager.Instance.CurrentUIApplication\r\napp = uiapp.Application\r\nuidoc = DocumentManager.Instance.CurrentUIApplication.ActiveUIDocument\r\n\r\n\r\n# --------------------------------------------------------------------------------------------\t\t\t\r\n# --------------------------------------------------------------------------------------------\r\n# Транзакция\r\n# --------------------------------------------------------------------------------------------\t\t\t\r\n# --------------------------------------------------------------------------------------------\r\n\r\n\r\nt = Transaction(doc, 'BIM: Обновить проем')\r\nt.Start()\r\n\r\n# Выбераем элементы в модели\r\nselected_ids = uidoc.Selection.GetElementIds()\r\n\r\n\r\nelement_sel = garbage (selected_ids)[0]\r\nproem_sel = garbage (selected_ids)[1]\r\n\r\n\r\nif element_sel.GetType() == list:\t\r\n\tdim_height = dimensions (element_sel, 1)[0]\r\n\tdim_weight = dimensions (element_sel, 1)[1]\r\n\tcoordinate = xyz_group (element_sel, 1)\r\nelse:\t\r\n\tdim_height = dimensions (element_sel, 0)[0]\r\n\tdim_weight = dimensions (element_sel, 0)[1]\r\n\tcoordinate = xyz_group (element_sel, 0)\r\n\r\nnew_x = coordinate.X - proem_sel.Location.Point.X\r\nnew_y = coordinate.Y - proem_sel.Location.Point.Y\r\nnew_z = coordinate.Z - proem_sel.Location.Point.Z\r\n\r\n\r\nnew_xyz = XYZ(new_x, new_y, new_z )\r\n\r\nproem_sel.Location.Move(new_xyz)\r\nproem_sel.LookupParameter('Высота').Set(dim_height)\r\nproem_sel.LookupParameter('Ширина').Set(dim_weight)\r\n\r\n\r\nOUT = new_xyz\r\n\r\nt.Commit()\r\n\r\n\r\n\r\n\r\n",
+      "Engine": "IronPython2",
+      "VariableInputPorts": true,
+      "Id": "951f2cfd1acf4589ae3746581e1c9ba2",
+      "Inputs": [
+        {
+          "Id": "861826bb896242288534d2150b6499dc",
+          "Name": "IN[0]",
+          "Description": "Input #0",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Outputs": [
+        {
+          "Id": "c5d685e40343493b90f05520f8396a1e",
+          "Name": "OUT",
+          "Description": "Результат сценария Python",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Disabled",
+      "Description": "Выполнение встроенного сценария Python."
+    },
+    {
+      "ConcreteType": "CoreNodeModels.Input.BoolSelector, CoreNodeModels",
+      "NodeType": "BooleanInputNode",
+      "InputValue": true,
+      "Id": "63604007569544fdaf073b95cdae9095",
+      "Inputs": [],
+      "Outputs": [
+        {
+          "Id": "9ac4a41db74546af8bd595a491a3212e",
+          "Name": "",
+          "Description": "Boolean",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Disabled",
+      "Description": "Выбор между значениями true и false."
+    }
+  ],
+  "Connectors": [
+    {
+      "Start": "dd00b3cc9dff450388acb342357f1336",
+      "End": "8792e14bbbe04624a69e9a2ecc8041e8",
+      "Id": "d48ee6cba33149da8c6ac2c67c7e3eca"
+    },
+    {
+      "Start": "9ac4a41db74546af8bd595a491a3212e",
+      "End": "861826bb896242288534d2150b6499dc",
+      "Id": "80f300adf1334cddac63aa0404d23b15"
+    }
+  ],
+  "Dependencies": [],
+  "NodeLibraryDependencies": [],
+  "Bindings": [],
+  "View": {
+    "Dynamo": {
+      "ScaleFactor": 1.0,
+      "HasRunWithoutCrash": true,
+      "IsVisibleInDynamoLibrary": true,
+      "Version": "2.10.1.3976",
+      "RunType": "Manual",
+      "RunPeriod": "1000"
+    },
+    "Camera": {
+      "Name": "Фоновый просмотр",
+      "EyeX": -18.639432049313044,
+      "EyeY": 50.739627788617071,
+      "EyeZ": 58.882612508353446,
+      "LookX": 14.880000114440918,
+      "LookY": -16.1200008392334,
+      "LookZ": -71.919998168945313,
+      "UpX": 0.0,
+      "UpY": 1.0,
+      "UpZ": 0.0
+    },
+    "NodeViews": [
+      {
+        "ShowGeometry": true,
+        "Name": "Python Script From String",
+        "Id": "fa37145c6d3e451497743fbf1b9f7cd5",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": -5832.0775118298516,
+        "Y": 26.238029256165248
+      },
+      {
+        "ShowGeometry": true,
+        "Name": "Python Script",
+        "Id": "57486744a81746dab9b21eed76dc7c10",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": true,
+        "X": -5942.3023350440717,
+        "Y": 26.918790845393289
+      },
+      {
+        "ShowGeometry": true,
+        "Name": "Обновить проем",
+        "Id": "951f2cfd1acf4589ae3746581e1c9ba2",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": -5376.46523599713,
+        "Y": -153.03075747988277
+      },
+      {
+        "ShowGeometry": true,
+        "Name": "Перезапуск",
+        "Id": "63604007569544fdaf073b95cdae9095",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": -5601.4203371095955,
+        "Y": -153.63529048930121
+      }
+    ],
+    "Annotations": [
+      {
+        "Id": "7313dd87a8d4477790e53d9263a7dfad",
+        "Title": "ОПИСАНИЕ!\r\nПРОЧИТАТЬ ПЕРЕД ЗАПУСКОМ!",
+        "Nodes": [
+          "d30a7c399e5f46c69888adf369456b1d"
+        ],
+        "Left": -5963.756730475422,
+        "Top": -416.58718385547616,
+        "Width": 319.19999999999982,
+        "Height": 376.20000000000005,
+        "FontSize": 36.0,
+        "InitialTop": -276.98718385547613,
+        "InitialHeight": 145.0,
+        "TextblockHeight": 129.6,
+        "Background": "#FF848484"
+      },
+      {
+        "Id": "6c34f2dd6e8d4a498c9491ab69b4516c",
+        "Title": "Для разработчика",
+        "Nodes": [
+          "fa37145c6d3e451497743fbf1b9f7cd5",
+          "57486744a81746dab9b21eed76dc7c10"
+        ],
+        "Left": -5952.3023350440717,
+        "Top": -26.961970743834755,
+        "Width": 306.22482321422012,
+        "Height": 158.48076158922805,
+        "FontSize": 36.0,
+        "InitialTop": 26.238029256165248,
+        "InitialHeight": 145.68076158922804,
+        "TextblockHeight": 43.2,
+        "Background": "#FFFFFFFF"
+      },
+      {
+        "Id": "d30a7c399e5f46c69888adf369456b1d",
+        "Title": "Скрипт \"Витражи - №0_3_Обновить габариты и позицию проема\"\r\nВерсия 2.1\r\nРазработал: Козлов Павел\r\n________________________________________________________\r\n\r\nЧТО ДЕЛАЕТ: \r\nАктуализирует габариты проема, а также смещает на нужное место в случае изменения витража\r\n_______________________________________________________\r\n\r\nКАК ПОЛЬЗОВАТЬСЯ: \r\n1. Выбрать 1 группу витража в модели и проем\r\n2. Запустить скрипт",
+        "Nodes": [],
+        "Left": -5953.756730475422,
+        "Top": -276.98718385547613,
+        "Width": 0.0,
+        "Height": 0.0,
+        "FontSize": 36.0,
+        "InitialTop": 0.0,
+        "InitialHeight": 0.0,
+        "TextblockHeight": 0.0,
+        "Background": "#FFC1D676"
+      }
+    ],
+    "X": 7798.8950048218549,
+    "Y": 496.497287455443,
+    "Zoom": 1.3996327860947502
+  }
+}

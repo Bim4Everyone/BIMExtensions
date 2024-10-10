@@ -1,0 +1,904 @@
+{
+  "Uuid": "3c9d0464-8643-5ffe-96e5-ab1769818209",
+  "IsCustomNode": false,
+  "Description": "",
+  "Name": "Витражи - №5_Создание эскизов",
+  "ElementResolver": {
+    "ResolutionMap": {
+      "List": {
+        "Key": "DSCore.List",
+        "Value": "DSCoreNodes.dll"
+      },
+      "List.Count": {
+        "Key": "DSCore.List",
+        "Value": "DSCoreNodes.dll"
+      }
+    }
+  },
+  "Inputs": [],
+  "Outputs": [],
+  "Nodes": [
+    {
+      "ConcreteType": "PythonNodeModels.PythonStringNode, PythonNodeModels",
+      "Engine": "IronPython2",
+      "VariableInputPorts": true,
+      "NodeType": "ExtensionNode",
+      "Id": "fa37145c6d3e451497743fbf1b9f7cd5",
+      "Inputs": [
+        {
+          "Id": "8792e14bbbe04624a69e9a2ecc8041e8",
+          "Name": "script",
+          "Description": "Сценарий Python для запуска.",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Outputs": [
+        {
+          "Id": "0732ae51aa9f4a8b97accf6c219a8dd8",
+          "Name": "OUT",
+          "Description": "Результат сценария Python",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Disabled",
+      "Description": "Выполнение сценария Python из строки."
+    },
+    {
+      "ConcreteType": "PythonNodeModels.PythonNode, PythonNodeModels",
+      "NodeType": "PythonScriptNode",
+      "Code": "import codecs\r\nimport os.path\r\n\r\npath = r\"W:\\Проектный институт\\Отд.стандарт.BIM и RD\\BIM-Ресурсы\\4-Dynamo\\Архив\\BIM-отдел\\Dynamo_new_report.py\"\r\n\r\nresult = \"\"\r\n\r\nif os.path.exists(path):\r\n\twith codecs.open(path, 'r', encoding=\"utf-8\") as file:\r\n\t\tfor line in file.readlines():\r\n\t\t\tresult += line\r\n\r\nOUT = result",
+      "Engine": "IronPython2",
+      "VariableInputPorts": true,
+      "Id": "57486744a81746dab9b21eed76dc7c10",
+      "Inputs": [],
+      "Outputs": [
+        {
+          "Id": "dd00b3cc9dff450388acb342357f1336",
+          "Name": "OUT",
+          "Description": "Результат сценария Python",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Disabled",
+      "Description": "Выполнение встроенного сценария Python."
+    },
+    {
+      "ConcreteType": "PythonNodeModels.PythonNode, PythonNodeModels",
+      "NodeType": "PythonScriptNode",
+      "Code": "import clr\r\nclr.AddReference('ProtoGeometry')\r\nclr.AddReference(\"System.Windows.Forms\")\r\nfrom Autodesk.DesignScript.Geometry import *\r\nclr.AddReference(\"RevitServices\")\r\nimport RevitServices\r\nfrom RevitServices.Persistence import DocumentManager\r\nfrom RevitServices.Transactions import TransactionManager\r\nclr.AddReference(\"RevitAPI\")\r\nimport Autodesk\r\nfrom Autodesk.Revit.DB import *\r\nfrom System.Collections.Generic import *\r\nfrom operator import itemgetter\r\nclr.AddReference(\"RevitNodes\")\r\nimport Revit\r\nclr.ImportExtensions(Revit.Elements)\r\nimport itertools\r\nfrom itertools import groupby\r\nimport os\r\nimport System\r\n\r\n\r\n# Функция, активатор загруженных семейств\r\ndef activation (family):\r\n\tif family.IsActive == False:\r\n\t\treturn family.Activate()\r\n\t\t\r\n\t\t\r\n# Функция, которая из всех выделенных групп, берет по одной\r\ndef group_instance (list_id):\r\n\t\r\n\tall_elements = []\t\r\n\tfor id in list_id:\t\r\n\t\tnoname_element = doc.GetElement(id)\t\t\r\n\t\tif \"Группы модели\" == noname_element.Category.Name:\t\t\r\n\t\t\tall_elements.append(noname_element)\r\n\t\t\r\n\tgroups = {}\t\t\r\n\tfor group in all_elements:\r\n\t\tgroupby_value = group.Name\r\n\t\t\t\t\t\r\n\t\tif groupby_value in groups:\r\n\t\t\tgroups[groupby_value].append(group)\t\t\t\t\r\n\t\telse:\r\n\t\t\tgroups[groupby_value] = [group]\t\r\n\t\r\n\telements = []\t\r\n\tfor element in groups.Values:\r\n\t\telements.append(element[0])\r\n\t\r\n\treturn elements\r\n\r\n\r\n# Функция, которая возвращает членов группы\r\ndef group_members (group):\r\n\r\n\tgr_members_ids = group.GetMemberIds()\t\t\r\n\tlist_of_members = []\r\n\tfor id in gr_members_ids:\t\t\r\n\t\tmember = doc.GetElement(id)\r\n\t\tlist_of_members.append(member)\r\n\treturn list_of_members \r\n\r\n\t\r\n# Функция, которая создает чертежный вид и возвращает его\r\ndef create_draft (name):\r\n\r\n\tviewfamily_types = FilteredElementCollector(doc).OfClass(ViewFamilyType)\t\r\n\tfor i in viewfamily_types:\r\n\t\tif i.ViewFamily == ViewFamily.Drafting:\r\n\t\t\tdrafting_view_id = i.Id\r\n\r\n\ttry:\r\n\t\tdrafting_view = ViewDrafting.Create(doc, drafting_view_id)\t\t\r\n\t\tdrafting_view.Name = 'Эскиз_Витража_' + name\r\n\t\tdrafting_view.LookupParameter('Масштаб вида').Set(20)\r\n\t\t#drafting_view.LookupParameter('_Группа Видов').Set('Витражи')\r\n\t\t\t\r\n\texcept:\r\n\t\tpass\t\r\n\t\r\n\treturn drafting_view\r\n\r\n\r\n# Функция, которая вставляет элемент узла в чертежный вид по заданным координатам\r\ndef put (coordinates, drafting_type, draft):\t\t\r\n\treturn doc.Create.NewFamilyInstance(coordinates, drafting_type, draft)\r\n\r\n\r\n# --------------------------------------------------------------------------------------------\t\r\n# ФУНКЦИИ МОДУЛЕЙ\r\n# --------------------------------------------------------------------------------------------\r\n\r\n\r\n# Функция, которая возвращает верхнюю точку для того, чтобы сгруппировать модули по высоте, если витраж многоуровневый\r\ndef location_up (element):\r\n\t\r\n\tpoint_down = element.Location.Point.Z * 304.8\r\n\thieght = element.LookupParameter('ФОП_РАЗМ_Высота').AsDouble() * 304.8\r\n\tpoint_up = point_down + hieght\t\r\n\treturn round(point_up)\r\n\t\r\n\t\r\n# Функция сортировки модулей внутри групп по порядковому номеру\t\r\ndef sorting (group):\r\n\t\r\n\t# Берем скписок модулей (рам)\r\n\tmain_members = []\t\r\n\tfor gr_member in group_members (group):\r\n\t\tif \"Окн_Вит_Витраж\" == gr_member.Name:\r\n\t\t\tmain_members.append(gr_member)\t\r\n\t\r\n\t# Группируем по высоте\r\n\tgroups_main_members = {}\r\n\tfor main_member in main_members:\t\t\r\n\t\t\r\n\t\tif str(location_up (main_member)) in groups_main_members:\r\n\t\t\tgroups_main_members[str(location_up (main_member))].append(main_member)\t\t\t\t\r\n\t\telse:\r\n\t\t\tgroups_main_members[str(location_up (main_member))] = [main_member]\t\r\n\t\r\n\t# Переделываем текст ключа в число\r\n\tdigital_groups_main_members = []\t\r\n\tfor groups_main_member in groups_main_members.items():\r\n\t\tdigit = float(groups_main_member[0])\r\n\t\tdigital_groups_main_members.append([digit,groups_main_member[1]])\r\n\t\r\n\t# Сортируем список по возрастанию уровней\r\n\tsorted_main_members = sorted (digital_groups_main_members, key = itemgetter(0))\t\t\r\n\t\r\n\tcleaned_lists_mains = []\t\r\n\tfor level in sorted_main_members:\t\t\r\n\t\tmains = []\t\t\r\n\t\tfor main in level[1]:\t\t\t\r\n\t\t\tmains.append([main, main.LookupParameter('Порядковый_Номер').AsInteger()])\t\t\r\n\t\t\t# Сортируем модули внутри каждого уровня по порядковому номеру\r\n\t\t\tsorted_mains = sorted(mains, key = itemgetter(1))\t\t\t\r\n\t\t\r\n\t\t# Добавляем модули отсортированные и без ключа\t\t\t\r\n\t\tcleaned_lists_mains.append([i[0] for i in sorted_mains])\t\r\n\t\r\n\treturn   cleaned_lists_mains\r\n\t\r\n\r\n# Функция получения координат рам по ширине\t\t\r\ndef mod_xyz_x (list_modules):\r\n\t\r\n\t# Берем половинки каждого модуля и в список\t\r\n\thalf_first = []\r\n\thalf_second = []\t\t\r\n\tfor module in list_modules:\t\t\r\n\t\twidth_left = module.LookupParameter('Длина_Слева').AsDouble()\r\n\t\twidth_right = module.LookupParameter('Длина_Справа').AsDouble()\r\n\t\t\r\n\t\thalf_first.append(width_right)\r\n\t\thalf_second.append(width_left)\r\n\t\r\n\t# Удаляем первое значение\t\r\n\thalf_second.pop(0)\r\n\t# Добавляем в конец 0, так как смещаемся к концу\r\n\thalf_second.append(0)\r\n\t# Складываем списки поэлементно\r\n\tsum_halfs = map(sum, zip(half_first, half_second))\t\r\n\t# Добавляем 0 так как первый модуль на 0.0.0\t\r\n\tsum_halfs.insert(0,0)\r\n\t# Удаляем последнее значение\t\r\n\tsum_halfs.pop((len(sum_halfs)-1))\r\n\t\r\n\t# Складываем всё поочередно для цепочки координат от нуля (0.0.0)\t\r\n\tstart = sum_halfs[0]\t\r\n\tresult = []\r\n\tfor item in sum_halfs:\t\t\r\n\t\tresult.append(item + start)\r\n\t\tstart += item\t\r\n\t\r\n\treturn result\r\n\r\n# Функция получения координат рам по высоте\t\r\ndef mod_xyz_y (list_list_modules):\r\n\t\r\n\theight_all = []\r\n\theight_list = []\r\n\t\r\n\t# берем список списков рам\r\n\tfor list_modules in list_list_modules:\r\n\t\t# берем список высот рам\t\r\n\t\theights = [h.LookupParameter('ФОП_РАЗМ_Высота').AsDouble() for h in list_modules]\t\t\t\t\r\n\t\t# отнимаем от самой высокой поочередно все и ищем отступ от низа\r\n\t\theight_list.append(max(heights))\t\t\t\r\n\t\tfor h in heights:\r\n\t\t\theight_all.append(max(heights) - h)\t\t\r\n\t\t\t \r\n\t# Добавляем 0 так как первый модуль на 0.0.0\t\r\n\theight_list.insert(0,0)\r\n\t# Удаляем последнее значение\t\r\n\theight_list.pop((len(height_list)-1))\r\n\t\r\n\t# Складываем всё поочередно для цепочки координат от нуля (0.0.0)\t\r\n\tstart = height_list[0]\t\r\n\tresult = []\r\n\tfor item in height_list:\t\t\r\n\t\tresult.append(item + start)\r\n\t\tstart += item\t\r\n\t\r\n\treturn result, height_all\r\n\t\r\n\t\r\n# Функция назначения параметров раме\r\ndef module_parameter (lev_num, level, num, mod_3D, mod_2D, list_all_modules, offset_m):\r\n\t\r\n\tmod_2D.LookupParameter('Витраж_Ширина').Set(mod_3D.LookupParameter('Витраж_Ширина').AsDouble())\r\n\tmod_2D.LookupParameter('Витраж_Высота').Set(mod_3D.LookupParameter('ФОП_РАЗМ_Высота проёма').AsDouble())\r\n\tmod_2D.LookupParameter('Ограждение_Высота').Set(mod_3D.LookupParameter('Ограждение_Высота').AsDouble())\t\r\n\tmod_2D.LookupParameter('Монтажный_Зазор_Сверху').Set(mod_3D.LookupParameter('Монтажный_Зазор_Сверху').AsDouble())\r\n\tmod_2D.LookupParameter('Монтажный_Зазор_Снизу').Set(mod_3D.LookupParameter('Монтажный_Зазор_Снизу').AsDouble())\r\n\tmod_2D.LookupParameter('Монтажный_Зазор_Слева').Set(mod_3D.LookupParameter('Монтажный_Зазор_Слева').AsDouble())\r\n\tmod_2D.LookupParameter('Монтажный_Зазор_Справа').Set(mod_3D.LookupParameter('Монтажный_Зазор_Справа').AsDouble())\t\r\n\tmod_2D.LookupParameter('Импост_Слева').Set(mod_3D.LookupParameter('Импост_Слева').AsInteger())\r\n\tmod_2D.LookupParameter('Импост_Справа').Set(mod_3D.LookupParameter('Импост_Справа').AsInteger())\r\n\tmod_2D.LookupParameter('Импост_Сверху').Set(mod_3D.LookupParameter('Импост_Сверху').AsInteger())\r\n\tmod_2D.LookupParameter('Импост_Снизу').Set(mod_3D.LookupParameter('Импост_Снизу').AsInteger())\t\r\n\tmod_2D.LookupParameter('Импост_Ширина').Set(mod_3D.LookupParameter('Импост_Ширина').AsDouble())\t\r\n\tmod_2D.LookupParameter('Импост_Слева_Регулируемый').Set(mod_3D.LookupParameter('Импост_Слева_Регулируемый').AsInteger())\r\n\tmod_2D.LookupParameter('Импост_Справа_Регулируемый').Set(mod_3D.LookupParameter('Импост_Справа_Регулируемый').AsInteger())\r\n\tmod_2D.LookupParameter('Угловой_Нащельник_Слева_Регулируемый').Set(mod_3D.LookupParameter('Угловой_Нащельник_Слева_Регулируемый').AsInteger())\r\n\tmod_2D.LookupParameter('Угловой_Нащельник_Справа_Регулируемый').Set(mod_3D.LookupParameter('Угловой_Нащельник_Справа_Регулируемый').AsInteger())\r\n\tmod_2D.LookupParameter('Смещение_Нащельника_Слева').Set(mod_3D.LookupParameter('Смещение_Нащельника_Слева').AsDouble())\r\n\tmod_2D.LookupParameter('Смещение_Нащельника_Справа').Set(mod_3D.LookupParameter('Смещение_Нащельника_Справа').AsDouble())\t\t\r\n\tmod_2D.LookupParameter('Импост_Слева_Высота').Set(mod_3D.LookupParameter('Импост_Слева_Высота').AsDouble())\r\n\tmod_2D.LookupParameter('Импост_Справа_Высота').Set(mod_3D.LookupParameter('Импост_Справа_Высота').AsDouble())\t\r\n\tmod_2D.LookupParameter('Угловой_Нащельник_Левый_Видимость').Set(mod_3D.LookupParameter('Угловой_Нащельник_Левый_Видимость').AsInteger())\r\n\tmod_2D.LookupParameter('Угловой_Нащельник_Правый_Видимость').Set(mod_3D.LookupParameter('Угловой_Нащельник_Правый_Видимость').AsInteger())\t\r\n\tmod_2D.LookupParameter('Первый_По_Ширине').Set(mod_3D.LookupParameter('Первый_По_Ширине').AsInteger())\r\n\tmod_2D.LookupParameter('Промежуточный_По_Ширине').Set(mod_3D.LookupParameter('Промежуточный_По_Ширине').AsInteger())\r\n\tmod_2D.LookupParameter('Последний_По_Ширине').Set(mod_3D.LookupParameter('Последний_По_Ширине').AsInteger())\t\r\n\tmod_2D.LookupParameter('Первый_По_Высоте').Set(mod_3D.LookupParameter('Первый_По_Высоте').AsInteger())\r\n\tmod_2D.LookupParameter('Промежуточный_По_Высоте').Set(mod_3D.LookupParameter('Промежуточный_По_Высоте').AsInteger())\r\n\tmod_2D.LookupParameter('Последний_По_Высоте').Set(mod_3D.LookupParameter('Последний_По_Высоте').AsInteger())\r\n\t\r\n\tmod_2D.LookupParameter('Отступ_Витража').Set(offset_m - mod_3D.LookupParameter('Монтажный_Зазор_Снизу').AsDouble()) if offset_m > 0 else mod_2D.LookupParameter('Отступ_Витража').Set(offset_m)\r\n\tmod_2D.LookupParameter('Отступ_Размера_Низ').Set(offset_m + 0.4921259842519685)\r\n\tmod_2D.LookupParameter('Отступ_Размера_Низ_Общий').Set(offset_m + 1.640419947506562)\r\n\r\n\r\n\tsum_height = sum([list_modules[(len(level) - 1)].LookupParameter('ФОП_РАЗМ_Высота проёма').AsDouble() for list_modules in list_all_modules])\r\n\tsum_width = sum([w.LookupParameter('ФОП_РАЗМ_Ширина проёма').AsDouble() for w in level])\r\n\t\r\n\tif lev_num == 0:\t\t\r\n\t\tmod_2D.LookupParameter('Нижние_Размеры').Set(1)\t\t\r\n\t\t\r\n\t\tif num == 0:\r\n\t\t\tmod_2D.LookupParameter('Размер_Общий_Снизу').Set(1)\t\t\t\r\n\t\t\tmod_2D.LookupParameter('Размер_Общий_Снизу_Значение').Set(sum_width)\r\n\t\t\tmod_2D.LookupParameter('Левые_Размеры').Set(1) if offset_m > 0 else mod_2D.LookupParameter('Левые_Размеры').Set(0)\r\n\t\telse:\r\n\t\t\tmod_2D.LookupParameter('Размер_Общий_Снизу').Set(0)\r\n\t\t\tmod_2D.LookupParameter('Левые_Размеры').Set(0)\t\t\t\r\n\t\t\r\n\t\tif num == (len(level) - 1):\r\n\t\t\tmod_2D.LookupParameter('Правые_Размеры').Set(1)\r\n\t\t\tmod_2D.LookupParameter('Размер_Общий_Справа').Set(1)\r\n\t\t\tmod_2D.LookupParameter('Размер_Общий_Слева').Set(0)\t\t\t\r\n\t\t\tmod_2D.LookupParameter('Размер_Общий_Справа_Значение').Set(sum_height)\t\t\t\r\n\t\t\tmod_2D.LookupParameter('Размер_Общий_Вручную_Справа_Значение').Set(sum_height)\r\n\t\t\t\r\n\t\telse:\r\n\t\t\tmod_2D.LookupParameter('Правые_Размеры').Set(0)\r\n\t\t\tmod_2D.LookupParameter('Размер_Общий_Справа').Set(0)\r\n\t\t\tmod_2D.LookupParameter('Размер_Общий_Слева').Set(0)\r\n\telse:\r\n\t\t\r\n\t\tmod_2D.LookupParameter('Нижние_Размеры').Set(0)\t\t\r\n\t\tmod_2D.LookupParameter('Размер_Общий_Снизу').Set(0)\r\n\t\t\t\t\r\n\t\t\r\n\t\tif num == (len(level) - 1):\r\n\t\t\tmod_2D.LookupParameter('Правые_Размеры').Set(1)\r\n\t\t\tmod_2D.LookupParameter('Размер_Общий_Справа').Set(0)\r\n\t\t\tmod_2D.LookupParameter('Размер_Общий_Слева').Set(0)\r\n\t\t\tmod_2D.LookupParameter('Левые_Размеры').Set(0)\r\n\t\telse:\r\n\t\t\tmod_2D.LookupParameter('Правые_Размеры').Set(0)\r\n\t\t\tmod_2D.LookupParameter('Размер_Общий_Справа').Set(0)\r\n\t\t\tmod_2D.LookupParameter('Размер_Общий_Слева').Set(0)\r\n\t\t\tmod_2D.LookupParameter('Левые_Размеры').Set(0)\r\n\r\n\r\n# --------------------------------------------------------------------------------------------\t\r\n# ФУНКЦИИ ЯЧЕЕК\r\n# --------------------------------------------------------------------------------------------\t\r\n\r\n\r\n# Функция, которая возвращает вложенные семейства\r\ndef fam_members (fam):\r\n\r\n\tmembers_ids = fam.GetSubComponentIds()\t\t\t\r\n\tlist_of_members = []\r\n\tfor id in members_ids:\t\t\r\n\t\tmember = doc.GetElement(id)\r\n\t\tlist_of_members.append(member)\r\n\r\n\treturn list_of_members \r\n\r\n\r\n# Функция получения координат ячеек по высоте\t\r\ndef cell_xyz_y (list_cel):\t\r\n\t\r\n\theights = [h.LookupParameter('Высота').AsDouble() for h in list_cel]\t\r\n\t# Добавляем 0 так как первый модуль на 0.0.0\t\r\n\theights.insert(0,0)\r\n\t# Удаляем последнее значение\t\r\n\theights.pop((len(heights)-1))\r\n\t\r\n\t# Складываем всё поочередно для цепочки координат от нуля (0.0.0)\t\r\n\tstart = heights[0]\t\r\n\tresult = []\r\n\tfor item in heights:\t\t\r\n\t\tresult.append(item + start)\r\n\t\tstart += item\r\n\t\t\r\n\treturn result\r\n\r\n\r\ndef cell_mats (name):\r\n\tif 'решетка' in name.lower():\r\n\t\treturn 4\r\n\telif 'тонированн' in name.lower():\r\n\t\treturn 3\r\n\telif 'закаленн' in name.lower():\r\n\t\treturn 2\t\r\n\telif 'сэндвич' in name.lower():\r\n\t\treturn 5\r\n\telif 'воздух' in name.lower():\r\n\t\treturn 6\r\n\telse: \r\n\t\treturn 1\r\n\t\t\r\n\r\ndef cells_varios (ce_2D, ce_3D):\r\n\t\r\n\tif 'Окн_Вит_Ячейка_1х1' in ce_3D.Symbol.Family.Name:\t\r\n\t\tce_2D.LookupParameter('Код_Открывания').Set(ce_3D.Symbol.LookupParameter('Код_Открывания').AsInteger())\r\n\t\tce_2D.LookupParameter('Заполнение_Материал').Set(cell_mats(ce_3D.Symbol.LookupParameter('Заполнение_Материал').AsValueString()))\r\n\t\tce_2D.LookupParameter('Крестик').Set(ce_3D.Symbol.LookupParameter('Крестик').AsInteger())\r\n\t\r\n\telif 'Окн_Вит_Ячейка_Пустая' in ce_3D.Symbol.Family.Name:\t\r\n\t\tce_2D.LookupParameter('Заполнение_Материал').Set(cell_mats(ce_3D.Symbol.LookupParameter('Заполнение_Материал').AsValueString()))\r\n\t\t\r\n\telif 'Окн_Вит_Ячейка_1х2' in ce_3D.Symbol.Family.Name:\t\r\n\t\tce_2D.LookupParameter('Код_Открывания_Левая_Створка').Set(ce_3D.Symbol.LookupParameter('Код_Открывания_Левая_Створка').AsInteger())\r\n\t\tce_2D.LookupParameter('Код_Открывания_Правая_Створка').Set(ce_3D.Symbol.LookupParameter('Код_Открывания_Правая_Створка').AsInteger())\r\n\t\tce_2D.LookupParameter('Заполнение_Материал_Левая_Створка').Set(cell_mats(ce_3D.Symbol.LookupParameter('Заполнение_Материал_Левая_Створка').AsValueString()))\r\n\t \tce_2D.LookupParameter('Заполнение_Материал_Правая_Створка').Set(cell_mats(ce_3D.Symbol.LookupParameter('Заполнение_Материал_Правая_Створка').AsValueString()))\r\n\t \tce_2D.LookupParameter('Равные_Створки').Set(ce_3D.Symbol.LookupParameter('Равные_Створки').AsInteger())\r\n\t\tce_2D.LookupParameter('Крестик').Set(ce_3D.Symbol.LookupParameter('Крестик').AsInteger())\r\n\t\tce_2D.LookupParameter('Ширина_Левой_Створки').Set(ce_3D.Symbol.LookupParameter('Ширина_Левой_Створки').AsDouble())\r\n\t\tce_2D.LookupParameter('Высота_Окна_Выдачи').Set(ce_3D.Symbol.LookupParameter('Высота_Окна_Выдачи').AsDouble())\r\n\t\t\r\n\telif 'Окн_Вит_Ячейка_1х3' in ce_3D.Symbol.Family.Name:\t\r\n\t\tce_2D.LookupParameter('Код_Открывания_Левая_Створка').Set(ce_3D.Symbol.LookupParameter('Код_Открывания_Левая_Створка').AsInteger())\r\n\t\tce_2D.LookupParameter('Код_Открывания_Центр_Створка').Set(ce_3D.Symbol.LookupParameter('Код_Открывания_Центр_Створка').AsInteger())\r\n\t\tce_2D.LookupParameter('Код_Открывания_Правая_Створка').Set(ce_3D.Symbol.LookupParameter('Код_Открывания_Правая_Створка').AsInteger())\r\n\t\tce_2D.LookupParameter('Заполнение_Материал_Левая_Створка').Set(cell_mats(ce_3D.Symbol.LookupParameter('Заполнение_Материал_Левая_Створка').AsValueString()))\r\n\t\tce_2D.LookupParameter('Заполнение_Материал_Центр_Створка').Set(cell_mats(ce_3D.Symbol.LookupParameter('Заполнение_Материал_Центр_Створка').AsValueString()))\r\n\t \tce_2D.LookupParameter('Заполнение_Материал_Правая_Створка').Set(cell_mats(ce_3D.Symbol.LookupParameter('Заполнение_Материал_Правая_Створка').AsValueString()))\r\n\t \tce_2D.LookupParameter('Равные_Створки').Set(ce_3D.Symbol.LookupParameter('Равные_Створки').AsInteger())\r\n\t \tce_2D.LookupParameter('Развернуть открывание').Set(ce_3D.Symbol.LookupParameter('Развернуть открывание').AsInteger())\r\n\t\tce_2D.LookupParameter('Крестик').Set(ce_3D.Symbol.LookupParameter('Крестик').AsInteger())\r\n\t\tce_2D.LookupParameter('Ширина_Левой_Створки').Set(ce_3D.Symbol.LookupParameter('Ширина_Левой_Створки').AsDouble())\r\n\t\tce_2D.LookupParameter('Ширина_Центр_Створки').Set(ce_3D.Symbol.LookupParameter('Ширина_Центр_Створки').AsDouble())\r\n\r\n\telif 'Окн_Вит_Ячейка_Дверь' in ce_3D.Symbol.Family.Name:\t\r\n\t\tce_2D.LookupParameter('Код_Открывания').Set(ce_3D.Symbol.LookupParameter('Код_Открывания').AsInteger())\r\n\t\tce_2D.LookupParameter('Домофонная_Панель_Слева').Set(ce_3D.Symbol.LookupParameter('Домофонная_Панель_Слева').AsInteger())\r\n\t\tce_2D.LookupParameter('Домофонная_Панель_Справа').Set(ce_3D.Symbol.LookupParameter('Домофонная_Панель_Справа').AsInteger())\r\n\t\tce_2D.LookupParameter('Домофонная_Панель_Ширина_Слева').Set(ce_3D.Symbol.LookupParameter('Домофонная_Панель_Ширина_Слева').AsDouble())\r\n\t\tce_2D.LookupParameter('Домофонная_Панель_Ширина_Справа').Set(ce_3D.Symbol.LookupParameter('Домофонная_Панель_Ширина_Справа').AsDouble())\t\t\r\n\t\tce_2D.LookupParameter('Заполнение_Материал').Set(cell_mats(ce_3D.Symbol.LookupParameter('Заполнение_Материал').AsValueString()))\r\n\t\tce_2D.LookupParameter('Заполнение_Материал_Домофонная_Панель').Set(cell_mats(ce_3D.Symbol.LookupParameter('Заполнение_Материал_Домофонная_Панель').AsValueString()))\r\n\t \tce_2D.LookupParameter('Ширина_Большой_Створки').Set(ce_3D.Symbol.LookupParameter('Ширина_Большой_Створки').AsDouble())\t\t\r\n\r\n\r\n\t\t\r\ndef cell_parameter(c_num, m_num, l_num, mod_3D, lev, lev_list, c_2D, c_3D, offset_c):\r\n\t\r\n\tcells_varios (c_2D, c_3D)\t\r\n\t\r\n\tc_2D.LookupParameter('Импост_Ширина').Set(c_3D.LookupParameter('Импост_Ширина').AsDouble())\t\r\n\tc_2D.LookupParameter('Высота').Set(c_3D.LookupParameter('Высота').AsDouble())\r\n\tc_2D.LookupParameter('Ширина').Set(c_3D.LookupParameter('Ширина').AsDouble())\r\n\tc_2D.LookupParameter('Импост_Верхний_Видимость').Set(c_3D.LookupParameter('Импост_Верхний_Видимость').AsInteger())\r\n\tc_2D.LookupParameter('Импост_Нижний_Видимость').Set(c_3D.LookupParameter('Импост_Нижний_Видимость').AsInteger())\r\n\t\t\r\n\tc_2D.LookupParameter('Первая_По_Шир').Set(mod_3D.LookupParameter('Первый_По_Ширине').AsInteger())\r\n\tc_2D.LookupParameter('Промежуточная_По_Шир').Set(mod_3D.LookupParameter('Промежуточный_По_Ширине').AsInteger())\r\n\tc_2D.LookupParameter('Последняя_По_Шир').Set(mod_3D.LookupParameter('Последний_По_Ширине').AsInteger())\r\n\t\r\n\tc_2D.LookupParameter('Отступ_Размера_Низ').Set(offset_c + 0.4921259842519685)\t\r\n\t\t\r\n\t\t\r\n\tc_2D.LookupParameter('Левые_Размеры').Set(1) if m_num == 0 and offset_c > 0 else c_2D.LookupParameter('Левые_Размеры').Set(0)\t\r\n\tc_2D.LookupParameter('Правые_Размеры').Set(1) if m_num == len(lev) - 1 else c_2D.LookupParameter('Правые_Размеры').Set(0)\t\r\n\tc_2D.LookupParameter('Нижние_Размеры').Set(1) if c_num == 0 and l_num == 0 else c_2D.LookupParameter('Нижние_Размеры').Set(0)\r\n\t\t\t\t\r\n\tif  1 == len(fam_members(mod_3D)):\r\n\t\tc_2D.LookupParameter('Первая_По_Выс').Set(1)\r\n\t\tc_2D.LookupParameter('Промежуточная_По_Выс').Set(0)\r\n\t\tc_2D.LookupParameter('Последняя_По_Выс').Set(1)\r\n\t\t\r\n\telif c_num == 0 and l_num == 0:\r\n\t\tc_2D.LookupParameter('Первая_По_Выс').Set(1)\r\n\t\tc_2D.LookupParameter('Промежуточная_По_Выс').Set(0)\r\n\t\tc_2D.LookupParameter('Последняя_По_Выс').Set(0)\t\t\r\n\t\r\n\telif c_num == (len(fam_members(mod_3D)) - 1) and 1 == mod_3D.LookupParameter('Последний_По_Высоте').AsInteger():\r\n\t\tc_2D.LookupParameter('Первая_По_Выс').Set(0)\r\n\t\tc_2D.LookupParameter('Промежуточная_По_Выс').Set(0)\r\n\t\tc_2D.LookupParameter('Последняя_По_Выс').Set(1)\r\n\t\r\n\telif c_num == (len(fam_members(mod_3D)) - 1) and (0 == mod_3D.LookupParameter('Первый_По_Высоте').AsInteger() and 0 == mod_3D.LookupParameter('Промежуточный_По_Высоте').AsInteger() and 0 == mod_3D.LookupParameter('Последний_По_Высоте').AsInteger()):\r\n\t\tc_2D.LookupParameter('Первая_По_Выс').Set(0)\r\n\t\tc_2D.LookupParameter('Промежуточная_По_Выс').Set(0)\r\n\t\tc_2D.LookupParameter('Последняя_По_Выс').Set(1)\r\n\t\t\r\n\telse: \r\n\t\tc_2D.LookupParameter('Первая_По_Выс').Set(0)\r\n\t\tc_2D.LookupParameter('Промежуточная_По_Выс').Set(1)\r\n\t\tc_2D.LookupParameter('Последняя_По_Выс').Set(0)\r\n\t\r\n\t\r\ndef visor_x_y (ele_vis_3D, lis_ma_mod):\t\r\n\t\r\n\tzero_x = lis_ma_mod[0][0]\r\n\tzero_visor_x = zero_x.LookupParameter('Длина_Слева').AsDouble()\r\n\tx = ele_vis_3D[0].LookupParameter('Отступ_От_Левого_Края').AsDouble() - zero_visor_x\r\n\ty = ele_vis_3D[0].LookupParameter('Отступ_От_Нижнего_Края').AsDouble()\r\n\t\t\r\n\treturn x, y\r\n\t\r\ndef visor_parameter(el_vis_2D, el_vis_3D):\t\r\n\t\r\n\tel_vis_2D.LookupParameter('Высота подъема').Set(el_vis_3D.LookupParameter('Высота подвеса').AsDouble())\r\n\tel_vis_2D.LookupParameter('Ширина').Set(el_vis_3D.LookupParameter('Ширина').AsDouble())\r\n\t\r\n\r\ndef draft_varios (cel_3D):\r\n\t\r\n\tif 'Окн_Вит_Ячейка_1х1' in cel_3D.Symbol.Family.Name:\t\r\n\t\treturn draft_1x1\t\r\n\telif 'Окн_Вит_Ячейка_1х2' in cel_3D.Symbol.Family.Name:\t\r\n\t\treturn draft_1x2\t\t\r\n\telif 'Окн_Вит_Ячейка_1х3' in cel_3D.Symbol.Family.Name:\t\r\n\t\treturn draft_1x3\r\n\telif 'Окн_Вит_Ячейка_Дверь' in cel_3D.Symbol.Family.Name:\t\r\n\t\treturn draft_door\r\n\telif 'Окн_Вит_Ячейка_Пустая' in cel_3D.Symbol.Family.Name:\t\r\n\t\treturn draft_empty\r\n\r\n# --------------------------------------------------------------------------------------------\t\t\t\r\n# --------------------------------------------------------------------------------------------\r\n# Основная функция\r\n# --------------------------------------------------------------------------------------------\t\t\t\r\n# --------------------------------------------------------------------------------------------\t\r\n\r\ndef main_function (group):\r\n\r\n\ttype_group = doc.GetElement(group.GetTypeId())\r\n\ttry:\r\n\t\ttype_group_name = type_group.LookupParameter('ФОП_Марка типа').AsValueString()\r\n\texcept:\r\n\t\ttype_group_name = type_group.LookupParameter('ФОП_Марка Типа').AsValueString()\r\n\t\t\r\n\t# Создаем чертежный вид по ФОП_Марке типа группы витража\r\n\tdrafting_view = create_draft (type_group_name)\t\r\n\t\r\n\t# Сортируем модули по порядковому номеру\r\n\tlist_main_modules = sorting (group)\t\r\n\t\r\n\t# Цикл уровней - по высоте. В каждом level - несколько модулей\r\n\tfor lev_num, level in enumerate (list_main_modules):\r\n\t\t\r\n\t\t\r\n\t\t\r\n\t\t# Цикл модулей в каждом уровне\t\t\r\n\t\tfor mod_num, module_3D in enumerate(level):\t\r\n\t\t\t# Смещение модуля по высоте\r\n\t\t\toffset_mod = mod_xyz_y (list_main_modules)[1][mod_num]\r\n\t\t\t\r\n\t\t\tmod_x = mod_xyz_x (level)[mod_num]\t\t\t\r\n\t\t\tmod_y = mod_xyz_y (list_main_modules)[0][lev_num] + offset_mod\t\t\t\r\n\t\t\t\r\n\t\t\tmodule_2D = put ( XYZ(mod_x,mod_y,0), draft_rama, drafting_view)\r\n\t\t\tmodule_parameter (lev_num, level, mod_num, module_3D, module_2D, list_main_modules, offset_mod)\r\n\t\t\t\r\n\t\t\tDetailElementOrderUtils.SendToBack (doc, drafting_view, module_2D.Id)\r\n\t\t\t\r\n\t\t\t# Цикл ячеек в каждом модуле\r\n\t\t\tfor cell_num, cell_3D in enumerate(fam_members (module_3D)):\r\n\t\t\t\t\r\n\t\t\t\tcell_y = cell_xyz_y (fam_members(module_3D))[cell_num] + mod_y\t\t\t\r\n\t\t\t\t\t\t\t\t\r\n\t\t\t\tcell_2D = put ( XYZ(mod_x,cell_y,0), draft_varios(cell_3D), drafting_view)\t\t\t\t\r\n\t\t\t\tcell_parameter(cell_num, mod_num, lev_num, module_3D, level, list_main_modules, cell_2D, cell_3D, offset_mod)\r\n\t\t\t\t\r\n\t\t\t\tDetailElementOrderUtils.SendToBack (doc, drafting_view, cell_2D.Id)\t\r\n\t\r\n\t\r\n\tvisor_3D = [fam_vis for fam_vis in group_members (group) if 'ОбщМд_Козырек' in fam_vis.Symbol.Family.Name]\r\n\t\r\n\tif visor_3D:\t\t\t\r\n\t\tvis_x = visor_x_y ( visor_3D, list_main_modules)[0]\r\n\t\tvis_y = visor_x_y ( visor_3D, list_main_modules)[1]\r\n\t\t\r\n\t\tvisor_2D = put ( XYZ(vis_x, vis_y, 0), visor, drafting_view)\t\r\n\t\tvisor_parameter(visor_2D, visor_3D[0])\t\r\n\t\t\r\n\t\tDetailElementOrderUtils.BringToFront (doc, drafting_view, visor_2D.Id)\t\r\n\r\n\r\n# --------------------------------------------------------------------------------------------\t\t\t\r\n# --------------------------------------------------------------------------------------------\r\n# Переменные\r\n# --------------------------------------------------------------------------------------------\t\t\t\r\n# --------------------------------------------------------------------------------------------\r\n\r\n\r\ndoc = DocumentManager.Instance.CurrentDBDocument\r\nuiapp = DocumentManager.Instance.CurrentUIApplication\r\napp = uiapp.Application\r\nuidoc = DocumentManager.Instance.CurrentUIApplication.ActiveUIDocument\r\n\r\ndraft_rama = UnwrapElement(IN[0])\r\ndraft_1x1 = UnwrapElement(IN[1])\r\ndraft_1x2 = UnwrapElement(IN[2])\r\ndraft_1x3 = UnwrapElement(IN[3])\r\ndraft_door = UnwrapElement(IN[4])\r\ndraft_empty = UnwrapElement(IN[5])\r\nvisor = UnwrapElement(IN[6])\r\n\r\n\r\n# --------------------------------------------------------------------------------------------\t\t\t\r\n# --------------------------------------------------------------------------------------------\r\n# Транзакция\r\n# --------------------------------------------------------------------------------------------\t\t\t\r\n# --------------------------------------------------------------------------------------------\r\n\r\n\r\nTransactionManager.Instance.EnsureInTransaction(doc)\r\n\r\n\r\nactivation (draft_rama)\r\nactivation (draft_1x1)\r\nactivation (draft_1x2)\r\nactivation (draft_1x3)\r\nactivation (draft_door)\r\nactivation (visor)\r\n\r\n\r\n# Выбераем элементы в модели\r\nselected_ids = uidoc.Selection.GetElementIds()\r\n\r\n# Отделяем только по одному экземпляру из всех выделенных групп\r\nall_groups = group_instance (selected_ids)\r\n\r\n# Перебираем каждую группу\r\nfor group in all_groups:\t\r\n\tmain_function (group)\t\r\n\r\nTransactionManager.Instance.TransactionTaskDone()\t\r\n\t\r\n\r\n\r\n\r\n",
+      "Engine": "IronPython2",
+      "VariableInputPorts": true,
+      "Id": "951f2cfd1acf4589ae3746581e1c9ba2",
+      "Inputs": [
+        {
+          "Id": "861826bb896242288534d2150b6499dc",
+          "Name": "IN[0]",
+          "Description": "Input #0",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        },
+        {
+          "Id": "a199a69da0ec4b1595c1f2d1c6c39dda",
+          "Name": "IN[1]",
+          "Description": "Input #1",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        },
+        {
+          "Id": "d15d276c56e840e4aa3e0bfff9d5791f",
+          "Name": "IN[2]",
+          "Description": "Input #2",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        },
+        {
+          "Id": "cafcae17b87240fd87f6711064e1afb1",
+          "Name": "IN[3]",
+          "Description": "Input #3",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        },
+        {
+          "Id": "fdeb3d6b1d894c43b0f1046e4d1b983a",
+          "Name": "IN[4]",
+          "Description": "Input #4",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        },
+        {
+          "Id": "4e328edd7bac4c0bb75fef164ce1e24c",
+          "Name": "IN[5]",
+          "Description": "Input #5",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        },
+        {
+          "Id": "548aa5d5db5c413488652b3681802a6e",
+          "Name": "IN[6]",
+          "Description": "Input #6",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        },
+        {
+          "Id": "f18aa35f472b40079523904fb240db2f",
+          "Name": "IN[7]",
+          "Description": "Input #7",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Outputs": [
+        {
+          "Id": "c5d685e40343493b90f05520f8396a1e",
+          "Name": "OUT",
+          "Description": "Результат сценария Python",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Disabled",
+      "Description": "Выполнение встроенного сценария Python."
+    },
+    {
+      "ConcreteType": "CoreNodeModels.Input.BoolSelector, CoreNodeModels",
+      "NodeType": "BooleanInputNode",
+      "InputValue": false,
+      "Id": "63604007569544fdaf073b95cdae9095",
+      "Inputs": [],
+      "Outputs": [
+        {
+          "Id": "9ac4a41db74546af8bd595a491a3212e",
+          "Name": "",
+          "Description": "Boolean",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Disabled",
+      "Description": "Выбор между значениями true и false."
+    },
+    {
+      "ConcreteType": "Dynamo.Graph.Nodes.ZeroTouch.DSFunction, DynamoCore",
+      "NodeType": "FunctionNode",
+      "FunctionSignature": "Revit.Elements.FamilyType.ByName@string",
+      "Id": "9486272cf087436bb90dc78752a9cbdd",
+      "Inputs": [
+        {
+          "Id": "36d687cdbec74d33bd12e303422e8f2d",
+          "Name": "name",
+          "Description": "Имя FamilyType\n\nstring",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Outputs": [
+        {
+          "Id": "05ea6cc6503441d98e3c2e7cc5359ef1",
+          "Name": "FamilyType",
+          "Description": "FamilyType",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Auto",
+      "Description": "Выберите FamilyType, указав его имя. При наличии двух и более FamilyType с одинаковым именем этот метод вернет первый найденный FamilyType.\n\nFamilyType.ByName (name: string): FamilyType"
+    },
+    {
+      "ConcreteType": "Dynamo.Graph.Nodes.CodeBlockNodeModel, DynamoCore",
+      "NodeType": "CodeBlockNode",
+      "Code": "\"ЭлУз_Вит_Рама\";",
+      "Id": "7125eacb681142c1a81964a8ccb78b1c",
+      "Inputs": [],
+      "Outputs": [
+        {
+          "Id": "d32d802f2bee4e5c9ce4a432711c443a",
+          "Name": "",
+          "Description": "Значение выражения в строке 1",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Disabled",
+      "Description": "Обеспечивает возможность непосредственного авторства кода DesignScript"
+    },
+    {
+      "ConcreteType": "Dynamo.Graph.Nodes.ZeroTouch.DSFunction, DynamoCore",
+      "NodeType": "FunctionNode",
+      "FunctionSignature": "Revit.Elements.FamilyType.ByName@string",
+      "Id": "f702b982a27843f3aab8d5fc86213092",
+      "Inputs": [
+        {
+          "Id": "da8376746f3f4ca488dfb0396c5ee0c7",
+          "Name": "name",
+          "Description": "Имя FamilyType\n\nstring",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Outputs": [
+        {
+          "Id": "f199231c6e6b44de890fa5c04ed9a355",
+          "Name": "FamilyType",
+          "Description": "FamilyType",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Auto",
+      "Description": "Выберите FamilyType, указав его имя. При наличии двух и более FamilyType с одинаковым именем этот метод вернет первый найденный FamilyType.\n\nFamilyType.ByName (name: string): FamilyType"
+    },
+    {
+      "ConcreteType": "Dynamo.Graph.Nodes.CodeBlockNodeModel, DynamoCore",
+      "NodeType": "CodeBlockNode",
+      "Code": "\"ЭлУз_Вит_Ячейка_1x1\";",
+      "Id": "c71f9d066125467480940444f6a4ae44",
+      "Inputs": [],
+      "Outputs": [
+        {
+          "Id": "d2be60ba1a51483ab37f2ef8538f3829",
+          "Name": "",
+          "Description": "Значение выражения в строке 1",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Disabled",
+      "Description": "Обеспечивает возможность непосредственного авторства кода DesignScript"
+    },
+    {
+      "ConcreteType": "Dynamo.Graph.Nodes.ZeroTouch.DSFunction, DynamoCore",
+      "NodeType": "FunctionNode",
+      "FunctionSignature": "Revit.Elements.FamilyType.ByName@string",
+      "Id": "ea28fae4faa54c1da45e0b778668faf3",
+      "Inputs": [
+        {
+          "Id": "751524296158445181da408ab9c32628",
+          "Name": "name",
+          "Description": "Имя FamilyType\n\nstring",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Outputs": [
+        {
+          "Id": "476034ceb5ef4d6a94ac3619600dfa06",
+          "Name": "FamilyType",
+          "Description": "FamilyType",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Auto",
+      "Description": "Выберите FamilyType, указав его имя. При наличии двух и более FamilyType с одинаковым именем этот метод вернет первый найденный FamilyType.\n\nFamilyType.ByName (name: string): FamilyType"
+    },
+    {
+      "ConcreteType": "Dynamo.Graph.Nodes.CodeBlockNodeModel, DynamoCore",
+      "NodeType": "CodeBlockNode",
+      "Code": "\"ЭлУз_Вит_Ячейка_1x2\";",
+      "Id": "8eeac1847350414b9a90ddbb67db819d",
+      "Inputs": [],
+      "Outputs": [
+        {
+          "Id": "b24482c5d9294f3c8de3419f5318ef1f",
+          "Name": "",
+          "Description": "Значение выражения в строке 1",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Disabled",
+      "Description": "Обеспечивает возможность непосредственного авторства кода DesignScript"
+    },
+    {
+      "ConcreteType": "Dynamo.Graph.Nodes.ZeroTouch.DSFunction, DynamoCore",
+      "NodeType": "FunctionNode",
+      "FunctionSignature": "Revit.Elements.FamilyType.ByName@string",
+      "Id": "3f5b5a4098594083affa9d8a6b518535",
+      "Inputs": [
+        {
+          "Id": "6d8815e5192b414ca51cbfd69bb8c6f2",
+          "Name": "name",
+          "Description": "Имя FamilyType\n\nstring",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Outputs": [
+        {
+          "Id": "de021c4adb8040aca2c0fcec7b197a0f",
+          "Name": "FamilyType",
+          "Description": "FamilyType",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Auto",
+      "Description": "Выберите FamilyType, указав его имя. При наличии двух и более FamilyType с одинаковым именем этот метод вернет первый найденный FamilyType.\n\nFamilyType.ByName (name: string): FamilyType"
+    },
+    {
+      "ConcreteType": "Dynamo.Graph.Nodes.CodeBlockNodeModel, DynamoCore",
+      "NodeType": "CodeBlockNode",
+      "Code": "\"ЭлУз_Вит_Ячейка_1x3\";",
+      "Id": "44456a777d31418588b5863a6e59072c",
+      "Inputs": [],
+      "Outputs": [
+        {
+          "Id": "44977c1a6d55443eb0b9ff61f74c5108",
+          "Name": "",
+          "Description": "Значение выражения в строке 1",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Disabled",
+      "Description": "Обеспечивает возможность непосредственного авторства кода DesignScript"
+    },
+    {
+      "ConcreteType": "Dynamo.Graph.Nodes.ZeroTouch.DSFunction, DynamoCore",
+      "NodeType": "FunctionNode",
+      "FunctionSignature": "Revit.Elements.FamilyType.ByName@string",
+      "Id": "79613ffd1273417382616b38cd9e9607",
+      "Inputs": [
+        {
+          "Id": "e881738bb76845a5a3c9f49990415462",
+          "Name": "name",
+          "Description": "Имя FamilyType\n\nstring",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Outputs": [
+        {
+          "Id": "5ed190364b1243328abdfe7a8d0345eb",
+          "Name": "FamilyType",
+          "Description": "FamilyType",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Auto",
+      "Description": "Выберите FamilyType, указав его имя. При наличии двух и более FamilyType с одинаковым именем этот метод вернет первый найденный FamilyType.\n\nFamilyType.ByName (name: string): FamilyType"
+    },
+    {
+      "ConcreteType": "Dynamo.Graph.Nodes.CodeBlockNodeModel, DynamoCore",
+      "NodeType": "CodeBlockNode",
+      "Code": "\"ЭлУз_Вит_Ячейка_Дверь\";",
+      "Id": "eb78491eebab43a19baf854e74b9d17a",
+      "Inputs": [],
+      "Outputs": [
+        {
+          "Id": "6938c3d038bf4185a80a1adfa391d961",
+          "Name": "",
+          "Description": "Значение выражения в строке 1",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Disabled",
+      "Description": "Обеспечивает возможность непосредственного авторства кода DesignScript"
+    },
+    {
+      "ConcreteType": "Dynamo.Graph.Nodes.ZeroTouch.DSFunction, DynamoCore",
+      "NodeType": "FunctionNode",
+      "FunctionSignature": "Revit.Elements.FamilyType.ByName@string",
+      "Id": "56dabaa4d6f141c8b1bac40862b2bf74",
+      "Inputs": [
+        {
+          "Id": "8f9a559de50f4c3b8043b80ddaefaec1",
+          "Name": "name",
+          "Description": "Имя FamilyType\n\nstring",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Outputs": [
+        {
+          "Id": "361a006aa332405c9738cd67315ca59c",
+          "Name": "FamilyType",
+          "Description": "FamilyType",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Auto",
+      "Description": "Выберите FamilyType, указав его имя. При наличии двух и более FamilyType с одинаковым именем этот метод вернет первый найденный FamilyType.\n\nFamilyType.ByName (name: string): FamilyType"
+    },
+    {
+      "ConcreteType": "Dynamo.Graph.Nodes.CodeBlockNodeModel, DynamoCore",
+      "NodeType": "CodeBlockNode",
+      "Code": "\"ЭлУз_Вит_Козырек\";",
+      "Id": "957a47f5fa8b442892a1301acbd6a930",
+      "Inputs": [],
+      "Outputs": [
+        {
+          "Id": "4d19c365ea9640f79f3f202e99407b22",
+          "Name": "",
+          "Description": "Значение выражения в строке 1",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Disabled",
+      "Description": "Обеспечивает возможность непосредственного авторства кода DesignScript"
+    },
+    {
+      "ConcreteType": "Dynamo.Graph.Nodes.ZeroTouch.DSFunction, DynamoCore",
+      "NodeType": "FunctionNode",
+      "FunctionSignature": "Revit.Elements.FamilyType.ByName@string",
+      "Id": "bdbe67f0ef2a482e998a745bef7cc147",
+      "Inputs": [
+        {
+          "Id": "d4d3a6609dbf41dba51aa0230b8d7ce7",
+          "Name": "name",
+          "Description": "Имя FamilyType\n\nstring",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Outputs": [
+        {
+          "Id": "669a682c866345dea0146b7b20f064f5",
+          "Name": "FamilyType",
+          "Description": "FamilyType",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Auto",
+      "Description": "Выберите FamilyType, указав его имя. При наличии двух и более FamilyType с одинаковым именем этот метод вернет первый найденный FamilyType.\n\nFamilyType.ByName (name: string): FamilyType"
+    },
+    {
+      "ConcreteType": "Dynamo.Graph.Nodes.CodeBlockNodeModel, DynamoCore",
+      "NodeType": "CodeBlockNode",
+      "Code": "\"ЭлУз_Вит_Ячейка_Пустая\";",
+      "Id": "373dcca531244b3984a5bbd42c6b3274",
+      "Inputs": [],
+      "Outputs": [
+        {
+          "Id": "7d896bdece164efcb12f269d89059991",
+          "Name": "",
+          "Description": "Значение выражения в строке 1",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Disabled",
+      "Description": "Обеспечивает возможность непосредственного авторства кода DesignScript"
+    }
+  ],
+  "Connectors": [
+    {
+      "Start": "dd00b3cc9dff450388acb342357f1336",
+      "End": "8792e14bbbe04624a69e9a2ecc8041e8",
+      "Id": "d48ee6cba33149da8c6ac2c67c7e3eca"
+    },
+    {
+      "Start": "9ac4a41db74546af8bd595a491a3212e",
+      "End": "f18aa35f472b40079523904fb240db2f",
+      "Id": "8481b2939bfb4b6fab7a7a34e518a820"
+    },
+    {
+      "Start": "05ea6cc6503441d98e3c2e7cc5359ef1",
+      "End": "861826bb896242288534d2150b6499dc",
+      "Id": "52f2b3b0758444708a1198e3d9bffdac"
+    },
+    {
+      "Start": "d32d802f2bee4e5c9ce4a432711c443a",
+      "End": "36d687cdbec74d33bd12e303422e8f2d",
+      "Id": "23072984fa17439581eef86c2b05722a"
+    },
+    {
+      "Start": "f199231c6e6b44de890fa5c04ed9a355",
+      "End": "a199a69da0ec4b1595c1f2d1c6c39dda",
+      "Id": "d10f153200464df1bb3b7aaac3ce7d99"
+    },
+    {
+      "Start": "d2be60ba1a51483ab37f2ef8538f3829",
+      "End": "da8376746f3f4ca488dfb0396c5ee0c7",
+      "Id": "d16c98d6905d4a3683862aa41adbeb32"
+    },
+    {
+      "Start": "476034ceb5ef4d6a94ac3619600dfa06",
+      "End": "d15d276c56e840e4aa3e0bfff9d5791f",
+      "Id": "e712d398efa24440be879f679765b4c6"
+    },
+    {
+      "Start": "b24482c5d9294f3c8de3419f5318ef1f",
+      "End": "751524296158445181da408ab9c32628",
+      "Id": "ec3dfa1f42724809a2c0b4d0c9b24f9d"
+    },
+    {
+      "Start": "de021c4adb8040aca2c0fcec7b197a0f",
+      "End": "cafcae17b87240fd87f6711064e1afb1",
+      "Id": "17fbfe76b27943098805f287cdc202cd"
+    },
+    {
+      "Start": "44977c1a6d55443eb0b9ff61f74c5108",
+      "End": "6d8815e5192b414ca51cbfd69bb8c6f2",
+      "Id": "49de83d581564fcbb8ffcf0f9a20f715"
+    },
+    {
+      "Start": "5ed190364b1243328abdfe7a8d0345eb",
+      "End": "fdeb3d6b1d894c43b0f1046e4d1b983a",
+      "Id": "5d0e6c9e9ce6436e883ed98d7ac2a95b"
+    },
+    {
+      "Start": "6938c3d038bf4185a80a1adfa391d961",
+      "End": "e881738bb76845a5a3c9f49990415462",
+      "Id": "f858484a3c3d41a98dde844804f93ba5"
+    },
+    {
+      "Start": "361a006aa332405c9738cd67315ca59c",
+      "End": "548aa5d5db5c413488652b3681802a6e",
+      "Id": "404cb154735546989ba2016df18c741b"
+    },
+    {
+      "Start": "4d19c365ea9640f79f3f202e99407b22",
+      "End": "8f9a559de50f4c3b8043b80ddaefaec1",
+      "Id": "2c084a930bcb4767a1a7798a57a42db9"
+    },
+    {
+      "Start": "669a682c866345dea0146b7b20f064f5",
+      "End": "4e328edd7bac4c0bb75fef164ce1e24c",
+      "Id": "08276ba282f6465b91b54815e2a181f2"
+    },
+    {
+      "Start": "7d896bdece164efcb12f269d89059991",
+      "End": "d4d3a6609dbf41dba51aa0230b8d7ce7",
+      "Id": "95e00874b8e9428a8338bbfc3e9b2920"
+    }
+  ],
+  "Dependencies": [],
+  "NodeLibraryDependencies": [],
+  "Thumbnail": "",
+  "GraphDocumentationURL": null,
+  "ExtensionWorkspaceData": [
+    {
+      "ExtensionGuid": "28992e1d-abb9-417f-8b1b-05e053bee670",
+      "Name": "Properties",
+      "Version": "2.12",
+      "Data": {}
+    },
+    {
+      "ExtensionGuid": "DFBD9CC0-DB40-457A-939E-8C8555555A9D",
+      "Name": "Generative Design",
+      "Version": "1.10",
+      "Data": {}
+    }
+  ],
+  "Author": "None provided",
+  "Linting": {
+    "activeLinter": "Нет",
+    "activeLinterId": "7b75fb44-43fd-4631-a878-29f4d5d8399a",
+    "warningCount": 0,
+    "errorCount": 0
+  },
+  "Bindings": [],
+  "View": {
+    "Dynamo": {
+      "ScaleFactor": 1.0,
+      "HasRunWithoutCrash": true,
+      "IsVisibleInDynamoLibrary": true,
+      "Version": "2.12.1.8246",
+      "RunType": "Manual",
+      "RunPeriod": "1000"
+    },
+    "Camera": {
+      "Name": "Фоновый просмотр",
+      "EyeX": -18.639432049313044,
+      "EyeY": 50.739627788617071,
+      "EyeZ": 58.882612508353446,
+      "LookX": 14.880000114440918,
+      "LookY": -16.1200008392334,
+      "LookZ": -71.919998168945313,
+      "UpX": 0.0,
+      "UpY": 1.0,
+      "UpZ": 0.0
+    },
+    "NodeViews": [
+      {
+        "ShowGeometry": true,
+        "Name": "Python Script From String",
+        "Id": "fa37145c6d3e451497743fbf1b9f7cd5",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": -5832.0775118298516,
+        "Y": 26.238029256165248
+      },
+      {
+        "ShowGeometry": true,
+        "Name": "Python Script",
+        "Id": "57486744a81746dab9b21eed76dc7c10",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": true,
+        "X": -5942.3023350440717,
+        "Y": 26.918790845393289
+      },
+      {
+        "ShowGeometry": true,
+        "Name": "Создание эскизов",
+        "Id": "951f2cfd1acf4589ae3746581e1c9ba2",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": -4899.6681558779765,
+        "Y": -188.40930665231247
+      },
+      {
+        "ShowGeometry": true,
+        "Name": "Перезапуск",
+        "Id": "63604007569544fdaf073b95cdae9095",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": -5221.35859945624,
+        "Y": 301.06060253271062
+      },
+      {
+        "ShowGeometry": true,
+        "Name": "FamilyType.ByName",
+        "Id": "9486272cf087436bb90dc78752a9cbdd",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": -5285.352445381388,
+        "Y": -394.80353287272328
+      },
+      {
+        "ShowGeometry": true,
+        "Name": "Code Block",
+        "Id": "7125eacb681142c1a81964a8ccb78b1c",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": -5532.5354623434414,
+        "Y": -390.46389200124474
+      },
+      {
+        "ShowGeometry": true,
+        "Name": "FamilyType.ByName",
+        "Id": "f702b982a27843f3aab8d5fc86213092",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": -5284.6135868494648,
+        "Y": -300.00628573684719
+      },
+      {
+        "ShowGeometry": true,
+        "Name": "Code Block",
+        "Id": "c71f9d066125467480940444f6a4ae44",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": -5580.1894241966347,
+        "Y": -296.03700050640816
+      },
+      {
+        "ShowGeometry": true,
+        "Name": "FamilyType.ByName",
+        "Id": "ea28fae4faa54c1da45e0b778668faf3",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": -5282.3206730614411,
+        "Y": -202.3381800756232
+      },
+      {
+        "ShowGeometry": true,
+        "Name": "Code Block",
+        "Id": "8eeac1847350414b9a90ddbb67db819d",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": -5580.5024500986137,
+        "Y": -196.63160171851564
+      },
+      {
+        "ShowGeometry": true,
+        "Name": "FamilyType.ByName",
+        "Id": "3f5b5a4098594083affa9d8a6b518535",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": -5280.0864217943663,
+        "Y": -105.63346019089613
+      },
+      {
+        "ShowGeometry": true,
+        "Name": "Code Block",
+        "Id": "44456a777d31418588b5863a6e59072c",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": -5580.9102152137548,
+        "Y": -102.53282152379137
+      },
+      {
+        "ShowGeometry": true,
+        "Name": "FamilyType.ByName",
+        "Id": "79613ffd1273417382616b38cd9e9607",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": -5281.8584704485684,
+        "Y": -7.2720506103632943
+      },
+      {
+        "ShowGeometry": true,
+        "Name": "Code Block",
+        "Id": "eb78491eebab43a19baf854e74b9d17a",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": -5596.544532189092,
+        "Y": -3.3027653799242671
+      },
+      {
+        "ShowGeometry": true,
+        "Name": "FamilyType.ByName",
+        "Id": "56dabaa4d6f141c8b1bac40862b2bf74",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": -5281.9261154769547,
+        "Y": 206.31391763104182
+      },
+      {
+        "ShowGeometry": true,
+        "Name": "Code Block",
+        "Id": "957a47f5fa8b442892a1301acbd6a930",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": -5560.9976681207736,
+        "Y": 210.28320286148085
+      },
+      {
+        "ShowGeometry": true,
+        "Name": "FamilyType.ByName",
+        "Id": "bdbe67f0ef2a482e998a745bef7cc147",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": -5280.0965817034457,
+        "Y": 96.734168529223041
+      },
+      {
+        "ShowGeometry": true,
+        "Name": "Code Block",
+        "Id": "373dcca531244b3984a5bbd42c6b3274",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": -5596.3006704671325,
+        "Y": 98.930083940780619
+      }
+    ],
+    "Annotations": [
+      {
+        "Id": "7313dd87a8d4477790e53d9263a7dfad",
+        "Title": "ОПИСАНИЕ!\r\nПРОЧИТАТЬ ПЕРЕД ЗАПУСКОМ!",
+        "Nodes": [
+          "d30a7c399e5f46c69888adf369456b1d"
+        ],
+        "Left": -5962.913086479798,
+        "Top": -460.31543458292361,
+        "Width": 319.0,
+        "Height": 420.0,
+        "FontSize": 36.0,
+        "InitialTop": -320.31543458292361,
+        "InitialHeight": 145.0,
+        "TextblockHeight": 130.0,
+        "Background": "#FF848484"
+      },
+      {
+        "Id": "6c34f2dd6e8d4a498c9491ab69b4516c",
+        "Title": "Для разработчика",
+        "Nodes": [
+          "fa37145c6d3e451497743fbf1b9f7cd5",
+          "57486744a81746dab9b21eed76dc7c10"
+        ],
+        "Left": -5952.3023350440717,
+        "Top": -26.761970743834752,
+        "Width": 307.22482321422012,
+        "Height": 157.68076158922804,
+        "FontSize": 36.0,
+        "InitialTop": 26.238029256165248,
+        "InitialHeight": 145.68076158922804,
+        "TextblockHeight": 43.0,
+        "Background": "#FFFFFFFF"
+      },
+      {
+        "Id": "d30a7c399e5f46c69888adf369456b1d",
+        "Title": "Скрипт \"Витражи - №5_Создание эскизов\"\r\nВерсия 2.1\r\nРазработал: Козлов Павел\r\n________________________________________________________\r\n\r\nЧТО ДЕЛАЕТ: \r\nСоздает чертежные виды по имени типа витража. Вставляет 2D-ассоциированные семейства 3D-витража на данный чертежный вид\r\n_______________________________________________________\r\n\r\nКАК ПОЛЬЗОВАТЬСЯ: \r\n1. Выбрать группу(ы) витража в модели или в спецификации\r\n2. Запустить скрипт\r\n\r\n",
+        "Nodes": [],
+        "Left": -5952.913086479798,
+        "Top": -320.31543458292361,
+        "Width": 0.0,
+        "Height": 0.0,
+        "FontSize": 36.0,
+        "InitialTop": 0.0,
+        "InitialHeight": 0.0,
+        "TextblockHeight": 0.0,
+        "Background": "#FFC1D676"
+      }
+    ],
+    "X": 6636.94402596046,
+    "Y": 624.72413743870788,
+    "Zoom": 1.1053103740490409
+  }
+}
