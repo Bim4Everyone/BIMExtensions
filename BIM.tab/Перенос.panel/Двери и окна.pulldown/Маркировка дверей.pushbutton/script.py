@@ -28,6 +28,12 @@ doc = __revit__.ActiveUIDocument.Document
 uidoc = __revit__.ActiveUIDocument
 app = doc.Application
 
+param_name_for_filter = "ФОП_Учитывать в спецификации"
+
+doors_name_start_with = "Двр_Двр"
+hatches_name_start_with = "Двр_Люк"
+
+param_name_for_mark = "ФОП_Марка типа"
 
 class CreateCommand(ICommand):
     CanExecuteChanged, _canExecuteChanged = pyevent.make_event()
@@ -61,7 +67,7 @@ class CreateCommand(ICommand):
             self.__view_model.error_text = "Выберите конечный уровень"
             return False
 
-        if self.__view_model.selected_construction_stage == 0:
+        if self.__view_model.selected_construction_phase == 0:
             self.__view_model.error_text = "Выберите стадию"
             return False
 
@@ -69,10 +75,70 @@ class CreateCommand(ICommand):
         return True
 
     def Execute(self, parameter):
-        alert("Поехали!")
+
+        doors = (FilteredElementCollector(doc)
+                 .OfCategory(BuiltInCategory.OST_Doors)
+                 .WhereElementIsNotElementType()
+                 .ToElements())
+
+        start_level_elevation = self.__view_model.selected_start_level.Elevation
+        finish_level_elevation = self.__view_model.selected_finish_level.Elevation
+        phase_id = self.__view_model.selected_construction_phase.Id
+
+        print("start_level_elevation")
+        print(start_level_elevation)
+        print("finish_level_elevation")
+        print(finish_level_elevation)
+        print("phase_id")
+        print(phase_id)
+
+        door_types_for_work = []
+        hatch_types_for_work = []
+        for door in doors:
+            print(door)
+            level = doc.GetElement(door.LevelId)
+            level_elevation = level.Elevation
+
+            print(level_elevation)
+
+            # Фильтрация по уровню
+            if finish_level_elevation >= level_elevation >= start_level_elevation:
+                door_phase_id = door.CreatedPhaseId
+                # Фильтрация по стадии
+                if door_phase_id == phase_id:
+                    door_type = doc.GetElement(door.GetTypeId())
+                    # Фильтрация по параметру "ФОП_Учитывать в спецификации"
+                    if door_type.GetParamValue(param_name_for_filter):
+                        door_family_name = door_type.FamilyName
+                        # Фильтрация по имени семейства
+                        if doors_name_start_with in door_family_name:
+                            door_types_for_work.append(door_type)
+                        elif hatches_name_start_with in door_family_name:
+                            hatch_types_for_work.append(door_type)
+
+        self.clear_mark(door_types_for_work)
+        self.clear_mark(hatch_types_for_work)
+
+        door_types_for_work = self.get_unique_items_by_id(door_types_for_work)
+        hatch_types_for_work = self.get_unique_items_by_id(hatch_types_for_work)
+
+        print("door_types_for_work")
+        print(door_types_for_work)
+        print("hatch_types_for_work")
+        print(hatch_types_for_work)
         return True
 
+    def clear_mark(self, elements):
+        with revit.Transaction("BIM: Очистка марок"):
+            for element in elements:
+                element.SetParamValue(param_name_for_mark, "")
 
+    def get_unique_items_by_id(self, elems):
+        d = {}
+        for item in elems:
+            id_as_str = str(item.Id)
+            d[id_as_str] = item
+        return d.values()
 
 class SelectExcelFileCommand(ICommand):
     CanExecuteChanged, _canExecuteChanged = pyevent.make_event()
@@ -127,8 +193,8 @@ class MainWindowViewModel(Reactive):
         self.__selected_start_level = 0
         self.__selected_finish_level = 0
 
-        self.__construction_stages = []
-        self.__selected_construction_stage = 0
+        self.__construction_phases = []
+        self.__selected_construction_phase = 0
 
         self.__error_text = ""
 
@@ -162,21 +228,21 @@ class MainWindowViewModel(Reactive):
 
 
     @reactive
-    def construction_stages(self):
-        return self.__construction_stages
+    def construction_phases(self):
+        return self.__construction_phases
 
-    @construction_stages.setter
-    def construction_stages(self, value):
-        self.__construction_stages = value
+    @construction_phases.setter
+    def construction_phases(self, value):
+        self.__construction_phases = value
 
 
     @reactive
-    def selected_construction_stage(self):
-        return self.__selected_construction_stage
+    def selected_construction_phase(self):
+        return self.__selected_construction_phase
 
-    @selected_construction_stage.setter
-    def selected_construction_stage(self, value):
-        self.__selected_construction_stage = value
+    @selected_construction_phase.setter
+    def selected_construction_phase(self, value):
+        self.__selected_construction_phase = value
 
 
     @reactive
@@ -195,12 +261,33 @@ class MainWindowViewModel(Reactive):
     def select_excel_file_command(self):
         return self.__select_excel_file_command
 
+    def get_levels(self):
+        levels_in_pj = (FilteredElementCollector(doc)
+                                         .OfCategory(BuiltInCategory.OST_Levels)
+                                         .WhereElementIsNotElementType()
+                                         .ToElements())
+        self.levels = levels_in_pj
+        if len(levels_in_pj) == 0:
+            alert("Не найдено ни одного уровня!")
+        self.selected_start_level = levels_in_pj[0]
+        self.selected_finish_level = levels_in_pj[len(levels_in_pj) - 1]
+
+    def get_phases(self):
+        phases = doc.Phases
+        self.construction_phases = phases
+        self.selected_construction_phase = phases[0]
 
 @notification()
 @log_plugin(EXEC_PARAMS.command_name)
 def script_execute(plugin_logger):
     main_window = MainWindow()
-    main_window.DataContext = MainWindowViewModel()
+
+    main_window_view_model = MainWindowViewModel()
+    main_window_view_model.get_levels()
+    main_window_view_model.get_phases()
+
+    main_window.DataContext = main_window_view_model
+
     main_window.show_dialog()
     if not main_window.DialogResult:
         script.exit()

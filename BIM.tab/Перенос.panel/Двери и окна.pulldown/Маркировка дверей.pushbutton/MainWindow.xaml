@@ -71,9 +71,9 @@
         <ComboBox
             Grid.Row="7"
             Margin="5"
-            ItemsSource="{Binding construction_stages}"
+            ItemsSource="{Binding construction_phases}"
             DisplayMemberPath="Name"
-            SelectedItem="{Binding selected_construction_stage, UpdateSourceTrigger=PropertyChanged}" />
+            SelectedItem="{Binding selected_construction_phase, UpdateSourceTrigger=PropertyChanged}" />
 
         <StackPanel
             Grid.Row="9"
@@ -89,7 +89,7 @@
             <Button
                 Width="100"
                 Margin="10, 0"
-                Content="Создать"
+                Content="Ок"
                 Command="{Binding create_command}"
                 Click="ButtonOK_Click"/>
             <Button
