@@ -94,13 +94,13 @@ class Objective:
         self.curve = curve
         self.point = point
         self.curve_level = get_curve_level(self.curve)
-        self.curve_width, self.curve_height, self.category_name = get_curve_width_height(self.curve)
+        self.curve_width, self.curve_height, self.category_name = get_curve_characteristic(self.curve)
         self.direction = get_curve_direction(self.curve)
         self.indent, self.family_name, self.step = get_plugin_config(self.curve)
         self.family_symbol = find_family_symbol(self.family_name)
 
-# Функция для получения координат точки на воздуховоде
-def get_point_coordinates():
+# Получаем место клика
+def get_click_reference():
     categories = List[BuiltInCategory]()
 
     categories.Add(BuiltInCategory.OST_DuctCurves)
@@ -119,12 +119,7 @@ def get_point_coordinates():
     except Autodesk.Revit.Exceptions.OperationCanceledException:
         sys.exit()
 
-    element = doc.GetElement(reference)
-    # Получение координат точки
-    point = reference.GlobalPoint
-    return element, point
-
-
+    return reference
 
 # Функция для получения центра и направления воздуховода
 def get_curve_direction(duct):
@@ -275,8 +270,8 @@ def set_size_rectangular_opening(instance_width_param, instance_height_param, ob
     # для прямоугольных точка вставки на основании, нужно их смещать на половину высоты
     return rounded_height / 2
 
-# Получаем значение ширины и высоты для линейных элементов
-def get_curve_width_height(curve):
+# Получаем характеристику линейного элемента, его габарит и имя
+def get_curve_characteristic(curve):
     def get_pipe_dimensions(curve):
         width = curve.GetParamValue(BuiltInParameter.RBS_PIPE_OUTER_DIAMETER)
         height = curve.GetParamValue(BuiltInParameter.RBS_PIPE_OUTER_DIAMETER)
@@ -445,7 +440,7 @@ def get_plugin_config(curve):
     family_name = rectangle_opening_name
     step = 50
 
-    curve_width, curve_height, category_name = get_curve_width_height(curve)
+    curve_width, curve_height, category_name = get_curve_characteristic(curve)
     curve_size = UnitUtils.ConvertToInternalUnits(max(curve_width, curve_height), UnitTypeId.Millimeters)
 
     file_path = str(
@@ -547,8 +542,6 @@ def place_family_at_coordinates(objective):
 
     return objective
 
-
-
 def get_family_shared_parameter_names(family):
     # Открываем документ семейства для редактирования
     family_doc = doc.EditFamily(family)
@@ -603,8 +596,9 @@ def check_family_symbol(family_symbol):
 @notification()
 @log_plugin(EXEC_PARAMS.command_name)
 def script_execute(plugin_logger):
-    curve, point = get_point_coordinates()
-    objective = Objective(curve, point)
+    reference = get_click_reference()
+
+    objective = Objective(doc.GetElement(reference), reference.GlobalPoint)
     check_family_symbol(objective.family_symbol.Family)
 
     with revit.Transaction("Добавление отверстия"):
