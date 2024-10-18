@@ -119,14 +119,12 @@ def get_point_coordinates():
     except Autodesk.Revit.Exceptions.OperationCanceledException:
         sys.exit()
 
-    if reference:
-        element = doc.GetElement(reference)
-        # Получение координат точки
-        point = reference.GlobalPoint
-        coordinates = point.ToString()
-        return element, point
-    else:
-        return None, None
+    element = doc.GetElement(reference)
+    # Получение координат точки
+    point = reference.GlobalPoint
+    return element, point
+
+
 
 # Функция для получения центра и направления воздуховода
 def get_curve_direction(duct):
@@ -549,6 +547,8 @@ def place_family_at_coordinates(objective):
 
     return objective
 
+
+
 def get_family_shared_parameter_names(family):
     # Открываем документ семейства для редактирования
     family_doc = doc.EditFamily(family)
@@ -603,7 +603,8 @@ def check_family_symbol(family_symbol):
 @notification()
 @log_plugin(EXEC_PARAMS.command_name)
 def script_execute(plugin_logger):
-    objective = Objective(get_point_coordinates())
+    curve, point = get_point_coordinates()
+    objective = Objective(curve, point)
     check_family_symbol(objective.family_symbol.Family)
 
     with revit.Transaction("Добавление отверстия"):
