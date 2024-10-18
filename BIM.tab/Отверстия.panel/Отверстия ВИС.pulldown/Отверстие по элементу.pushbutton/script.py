@@ -28,7 +28,8 @@ from Autodesk.Revit.DB import *
 from Autodesk.Revit.UI import TaskDialog
 from Autodesk.Revit.UI.Selection import ObjectType
 from Autodesk.Revit.UI.Selection import ISelectionFilter
-from Autodesk.Revit.DB import BuiltInCategory, ElementFilter, LogicalOrFilter, ElementCategoryFilter
+
+from Autodesk.Revit.DB import BuiltInCategory, ElementFilter, LogicalOrFilter, ElementCategoryFilter, ElementMulticategoryFilter
 from Autodesk.Revit.Exceptions import OperationCanceledException
 
 from System.Collections.Generic import List
@@ -54,36 +55,40 @@ class CustomSelectionFilter(ISelectionFilter):
         self.filter = filter
 
     def AllowElement(self, element):
-        return self.filter.PassesFilter(element)
+
+        return self.filter.PassesFilter(element) and not self.IsOval(element)
 
     def AllowReference(self, reference, position):
         return True
 
+    def IsOval(self, element):
+        if element.Category.IsId(BuiltInCategory.OST_DuctCurves):
+            return element.DuctType.Shape == ConnectorProfileType.Oval
+
 # Определяем класс для хранения данных из конфига отверстий
 class CategoryConfig:
-    def __init__(self, category_name, from_value, to_value, offset_value, opening_type_name):
+    def __init__(self, category_name, from_value, to_value, offset_value, opening_type_name, step):
         self.category_name = category_name
         self.from_value = from_value
         self.to_value = to_value
         self.offset_value = offset_value
         self.opening_type_name = opening_type_name
+        self.step = step
 
 # Функция для получения координат точки на воздуховоде
 def get_point_coordinates():
-    # Создаем фильтры для нужных категорий
-    duct_filter = ElementCategoryFilter(BuiltInCategory.OST_DuctCurves)
-    pipe_filter = ElementCategoryFilter(BuiltInCategory.OST_PipeCurves)
-    trays_filter = ElementCategoryFilter(BuiltInCategory.OST_CableTray)
-    box_filter = ElementCategoryFilter(BuiltInCategory.OST_Conduit)
+    categories = List[BuiltInCategory]()
 
-    hvac_filter = LogicalOrFilter(duct_filter, pipe_filter)
-    electrical_filter = LogicalOrFilter(trays_filter, box_filter)
+    categories.Add(BuiltInCategory.OST_DuctCurves)
+    categories.Add(BuiltInCategory.OST_PipeCurves)
+    categories.Add(BuiltInCategory.OST_CableTray)
+    categories.Add(BuiltInCategory.OST_Conduit)
 
-    # Объединяем фильтры с помощью логического "или"
-    combined_filter = LogicalOrFilter(hvac_filter, electrical_filter)
+    # Создаем MultiCategoryFilter для этих категорий
+    multi_category_filter = ElementMulticategoryFilter(categories)
 
     # Применяем пользовательский фильтр к выбору объектов
-    selection_filter = CustomSelectionFilter(combined_filter)
+    selection_filter = CustomSelectionFilter(multi_category_filter)
 
     try:
         reference = uidoc.Selection.PickObject(ObjectType.Element, selection_filter)
@@ -115,9 +120,9 @@ def get_curve_direction(duct):
     return direction
 
 # Функция для поиска семейства в проекте
-def find_family_symbol():
+def find_family_symbol(objective):
     family_symbols = FilteredElementCollector(doc).OfClass(FamilySymbol).ToElements()
-    family_symbol = next((fs for fs in family_symbols if fs.Family.Name == family_name), None)
+    family_symbol = next((fs for fs in family_symbols if fs.Family.Name == objective.family_name), None)
     if not family_symbol:
         print("Семейство не найдено.")
         return None
@@ -221,18 +226,32 @@ def get_parameter_if_exists(element, param_name):
     else:
         return None
 
+def round_up_to_nearest(number, step):
+    step = UnitUtils.ConvertToInternalUnits(step, UnitTypeId.Millimeters)
+    remainder = number % step
+
+    if remainder == 0:
+        return number
+    else:
+        return number + (step - remainder)
+
+
 # Устанавливаем размер круглого отверстия
-def set_size_round_opening(instance_diameter_param, diameter):
-    instance_diameter_param.Set(diameter + indent)
+def set_size_round_opening(instance_diameter_param, objective):
+    instance_diameter_param.Set(round_up_to_nearest(
+        max(objective.curve_width, objective.curve_height) + objective.indent, objective.step))
     # для круглых отверстий не нужна поправка, у них точка вставки в центре
     return 0
 
 # Устанавливаем размер прямоугольного отверстия
-def set_size_rectangular_opening(instance_width_param, instance_height_param, width, height):
-    instance_width_param.Set(width + indent)
-    instance_height_param.Set(height + indent)
+def set_size_rectangular_opening(instance_width_param, instance_height_param, objective):
+    instance_width_param.Set(round_up_to_nearest(objective.curve_width + objective.indent, objective.step) )
+
+    rounded_height = round_up_to_nearest(objective.curve_height + objective.indent, objective.step)
+    instance_height_param.Set(rounded_height )
+
     # для прямоугольных точка вставки на основании, нужно их смещать на половину высоты
-    return (height + indent) / 2
+    return rounded_height / 2
 
 # Получаем значение ширины и высоты для воздуховодов
 def get_curve_width_height(curve):
@@ -274,48 +293,70 @@ def get_instance_parameters(instance):
     return instance_diameter_param, instance_height_param, instance_width_param
 
 # Настройка размеров под короба
-def handle_pipe_or_conduit(instance_params, curve_width, curve_height):
+def handle_pipe_or_conduit(instance_params, objective):
     instance_diameter_param, instance_height_param, instance_width_param = instance_params
-    if family_name == round_opening_name:
-        return set_size_round_opening(instance_diameter_param, curve_width)
-    if family_name == rectangle_opening_name:
-        return set_size_rectangular_opening(instance_width_param, instance_height_param, curve_width, curve_height)
+    if objective.family_name == round_opening_name:
+        return set_size_round_opening(instance_diameter_param,
+                                      objective)
+    if objective.family_name == rectangle_opening_name:
+        return set_size_rectangular_opening(instance_width_param,
+                                            instance_height_param,
+                                            objective)
 
 # Настройка размера под воздуховода
-def handle_duct_curves(instance_params, curve_width, curve_height, shape):
+def handle_duct_curves(instance_params, objective):
     instance_diameter_param, instance_height_param, instance_width_param = instance_params
-    if shape == ConnectorProfileType.Round:
-        if family_name == round_opening_name:
-            return set_size_round_opening(instance_diameter_param, curve_width)
-        if family_name == rectangle_opening_name:
-            return set_size_rectangular_opening(instance_width_param, instance_height_param, curve_width, curve_height)
-    if shape == ConnectorProfileType.Rectangular:
-        if family_name == round_opening_name:
-            return set_size_round_opening(instance_diameter_param, math.sqrt(curve_width ** 2 + curve_height ** 2))
-        if family_name == rectangle_opening_name:
-            return set_size_rectangular_opening(instance_width_param, instance_height_param, curve_width, curve_height)
+    if objective.curve.DuctType.Shape  == ConnectorProfileType.Round:
+        if objective.family_name == round_opening_name:
+            return set_size_round_opening(
+                instance_diameter_param,
+                objective)
+
+        if objective.family_name == rectangle_opening_name:
+            return set_size_rectangular_opening(
+                instance_width_param,
+                instance_height_param,
+                objective)
+
+    if objective.curve.DuctType.Shape == ConnectorProfileType.Rectangular:
+        if objective.family_name == round_opening_name:
+            return set_size_round_opening(
+                instance_diameter_param,
+                math.sqrt(objective.curve_width ** 2 + objective.curve_height ** 2))
+
+        if objective.family_name == rectangle_opening_name:
+            return set_size_rectangular_opening(
+                instance_width_param,
+                instance_height_param,
+                objective)
 
 # Настройка размера под кабельный лоток
-def handle_cable_tray(instance_params, curve_width, curve_height):
+def handle_cable_tray(instance_params, objective):
     instance_diameter_param, instance_height_param, instance_width_param = instance_params
-    if family_name == round_opening_name:
-        return set_size_round_opening(instance_diameter_param, math.sqrt(curve_width ** 2 + curve_height ** 2))
-    if family_name == rectangle_opening_name:
-        return set_size_rectangular_opening(instance_width_param, instance_height_param, curve_width, curve_height)
+    if objective.family_name == round_opening_name:
+        return set_size_round_opening(
+            instance_diameter_param,
+            math.sqrt(objective.curve_width ** 2 + objective.curve_height ** 2))
+
+    if objective.family_name == rectangle_opening_name:
+        return set_size_rectangular_opening(
+            instance_width_param,
+            instance_height_param,
+            objective)
 
 # Настройка размера под размер линейного элемента. Возвращает корректировку по вертикали для точки вставки
-def setup_size(instance, curve):
-    instance_params = get_instance_parameters(instance)
-    curve_width, curve_height, category_name = get_curve_width_height(curve)
+def setup_size(objective):
+    instance_params = get_instance_parameters(objective.instance)
 
-    if curve.Category.IsId(BuiltInCategory.OST_PipeCurves) or curve.Category.IsId(BuiltInCategory.OST_Conduit):
-        return handle_pipe_or_conduit(instance_params, curve_width, curve_height)
+    if (objective.curve.Category.IsId(BuiltInCategory.OST_PipeCurves)
+            or objective.curve.Category.IsId(BuiltInCategory.OST_Conduit)):
+        return handle_pipe_or_conduit(instance_params, objective)
 
-    if curve.Category.IsId(BuiltInCategory.OST_DuctCurves):
-        return handle_duct_curves(instance_params, curve_width, curve_height, curve.DuctType.Shape)
+    if objective.curve.Category.IsId(BuiltInCategory.OST_DuctCurves):
+        return handle_duct_curves(instance_params, objective)
 
-    if curve.Category.IsId(BuiltInCategory.OST_CableTray):
-        return handle_cable_tray(instance_params, curve_width, curve_height)
+    if objective.curve.Category.IsId(BuiltInCategory.OST_CableTray):
+        return handle_cable_tray(instance_params, objective)
 
 # Возвращаем значение системного Имя системы или ФОП_ВИС_Имя системы в зависимости от заполненности второго
 def get_curve_system(curve):
@@ -346,29 +387,31 @@ def get_curve_level(curve):
             return level
 
 # Функция для чтения JSON файла и извлечения данных
-def get_offsets_for_categories(file_path, category_names):
+def get_category_configs(file_path, category_names):
     with codecs.open(file_path, 'r', encoding='utf-8') as file:
         data = json.load(file)
 
     category_configs = []
     for category in data.get('Categories', []):
         if category.get('Name') in category_names:
+
             for offset in category.get('Offsets', []):
                 category_configs.append(CategoryConfig(
                     category_name=category.get('Name'),
                     from_value=offset.get('From'),
                     to_value=offset.get('To'),
                     offset_value=offset.get('OffsetValue'),
-                    opening_type_name=offset.get("OpeningTypeName")
+                    opening_type_name=offset.get("OpeningTypeName"),
+                    step=category.get("Rounding")
                 ))
 
     return category_configs
 
 # Получаем конфиг плагина размещение отверстий или возвращаем стандартные настройки
 def get_plugin_config(curve):
-    global family_name, indent
     indent = UnitUtils.ConvertToInternalUnits((50 * 2), UnitTypeId.Millimeters)
     family_name = rectangle_opening_name
+    step = 50
 
     curve_width, curve_height, category_name = get_curve_width_height(curve)
     curve_size = UnitUtils.ConvertToInternalUnits(max(curve_width, curve_height), UnitTypeId.Millimeters)
@@ -382,7 +425,8 @@ def get_plugin_config(curve):
                           config_category_rectangle_duct_name,
                           config_category_trays_name,
                           config_category_conduit_name]
-        category_configs = get_offsets_for_categories(file_path, category_names)
+
+        category_configs = get_category_configs(file_path, category_names)
         for config in category_configs:
             if category_name == config.category_name and config.from_value <= curve_size <= config.to_value:
                 if config.opening_type_name == config_round_type_name:
@@ -390,72 +434,89 @@ def get_plugin_config(curve):
                 if config.opening_type_name == config_rectangle_type_name:
                     family_name = rectangle_opening_name
 
+                step = config.step
                 indent = UnitUtils.ConvertToInternalUnits(config.offset_value*2, UnitTypeId.Millimeters)
 
+    return indent, family_name, step
+
 # Настраиваем экземпляр отверстия для чтения через навигатор АР и ставим его размеры-смещение под линейный элемент
-def setup_opening_instance(instance, curve, curve_level):
+def setup_opening_instance(objective):
     # Заполняем автора задания
     user_name = __revit__.Application.Username
-    instance.SetParamValue(shared_autor_param_name, user_name)
+    objective.instance.SetParamValue(shared_autor_param_name, user_name)
 
     # Заполняем айди линейного элемента
-    instance.SetParamValue(shared_info_param_name, curve.Name + ": " + curve.Id.ToString())
+    objective.instance.SetParamValue(shared_info_param_name, objective.curve.Name + ": " + objective.curve.Id.ToString())
 
     # Заполняем имя системы элемента
-    instance.SetParamValue(shared_system_param_name, get_curve_system(curve))
+    objective.instance.SetParamValue(shared_system_param_name, get_curve_system(objective.curve))
 
     # Заполняем время
     current_time = datetime.datetime.now()
     formatted_time = current_time.strftime("%Y-%m-%d %H:%M")
-    instance.SetParamValue(shared_date_param_name, formatted_time)
+    objective.instance.SetParamValue(shared_date_param_name, formatted_time)
 
     # Устанавливаем размер под воздуховод и получаем смещение относительно него
-    correction = setup_size(instance, curve)
-    instance_offset_param = instance.get_Parameter(BuiltInParameter.INSTANCE_FREE_HOST_OFFSET_PARAM)
-    instance_current_offset = instance.GetParamValueOrDefault(BuiltInParameter.INSTANCE_FREE_HOST_OFFSET_PARAM)
+    correction = setup_size(objective)
 
-    instance_offset_param.Set(instance_current_offset - correction)
+    instance_offset_param = objective.instance.get_Parameter(BuiltInParameter.INSTANCE_FREE_HOST_OFFSET_PARAM)
+    instance_current_offset = objective.instance.GetParamValueOrDefault(BuiltInParameter.INSTANCE_FREE_HOST_OFFSET_PARAM)
+
+    # перезаписываем отметку с учетом полученной корректировки и с округлением до ближайших 10
+    instance_offset_param.Set(round_up_to_nearest(instance_current_offset - correction, 10))
 
     # Теоретически может быть и None, тогда просто размещаем
-    if curve_level is not None:
+    if objective.curve_level is not None:
         # Заполняем параметры отметки от уровня и абсолютной отметки
-        set_offset_values_to_shared_params(instance, curve_level)
+        set_offset_values_to_shared_params(objective.instance, objective.curve_level)
 
 # Функция для размещения семейства в заданных координатах
-def place_family_at_coordinates(family_symbol, point, direction, curve):
+def place_family_at_coordinates(objective):
     # Создание экземпляра семейства
     with revit.Transaction("Добавление отверстия"):
         # Вычисление горизонтального смещения клика от оси линейного элемента
-        horizontal_offset = get_offset(curve, point, direction, use_horizontal_projection=True)
+        horizontal_offset = get_offset(objective.curve,
+                                       objective.point, objective.direction, use_horizontal_projection=True)
 
         # Вычисление вертикального смещения клика от оси линейного элемента
-        vertical_offset = get_offset(curve, point, direction, use_horizontal_projection=False)
+        vertical_offset = get_offset(objective.curve,
+                                       objective.point, objective.direction, use_horizontal_projection=False)
 
         # Сдвиг точки размещения на ось воздуховода по вертикали и горизонтали
-        point = point + XYZ.BasisZ * vertical_offset + direction * horizontal_offset
+        objective.point = objective.point + XYZ.BasisZ * vertical_offset + objective.direction * horizontal_offset
 
         # Создание экземпляра
-        family_symbol.Activate()
+        objective.family_symbol.Activate()
 
-        curve_level = get_curve_level(curve)
-        if curve_level is None:
-            instance = doc.Create.NewFamilyInstance(point, family_symbol, Structure.StructuralType.NonStructural)
+        objective.curve_level = get_curve_level(objective.curve)
+        if objective.curve_level is None:
+            objective.instance = doc.Create.NewFamilyInstance(
+                objective.point,
+                objective.family_symbol,
+                Structure.StructuralType.NonStructural)
         else:
             # Корректируем уровень по Z, потому что изначально точку мы получаем проектную и иначе она будет значительно выше чем должна
-            point = XYZ(point.X, point.Y, point.Z - curve_level.ProjectElevation)
-            instance = doc.Create.NewFamilyInstance(point, family_symbol, curve_level, Structure.StructuralType.NonStructural)
+            objective.point = XYZ(
+                objective.point.X,
+                objective.point.Y,
+                objective.point.Z - objective.curve_level.ProjectElevation)
+            objective.instance = doc.Create.NewFamilyInstance(
+                objective.point,
+                objective.family_symbol,
+                objective.curve_level,
+                Structure.StructuralType.NonStructural)
 
         # Настройка размеров и параметров отверстия
-        setup_opening_instance(instance, curve, curve_level)
+        setup_opening_instance(objective)
 
         # Создание оси вращения, проходящей через точку размещения и направленной вдоль оси Z
-        axis = Line.CreateBound(point, point + XYZ.BasisZ)
+        axis = Line.CreateBound(objective.point, objective.point + XYZ.BasisZ)
 
         # Вычисление угла поворота
-        angle = math.atan2(direction.Y, direction.X)
+        angle = math.atan2(objective.direction.Y, objective.direction.X)
 
         # Вращение экземпляра семейства вокруг оси Z
-        instance.Location.Rotate(axis, angle)
+        objective.instance.Location.Rotate(axis, angle)
 
 rectangle_opening_name = "ОбщМд_Отв_Отверстие_Прямоугольное_В стене"
 round_opening_name = "ОбщМд_Отв_Отверстие_Круглое_В стене"
@@ -479,20 +540,39 @@ shared_info_param_name = "ФОП_Описание"
 shared_autor_param_name = "ФОП_Автор задания"
 shared_system_param_name = SharedParamsConfig.Instance.VISSystemName.Name
 
-family_name = None
-indent = 0
+# Класс для передачи в качестве задачи на создание экземпляра
+class Objective:
+    family_name = None
+    indent = None
+    curve = None
+    curve_width = None
+    curve_height = None
+    category_name = None
+    point = None
+    direction = None
+    family_symbol = None
+    curve_level = None
+    instance = None
+    step = None
+
+
 
 @notification()
 @log_plugin(EXEC_PARAMS.command_name)
 def script_execute(plugin_logger):
-    curve, point = get_point_coordinates()
-    duct_direction = get_curve_direction(curve)
+    objective = Objective()
 
-    get_plugin_config(curve)
+    objective.curve, objective.point = get_point_coordinates()
 
-    family_symbol = find_family_symbol()
+    objective.curve_width, objective.curve_height, objective.category_name = get_curve_width_height(objective.curve)
 
-    if family_symbol:
-        place_family_at_coordinates(family_symbol, point, duct_direction, curve)
+    objective.direction = get_curve_direction(objective.curve)
+
+    objective.indent, objective.family_name, objective.step  = get_plugin_config(objective.curve)
+
+    objective.family_symbol = find_family_symbol(objective)
+
+    if objective.family_symbol:
+        place_family_at_coordinates(objective)
 
 script_execute()
