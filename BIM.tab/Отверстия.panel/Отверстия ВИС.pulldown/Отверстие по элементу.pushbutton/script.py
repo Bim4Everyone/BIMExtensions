@@ -506,6 +506,7 @@ def place_family_at_coordinates(objective):
                 objective.curve_level,
                 Structure.StructuralType.NonStructural)
 
+
         # Настройка размеров и параметров отверстия
         setup_opening_instance(objective)
 
@@ -517,6 +518,26 @@ def place_family_at_coordinates(objective):
 
         # Вращение экземпляра семейства вокруг оси Z
         objective.instance.Location.Rotate(axis, angle)
+
+def get_family_shared_parameter_names(family):
+    # Открываем документ семейства для редактирования
+    family_doc = doc.EditFamily(family)
+
+    shared_parameters = []
+    try:
+        # Получаем менеджер семейства
+        family_manager = family_doc.FamilyManager
+
+        # Получаем все параметры семейства
+        parameters = family_manager.GetParameters()
+
+        # Фильтруем параметры, чтобы оставить только общие
+        shared_parameters = [param.Definition.Name for param in parameters if param.IsShared]
+
+        return shared_parameters
+    finally:
+        # Закрываем документ семейства без сохранения изменений
+        family_doc.Close(False)
 
 rectangle_opening_name = "ОбщМд_Отв_Отверстие_Прямоугольное_В стене"
 round_opening_name = "ОбщМд_Отв_Отверстие_Круглое_В стене"
@@ -555,7 +576,14 @@ class Objective:
     instance = None
     step = None
 
+def check_family_symbol(family_symbol):
+    param_list = [shared_level_offset_name, shared_from_level_offset_name, shared_absolute_offset_name]
+    symbol_params = get_family_shared_parameter_names(family_symbol)
 
+    for param in param_list:
+        if param not in symbol_params:
+            forms.alert("Параметра {} нет в семействах отверстий. Обновите все семейства отверстий из базы семейств.".
+                        format(param), "Ошибка", exitscript=True)
 
 @notification()
 @log_plugin(EXEC_PARAMS.command_name)
@@ -571,6 +599,8 @@ def script_execute(plugin_logger):
     objective.indent, objective.family_name, objective.step  = get_plugin_config(objective.curve)
 
     objective.family_symbol = find_family_symbol(objective)
+
+    check_family_symbol(objective.family_symbol.Family)
 
     if objective.family_symbol:
         place_family_at_coordinates(objective)
