@@ -455,8 +455,14 @@ def get_plugin_config(curve):
     curve_width, curve_height, category_name = get_curve_characteristic(curve)
     curve_size = UnitUtils.ConvertToInternalUnits(max(curve_width, curve_height), UnitTypeId.Millimeters)
 
-    file_path = str(
-        os.environ['USERPROFILE']) + "\\Documents\\dosymep\\2022\\RevitOpeningPlacement\\OpeningConfig.json"
+    version = uiapp.VersionNumber
+
+    file_path = os.path.join(os.environ['USERPROFILE'],
+                                         'Documents',
+                                         'dosymep',
+                                         str(version),
+                                         'RevitOpeningPlacement',
+                                         'OpeningConfig.json')
 
     if os.path.isfile(file_path):
         category_names = [config_category_pipe_name,
@@ -579,8 +585,8 @@ round_opening_name = "ОбщМд_Отв_Отверстие_Круглое_В с�
 config_round_type_name = "Круглое"
 config_rectangle_type_name = "Прямоугольное"
 config_category_pipe_name = "Трубы"
-config_category_round_duct_name = "Воздуховоды (прямоугольное сечение)"
-config_category_rectangle_duct_name = "Воздуховоды (круглое сечение)"
+config_category_round_duct_name = "Воздуховоды (круглое сечение)"
+config_category_rectangle_duct_name = "Воздуховоды (прямоугольное сечение)"
 config_category_trays_name = "Лотки"
 config_category_conduit_name = "Короба"
 
