@@ -165,10 +165,6 @@ def get_connector_coordinates(element):
     # Получаем коннекторы воздуховода
     connectors = element.ConnectorManager.Connectors
 
-    # Проверяем, что у нас есть как минимум два коннектора
-    if connectors.Size < 2:
-        raise ValueError("Воздуховод должен иметь как минимум два коннектора.")
-
     # Получаем координаты начала и конца воздуховода через коннекторы
     start_point = None
     end_point = None
