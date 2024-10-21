@@ -176,7 +176,7 @@ def get_connector_coordinates(element):
             break
 
     if start_point is None or end_point is None:
-        raise ValueError("Не удалось получить координаты коннекторов.")
+        forms.alert("Не удалось получить координаты коннекторов.", "Ошибка", exitscript=True)
 
     # Получаем координаты начала и конца воздуховода
     start_x = start_point.X
