@@ -55,7 +55,7 @@ class CustomSelectionFilter(ISelectionFilter):
         self.filter = filter
 
     def AllowElement(self, element):
-        return self.filter.PassesFilter(element) and not self.IsOval(element)
+        return self.filter.PassesFilter(element) and not self.IsOval(element) and not self.IsVertical(element)
 
     def AllowReference(self, reference, position):
         return True
@@ -63,6 +63,13 @@ class CustomSelectionFilter(ISelectionFilter):
     def IsOval(self, element):
         if element.Category.IsId(BuiltInCategory.OST_DuctCurves):
             return element.DuctType.Shape == ConnectorProfileType.Oval
+
+    def IsVertical(self, element):
+        start_x, start_y, start_z, end_x, end_y, end_z = get_connector_coordinates(element)
+
+        # Округляем до третьего знака, иначе десятитысячные в погрешностях
+        if round(start_x, 3) ==  round(end_x,3) and round(start_y,3) == round(end_y, 3):
+            return True
 
 # Определяем класс для хранения данных из конфига отверстий
 class CategoryConfig:
@@ -153,8 +160,7 @@ def get_element_size(element):
     size = bbox.Max - bbox.Min
     return size
 
-# Получаем горизонтальное или вертикальное смещение точки от оси линейного элемента
-def get_offset(element, point, direction, use_horizontal_projection):
+def get_connector_coordinates(element):
     # Получаем коннекторы воздуховода
     connectors = element.ConnectorManager.Connectors
 
@@ -175,11 +181,6 @@ def get_offset(element, point, direction, use_horizontal_projection):
     if start_point is None or end_point is None:
         raise ValueError("Не удалось получить координаты коннекторов.")
 
-    # Получаем координаты точки
-    point_x = point.X
-    point_y = point.Y
-    point_z = point.Z
-
     # Получаем координаты начала и конца воздуховода
     start_x = start_point.X
     start_y = start_point.Y
@@ -187,6 +188,17 @@ def get_offset(element, point, direction, use_horizontal_projection):
     end_x = end_point.X
     end_y = end_point.Y
     end_z = end_point.Z
+
+    return start_x, start_y, start_z, end_x, end_y, end_z
+
+# Получаем горизонтальное или вертикальное смещение точки от оси линейного элемента
+def get_offset(element, point, direction, use_horizontal_projection):
+    # Получаем координаты точки
+    point_x = point.X
+    point_y = point.Y
+    point_z = point.Z
+
+    start_x, start_y, start_z, end_x, end_y, end_z = get_connector_coordinates(element)
 
     if use_horizontal_projection:
         # Вычисляем длину нормали от точки до прямой в плоскости X-Y
