@@ -11,6 +11,7 @@ import os
 import json
 import codecs
 from pyrevit.labs import target
+from pyrevit.revit.db.query import get_family_symbol
 from unicodedata import category
 
 clr.AddReference("RevitAPI")
@@ -602,22 +603,29 @@ shared_info_param_name = "ФОП_Описание"
 shared_autor_param_name = "ФОП_Автор задания"
 shared_system_param_name = SharedParamsConfig.Instance.VISSystemName.Name
 
-def check_family_symbol(family_symbol):
-    param_list = [shared_level_offset_name, shared_from_level_offset_name, shared_absolute_offset_name]
-    symbol_params = get_family_shared_parameter_names(family_symbol)
+def check_family_symbol():
+    family_names = ["ОбщМд_Отв_Отверстие_Прямоугольное_В стене", "ОбщМд_Отв_Отверстие_Круглое_В стене"]
 
-    for param in param_list:
-        if param not in symbol_params:
-            forms.alert("Параметра {} нет в семействах отверстий. Обновите все семейства отверстий из базы семейств.".
-                        format(param), "Ошибка", exitscript=True)
+    param_list = [shared_level_offset_name, shared_from_level_offset_name, shared_absolute_offset_name]
+
+    for family_name in family_names:
+        family = find_family_symbol(family_name).Family
+        symbol_params = get_family_shared_parameter_names(family)
+
+        for param in param_list:
+            if param not in symbol_params:
+                forms.alert("Параметра {} нет в семействах отверстий. Обновите все семейства отверстий из базы семейств.".
+                            format(param), "Ошибка", exitscript=True)
 
 @notification()
 @log_plugin(EXEC_PARAMS.command_name)
 def script_execute(plugin_logger):
+    check_family_symbol()
+
     reference = get_click_reference()
 
     objective = Objective(doc.GetElement(reference), reference.GlobalPoint)
-    check_family_symbol(objective.family_symbol.Family)
+
 
     with revit.Transaction("Добавление отверстия"):
         # Размещение и поворот
