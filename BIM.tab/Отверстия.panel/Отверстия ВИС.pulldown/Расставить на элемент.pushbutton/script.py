@@ -157,7 +157,14 @@ def find_family_symbol(family_name):
 def check_family():
     family_names = ["ОбщМд_Отв_Отверстие_Прямоугольное_В стене", "ОбщМд_Отв_Отверстие_Круглое_В стене"]
 
-    param_list = [shared_level_offset_name, shared_from_level_offset_name, shared_absolute_offset_name]
+    param_list = [
+        shared_currency_level_offset_name,
+        shared_currency_from_level_offset_name,
+        shared_currency_absolute_offset_name,
+        shared_level_offset_name,
+        shared_from_level_offset_name,
+        shared_absolute_offset_name
+        ]
 
     for family_name in family_names:
         family = find_family_symbol(family_name).Family
@@ -417,16 +424,31 @@ def get_curve_system(curve):
     return system_name
 
 def set_offset_values_to_shared_params(instance, curve_level):
-    real_height = instance.GetParamValue(BuiltInParameter.INSTANCE_ELEVATION_PARAM) + curve_level.Elevation
-    offset = instance.GetParamValue(BuiltInParameter.INSTANCE_ELEVATION_PARAM)
+    absolute_offset = instance.GetParamValue(BuiltInParameter.INSTANCE_ELEVATION_PARAM) + curve_level.Elevation
+    from_level_offset = instance.GetParamValue(BuiltInParameter.INSTANCE_ELEVATION_PARAM)
     level_offset = curve_level.Elevation
 
     instance.SetParamValue(shared_absolute_offset_name,
-                           UnitUtils.ConvertFromInternalUnits(real_height, UnitTypeId.Millimeters))
+                            absolute_offset)
     instance.SetParamValue(shared_from_level_offset_name,
-                           UnitUtils.ConvertFromInternalUnits(offset, UnitTypeId.Millimeters))
+                           from_level_offset)
     instance.SetParamValue(shared_level_offset_name,
-                           UnitUtils.ConvertFromInternalUnits(level_offset, UnitTypeId.Millimeters))
+                           level_offset)
+
+    # Currency - денежная единица. У нее нет размерности и нужно просто дабл в нее подать, поэтому преобразуем
+    absolute_offset =  UnitUtils.ConvertFromInternalUnits(absolute_offset, UnitTypeId.Millimeters)
+    from_level_offset = UnitUtils.ConvertFromInternalUnits(from_level_offset, UnitTypeId.Millimeters)
+    level_offset= UnitUtils.ConvertFromInternalUnits(level_offset, UnitTypeId.Millimeters)
+
+    instance.SetParamValue(shared_currency_absolute_offset_name,
+                           absolute_offset)
+    instance.SetParamValue(shared_currency_from_level_offset_name,
+                           from_level_offset)
+    instance.SetParamValue(shared_currency_level_offset_name,
+                           level_offset)
+
+
+
 
 #Возвращает уровень линейного элемента
 def get_curve_level(curve):
@@ -602,9 +624,13 @@ config_category_rectangle_duct_name = "Воздуховоды (прямоуго�
 config_category_trays_name = "Лотки"
 config_category_conduit_name = "Короба"
 
-shared_absolute_offset_name = "ADSK_Отверстие_ОтметкаОтНуля"
-shared_from_level_offset_name = "ADSK_Отверстие_ОтметкаОтЭтажа"
-shared_level_offset_name = "ADSK_Отверстие_ОтметкаЭтажа"
+shared_currency_absolute_offset_name = "ADSK_Отверстие_ОтметкаОтНуля"
+shared_currency_from_level_offset_name = "ADSK_Отверстие_ОтметкаОтЭтажа"
+shared_currency_level_offset_name = "ADSK_Отверстие_ОтметкаЭтажа"
+
+shared_absolute_offset_name = "ADSK_Отверстие_Отметка от нуля"
+shared_from_level_offset_name = "ADSK_Отверстие_Отметка от этажа"
+shared_level_offset_name = "ADSK_Отверстие_Отметка этажа"
 
 shared_height_param_name = "ADSK_Размер_Высота"
 shared_width_param_name = "ADSK_Размер_Ширина"
