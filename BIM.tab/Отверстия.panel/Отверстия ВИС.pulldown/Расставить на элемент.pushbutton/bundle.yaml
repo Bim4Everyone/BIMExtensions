@@ -1,0 +1,26 @@
+title:
+  ru: Расставить на элемент
+  en_us: Place by element
+
+tooltip:
+  ru: Размещает отверстие по линейному элементу(Воздуховод, трубопровод, кабельный лоток, короб).
+
+    1. Выберите точку на элементе на которой требуется разместить отверстие.
+
+    2. Если требуется изменить отступы или форму отверстия, откройти настройки отверстий ОВиВК
+
+
+  en_us:
+    Places a hole on a linear element (Air duct, pipeline, cable tray, conduit).
+
+    1. Select the point on the element where you want to place the hole.
+
+    2. If you need to change the indents or shape of the hole, open the HVAC hole settings
+
+
+  
+author: Redomine
+help_url: "https://kb.a101.ru/pages/viewpage.action?pageId=116065720"
+
+min_revit_version: 2022
+max_revit_version: 2024
