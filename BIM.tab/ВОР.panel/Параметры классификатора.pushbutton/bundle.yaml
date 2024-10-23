@@ -1,0 +1,29 @@
+title:
+  ru: "Параметры\nклассификатора"
+  en_us: "Classifier\nparameters"
+
+tooltip:
+  ru: >-
+    Заполняет параметры классификатора в материалах
+    по коду работы из Excel-файла Классификатора видов работ.
+    
+    Отбирает материалы, в которых будет заполнять параметры
+    из тех элементов, которые видны на текущем виде.
+    
+    Плагин запускать на 3D-виде.
+  en_us: >-
+    Fills in the classifier parameters at the material level according 
+    to the work code from the Excel file of the Work Type Classifier.
+    
+    The plugin selects materials in which it will fill parameters 
+    from elements that are visible in the current view.
+
+    Launch the plugin in the 3D view.
+
+author: DivinN
+help_url: "https://kb.a101.ru/pages/viewpage.action?pageId=82626984"
+
+context: active-3d-view
+
+min_revit_version: 2022
+max_revit_version: 2024
