@@ -68,9 +68,25 @@ class CustomSelectionFilter(ISelectionFilter):
     def IsVertical(self, element):
         start_x, start_y, start_z, end_x, end_y, end_z = get_connector_coordinates(element)
 
-        # Округляем до третьего знака, иначе десятитысячные в погрешностях
-        if round(start_x, 3) ==  round(end_x,3) and round(start_y,3) == round(end_y, 3):
+        # Вычисляем разности координат
+        delta_x = round(end_x, 3) - round(start_x, 3)
+        delta_y = round(end_y, 3) - round(start_y, 3)
+        delta_z = round(end_z, 3) - round(start_z, 3)
+        epsilon = 0.01 # Соответствует смещению в 3мм
+
+        # Если линия вертикальна (delta_x == 0 и delta_y == 0), возвращаем True
+        if delta_x == 0 and delta_y == 0:
             return True
+
+        if element.Category.IsId(BuiltInCategory.OST_PipeCurves):
+            slope = element.GetParamValue(BuiltInParameter.RBS_PIPE_SLOPE)
+            if slope > 0.06:
+                return True
+        else:
+            if abs(delta_z) > epsilon:
+                return True
+
+        return False
 
 # Определяем класс для хранения данных из конфига отверстий
 class CategoryConfig:
@@ -241,7 +257,7 @@ def get_offset(element, point, direction, use_horizontal_projection):
     if use_horizontal_projection:
         target = point + XYZ.BasisZ * vertical_offset + direction * distance
     else:
-        target = point + XYZ.BasisZ * distance + direction * horizontal_offset
+        target = point + XYZ.BasisZ  * distance + direction * horizontal_offset
 
     # Проверка, проходит ли линия через точку target
     if use_horizontal_projection:
@@ -261,8 +277,9 @@ def is_point_on_line(start_x, start_y, end_x, end_y, target_x, target_y, epsilon
     if abs((end_y - start_y) * (target_x - start_x) - (end_x - start_x) * (target_y - start_y)) > epsilon:
         return False
 
-    # Проверка, лежит ли точка в пределах отрезка
-    if min(start_x, end_x) <= target_x <= max(start_x, end_x) and min(start_y, end_y) <= target_y <= max(start_y, end_y):
+    # Проверка, лежит ли точка в пределах отрезка с учетом погрешности
+    if (min(start_x, end_x) - epsilon <= target_x <= max(start_x, end_x) + epsilon and
+        min(start_y, end_y) - epsilon <= target_y <= max(start_y, end_y) + epsilon):
         return True
 
     return False
