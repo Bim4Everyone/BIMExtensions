@@ -4,17 +4,19 @@ title:
 
 tooltip:
   ru: >- 
-    Выполняет копирование значений одного или нескольких параметров в указанный параметр.
+    Позволяет пользователю заполнить значение выбранного параметра в элементе.
+    Заполнение происходит на основе маски, в которой пользователь может указать другие параметры элемента 
+    в нужной последовательности. Из указанных параметров будет взята информация для заполнения.
+    Также в маске есть возможность указать информацию текстом, например, для префиксов или суффиксов перед значениями.
     
-    Есть возможность указать префиксы и суффиксы.
-    
-    Перед запуском плагина выберите элементы для работы.
+    Перед запуском плагина необходимо выбрать элементы для работы.
   en_us: >-
-    Copies the values of one or more parameters to the specified parameter.
+    Allows the user to fill in the value of the selected parameter in the element. 
+    Filling is based on a mask, in which the user can specify other parameters of the element in the desired sequence. 
+    Information for filling will be taken from the specified parameters. 
+    It is also possible to specify information in text in the mask, for example, for prefixes or suffixes before values. 
     
-    It is possible to specify prefixes and suffixes.
-
-    Before running the plugin, select the elements to work with.
+    Before launching the plugin, you must select elements for work.
 
 assembly: RevitValueModifier.dll
 command_class: RevitValueModifierCommand
