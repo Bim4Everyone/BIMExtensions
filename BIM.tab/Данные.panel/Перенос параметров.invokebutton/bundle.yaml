@@ -1,0 +1,27 @@
+title:
+  ru: "Перенос\nпараметров"
+  en_us: "Transfer\nof parameters"
+
+tooltip:
+  ru: >- 
+    Позволяет пользователю заполнить значение выбранного параметра в элементе.
+    Заполнение происходит на основе маски, в которой пользователь может указать другие параметры элемента 
+    в нужной последовательности. Из указанных параметров будет взята информация для заполнения.
+    Также в маске есть возможность указать информацию текстом, например, для префиксов или суффиксов перед значениями.
+    
+    Перед запуском плагина необходимо выбрать элементы для работы.
+  en_us: >-
+    Allows the user to fill in the value of the selected parameter in the element. 
+    Filling is based on a mask, in which the user can specify other parameters of the element in the desired sequence. 
+    Information for filling will be taken from the specified parameters. 
+    It is also possible to specify information in text in the mask, for example, for prefixes or suffixes before values. 
+    
+    Before launching the plugin, you must select elements for work.
+
+assembly: RevitValueModifier.dll
+command_class: RevitValueModifierCommand
+
+author: DivinN
+
+min_revit_version: 2022
+max_revit_version: 2024
