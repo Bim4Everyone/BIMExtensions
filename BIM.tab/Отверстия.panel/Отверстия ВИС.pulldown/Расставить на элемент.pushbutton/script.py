@@ -206,6 +206,10 @@ def get_connector_coordinates(element):
     # Получаем координаты начала и конца воздуховода через коннекторы
     start_point = None
     end_point = None
+
+    if len(connectors) != 2:
+        forms.alert("Число коннекторов у элемента не равно 2", "Ошибка", exitscript=True)
+
     for connector in connectors:
         if start_point is None:
             start_point = connector.Origin
