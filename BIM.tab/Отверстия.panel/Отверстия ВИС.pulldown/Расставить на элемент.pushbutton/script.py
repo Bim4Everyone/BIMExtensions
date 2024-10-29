@@ -66,16 +66,16 @@ class CustomSelectionFilter(ISelectionFilter):
             return element.DuctType.Shape == ConnectorProfileType.Oval
 
     def IsVertical(self, element):
-        start_x, start_y, start_z, end_x, end_y, end_z = get_connector_coordinates(element)
+        start_xyz, end_xyz = get_connector_coordinates(element)
 
         # Вычисляем разности координат
-        delta_x = round(end_x, 3) - round(start_x, 3)
-        delta_y = round(end_y, 3) - round(start_y, 3)
-        delta_z = round(end_z, 3) - round(start_z, 3)
+        delta_x = round(end_xyz.X, 3) - round(start_xyz.X, 3)
+        delta_y = round(end_xyz.Y, 3) - round(start_xyz.Y, 3)
+        delta_z = round(end_xyz.Z, 3) - round(start_xyz.Z, 3)
         epsilon = 0.01 # Соответствует смещению в 3мм
 
-        # Если линия вертикальна (delta_x == 0 и delta_y == 0), возвращаем True
-        if delta_x == 0 and delta_y == 0:
+        # Если линия вертикальна (delta_x < epsilon и delta_y < epsilon), возвращаем True
+        if abs(delta_x) < epsilon and abs(delta_y) < epsilon:
             return True
 
         if element.Category.IsId(BuiltInCategory.OST_PipeCurves):
@@ -207,7 +207,7 @@ def get_connector_coordinates(element):
     start_point = None
     end_point = None
 
-    if len(connectors) != 2:
+    if connectors.Size != 2:
         forms.alert("Число коннекторов у элемента не равно 2", "Ошибка", exitscript=True)
 
     for connector in connectors:
@@ -221,14 +221,10 @@ def get_connector_coordinates(element):
         forms.alert("Не удалось получить координаты коннекторов.", "Ошибка", exitscript=True)
 
     # Получаем координаты начала и конца воздуховода
-    start_x = start_point.X
-    start_y = start_point.Y
-    start_z = start_point.Z
-    end_x = end_point.X
-    end_y = end_point.Y
-    end_z = end_point.Z
+    start_xyz = XYZ(start_point.X, start_point.Y, start_point.Z)
+    end_xyz = XYZ(end_point.X, end_point.Y, end_point.Z)
 
-    return start_x, start_y, start_z, end_x, end_y, end_z
+    return start_xyz, end_xyz
 
 # Получаем горизонтальное или вертикальное смещение точки от оси линейного элемента
 def get_offset(element, point, direction, use_horizontal_projection):
@@ -237,16 +233,18 @@ def get_offset(element, point, direction, use_horizontal_projection):
     point_y = point.Y
     point_z = point.Z
 
-    start_x, start_y, start_z, end_x, end_y, end_z = get_connector_coordinates(element)
+    start_xyz, end_xyz = get_connector_coordinates(element)
 
     if use_horizontal_projection:
         # Вычисляем длину нормали от точки до прямой в плоскости X-Y
-        numerator = abs((end_x - start_x) * (start_y - point_y) - (start_x - point_x) * (end_y - start_y))
-        denominator = math.sqrt((end_x - start_x) ** 2 + (end_y - start_y) ** 2)
+        numerator = abs((end_xyz.X - start_xyz.X) * (start_xyz.Y - point_y)
+                        - (start_xyz.X - point_x) * (end_xyz.Y - start_xyz.Y))
+        denominator = math.sqrt((end_xyz.X - start_xyz.X) ** 2 + (end_xyz.Y - start_xyz.Y) ** 2)
     else:
         # Вычисляем длину нормали от точки до прямой в плоскости X-Z
-        numerator = abs((end_x - start_x) * (start_z - point_z) - (start_x - point_x) * (end_z - start_z))
-        denominator = math.sqrt((end_x - start_x) ** 2 + (end_z - start_z) ** 2)
+        numerator = abs((end_xyz.X - start_xyz.X) * (start_xyz.Z - point_z)
+                        - (start_xyz.X - point_x) * (end_xyz.Z - start_xyz.Z))
+        denominator = math.sqrt((end_xyz.X - start_xyz.X) ** 2 + (end_xyz.Z - start_xyz.Z) ** 2)
 
     if denominator == 0:
         return 0  # Если длина прямой равна нулю, возвращаем 0
@@ -265,12 +263,12 @@ def get_offset(element, point, direction, use_horizontal_projection):
 
     # Проверка, проходит ли линия через точку target
     if use_horizontal_projection:
-        if is_point_on_line(start_x, start_y, end_x, end_y, target.X, target.Y):
+        if is_point_on_line(start_xyz.X, start_xyz.Y, end_xyz.X, end_xyz.Y, target.X, target.Y):
             return distance
         else:
             return distance * -1
     else:
-        if is_point_on_line(start_x, start_z, end_x, end_z, target.X, target.Z):
+        if is_point_on_line(start_xyz.X, start_xyz.Z, end_xyz.X, end_xyz.Z, target.X, target.Z):
             return distance
         else:
             return distance * -1
