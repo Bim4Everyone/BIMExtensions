@@ -602,6 +602,9 @@ def place_family_at_coordinates(objective):
             objective.curve_level,
             Structure.StructuralType.NonStructural)
 
+    # Регенирируем документ, должно спасать от бага с присвоением не тех значений параметров
+    doc.Regenerate()
+
     # Создание оси вращения, проходящей через точку размещения и направленной вдоль оси Z
     axis = Line.CreateBound(objective.point, objective.point + XYZ.BasisZ)
 
