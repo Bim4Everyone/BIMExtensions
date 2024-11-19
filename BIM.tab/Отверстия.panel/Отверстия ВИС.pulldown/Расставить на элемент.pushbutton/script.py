@@ -226,6 +226,11 @@ def get_connector_coordinates(element):
 
     return start_xyz, end_xyz
 
+def calculate_normal_distance(start_x, start_y, end_x, end_y, point_x, point_y):
+    numerator = abs((end_x - start_x) * (start_y - point_y) - (start_x - point_x) * (end_y - start_y))
+    denominator = math.sqrt((end_x - start_x) ** 2 + (end_y - start_y) ** 2)
+    return numerator / denominator
+
 # Получаем горизонтальное или вертикальное смещение точки от оси линейного элемента
 def get_offset(element, point, direction, use_horizontal_projection):
     # Получаем координаты точки
@@ -237,31 +242,18 @@ def get_offset(element, point, direction, use_horizontal_projection):
 
     if use_horizontal_projection:
         # Вычисляем длину нормали от точки до прямой в плоскости X-Y
-        numerator = abs((end_xyz.X - start_xyz.X) * (start_xyz.Y - point_y)
-                        - (start_xyz.X - point_x) * (end_xyz.Y - start_xyz.Y))
-        denominator = math.sqrt((end_xyz.X - start_xyz.X) ** 2 + (end_xyz.Y - start_xyz.Y) ** 2)
+        distance =  calculate_normal_distance(start_xyz.X, start_xyz.Y, end_xyz.X, end_xyz.Y, point_x, point_y)
     else:
-        # Вычисляем длину нормали от точки до прямой в плоскости X-Z
-        numerator = abs((end_xyz.X - start_xyz.X) * (start_xyz.Z - point_z)
-                        - (start_xyz.X - point_x) * (end_xyz.Z - start_xyz.Z))
-        denominator = math.sqrt((end_xyz.X - start_xyz.X) ** 2 + (end_xyz.Z - start_xyz.Z) ** 2)
-
-
-    distance = numerator / denominator
+        if round(start_xyz.Z, 4) == round(end_xyz.Z, 4):
+            max_value = max(point_z, start_xyz.Z)
+            min_value = min(point_z, start_xyz.Z)
+            distance = max_value - min_value
+        else:
+            # Вычисляем длину нормали от точки до прямой в плоскости X-Z
+            distance =  calculate_normal_distance(start_xyz.X, start_xyz.Z, end_xyz.X, end_xyz.Z, point_x, point_z)
 
     if distance < 0.0001:
         return 0
-
-    if not use_horizontal_projection:
-        start_z_rounded = round(start_xyz.Z, 4)
-        end_z_rounded = round(end_xyz.Z, 4)
-        point_z_rounded = round(point_z, 4)
-
-        if start_z_rounded == end_z_rounded:
-            test1 = max(point_z, start_xyz.Z)
-            test2 = min(point_z, start_xyz.Z)
-            distance = test1 - test2
-
 
     # Проверочная точка для выявления, проходит ли ось через нее
     if use_horizontal_projection:
