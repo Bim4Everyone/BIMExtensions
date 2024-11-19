@@ -226,63 +226,24 @@ def get_connector_coordinates(element):
 
     return start_xyz, end_xyz
 
-def calculate_normal_distance(start_x, start_y, end_x, end_y, point_x, point_y):
-    numerator = abs((end_x - start_x) * (start_y - point_y) - (start_x - point_x) * (end_y - start_y))
-    denominator = math.sqrt((end_x - start_x) ** 2 + (end_y - start_y) ** 2)
-    return numerator / denominator
-
-# Получаем горизонтальное или вертикальное смещение точки от оси линейного элемента
-def get_offset(element, point, direction, use_horizontal_projection):
-    # Получаем координаты точки
-    point_x = point.X
-    point_y = point.Y
-    point_z = point.Z
-
+# Получаем точку контакта нормали от точки клика и оси линейного элемента
+def get_contact_point(element, point):
+    # Получаем координаты начальной и конечной точек линейного элемента
     start_xyz, end_xyz = get_connector_coordinates(element)
 
-    if use_horizontal_projection:
-        # Вычисляем длину нормали от точки до прямой в плоскости X-Y
-        distance =  calculate_normal_distance(start_xyz.X, start_xyz.Y, end_xyz.X, end_xyz.Y, point_x, point_y)
-    else:
-        if round(start_xyz.Z, 4) == round(end_xyz.Z, 4):
-            max_value = max(point_z, start_xyz.Z)
-            min_value = min(point_z, start_xyz.Z)
-            distance = max_value - min_value
-        else:
-            # Вычисляем длину нормали от точки до прямой в плоскости X-Z
-            distance =  calculate_normal_distance(start_xyz.X, start_xyz.Z, end_xyz.X, end_xyz.Z, point_x, point_z)
+    # Вектор направления прямой
+    line_vector = end_xyz - start_xyz
 
-    if distance < 0.0001:
-        return 0
+    # Вектор от начальной точки прямой до точки
+    point_vector = point - start_xyz
 
-    # Проверочная точка для выявления, проходит ли ось через нее
-    if use_horizontal_projection:
-        target = point + direction * distance
-    else:
-        target = XYZ(point.X, point.Y, point.Z + distance)
+    # Проекция вектора на вектор направления прямой
+    projection = point_vector.DotProduct(line_vector) / line_vector.DotProduct(line_vector)
 
-    # Проверка, проходит ли линия через точку target
-    if use_horizontal_projection:
-        if is_point_on_line(start_xyz.X, start_xyz.Y, end_xyz.X, end_xyz.Y, target.X, target.Y):
-            return distance
-        else:
-            return distance * -1
-    else:
-        if is_point_on_line(start_xyz.X, start_xyz.Z, end_xyz.X, end_xyz.Z, target.X, target.Z):
-            return distance
-        else:
-            return distance * -1
+    # Координаты точки соприкосновения
+    contact_point = start_xyz + line_vector * projection
 
-# True если точка на линии, False если нет
-def is_point_on_line(start_x, start_y, end_x, end_y, target_x, target_y, epsilon=0.1):
-    value = abs((end_y - start_y) * (target_x - start_x) - (end_x - start_x) * (target_y - start_y))
-    # Проверка, лежит ли точка на прямой
-    if value < epsilon:
-        # Проверка, лежит ли точка на отрезке
-        if min(start_x, end_x) <= target_x <= max(start_x, end_x) and min(start_y, end_y) <= target_y <= max(start_y, end_y):
-            return True
-
-    return False
+    return contact_point
 
 # Возвращает параметр или None
 def get_parameter_if_exists(element, param_name):
@@ -579,20 +540,8 @@ def setup_opening_instance(objective):
 
 # Функция для размещения семейства в заданных координатах и разворота вдоль оси линейного элемента
 def place_family_at_coordinates(objective):
-    # Вычисление горизонтального смещения клика от оси линейного элемента
-    horizontal_offset = get_offset(objective.curve,
-                                   objective.point, objective.direction, use_horizontal_projection=True)
-
-
-    # Сдвиг точки размещения на ось воздуховода по горизонтали
-    objective.point = objective.point + objective.direction * horizontal_offset
-
-    # Вычисление вертикального смещения клика от оси линейного элемента
-    vertical_offset = get_offset(objective.curve,
-                                   objective.point, objective.direction, use_horizontal_projection=False)
-
     # Сдвиг точки размещения на ось воздуховода по вертикали
-    objective.point = objective.point + XYZ.BasisZ * vertical_offset
+    objective.point = get_contact_point(objective.curve, objective.point)
 
     # Создание экземпляра
     objective.family_symbol.Activate()
