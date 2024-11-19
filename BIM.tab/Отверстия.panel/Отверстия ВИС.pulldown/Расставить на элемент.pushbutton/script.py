@@ -246,20 +246,28 @@ def get_offset(element, point, direction, use_horizontal_projection):
                         - (start_xyz.X - point_x) * (end_xyz.Z - start_xyz.Z))
         denominator = math.sqrt((end_xyz.X - start_xyz.X) ** 2 + (end_xyz.Z - start_xyz.Z) ** 2)
 
-    if denominator == 0:
-        return 0  # Если длина прямой равна нулю, возвращаем 0
 
     distance = numerator / denominator
 
-    # Вычисление vertical_offset
-    vertical_offset = 0
-    horizontal_offset = 0
+    if distance < 0.0001:
+        return 0
+
+    if not use_horizontal_projection:
+        start_z_rounded = round(start_xyz.Z, 4)
+        end_z_rounded = round(end_xyz.Z, 4)
+        point_z_rounded = round(point_z, 4)
+
+        if start_z_rounded == end_z_rounded:
+            test1 = max(point_z, start_xyz.Z)
+            test2 = min(point_z, start_xyz.Z)
+            distance = test1 - test2
+
 
     # Проверочная точка для выявления, проходит ли ось через нее
     if use_horizontal_projection:
-        target = point + XYZ.BasisZ * vertical_offset + direction * distance
+        target = point + direction * distance
     else:
-        target = point + XYZ.BasisZ  * distance + direction * horizontal_offset
+        target = XYZ(point.X, point.Y, point.Z + distance)
 
     # Проверка, проходит ли линия через точку target
     if use_horizontal_projection:
@@ -275,14 +283,12 @@ def get_offset(element, point, direction, use_horizontal_projection):
 
 # True если точка на линии, False если нет
 def is_point_on_line(start_x, start_y, end_x, end_y, target_x, target_y, epsilon=0.1):
-    # Проверка, лежит ли точка на прямой с учетом погрешности
-    if abs((end_y - start_y) * (target_x - start_x) - (end_x - start_x) * (target_y - start_y)) > epsilon:
-        return False
-
-    # Проверка, лежит ли точка в пределах отрезка с учетом погрешности
-    if (min(start_x, end_x) - epsilon <= target_x <= max(start_x, end_x) + epsilon and
-        min(start_y, end_y) - epsilon <= target_y <= max(start_y, end_y) + epsilon):
-        return True
+    value = abs((end_y - start_y) * (target_x - start_x) - (end_x - start_x) * (target_y - start_y))
+    # Проверка, лежит ли точка на прямой
+    if value < epsilon:
+        # Проверка, лежит ли точка на отрезке
+        if min(start_x, end_x) <= target_x <= max(start_x, end_x) and min(start_y, end_y) <= target_y <= max(start_y, end_y):
+            return True
 
     return False
 
@@ -466,9 +472,6 @@ def set_offset_values_to_shared_params(instance, curve_level):
     instance.SetParamValue(shared_currency_level_offset_name,
                            level_offset)
 
-
-
-
 #Возвращает уровень линейного элемента
 def get_curve_level(curve):
     all_levels = FilteredElementCollector(doc).OfClass(Level).ToElements()
@@ -510,21 +513,34 @@ def get_plugin_config(curve):
 
     version = uiapp.VersionNumber
 
-    file_path = os.path.join(os.environ['USERPROFILE'],
+    path_settings_file_path = os.path.join(os.environ['USERPROFILE'],
                                          'Documents',
                                          'dosymep',
                                          str(version),
                                          'RevitOpeningPlacement',
-                                         'OpeningConfig.json')
+                                         'MepConfigPath.json')
+    if os.path.isfile(path_settings_file_path):
+        with codecs.open(path_settings_file_path, 'r', encoding='utf-8') as data_file:
+            data = json.load(data_file)
 
-    if os.path.isfile(file_path):
+        configuration_file_path = data.get("OpeningConfigPath")
+
+    else:
+        configuration_file_path = os.path.join(os.environ['USERPROFILE'],
+                                             'Documents',
+                                             'dosymep',
+                                             str(version),
+                                             'RevitOpeningPlacement',
+                                             'OpeningConfig.json')
+
+    if os.path.isfile(configuration_file_path):
         category_names = [config_category_pipe_name,
                           config_category_round_duct_name,
                           config_category_rectangle_duct_name,
                           config_category_trays_name,
                           config_category_conduit_name]
 
-        category_configs = get_category_configs(file_path, category_names)
+        category_configs = get_category_configs(configuration_file_path, category_names)
         for config in category_configs:
             if category_name == config.category_name and config.from_value <= curve_size <= config.to_value:
                 if config.opening_type_name == config_round_type_name:
@@ -575,12 +591,16 @@ def place_family_at_coordinates(objective):
     horizontal_offset = get_offset(objective.curve,
                                    objective.point, objective.direction, use_horizontal_projection=True)
 
+
+    # Сдвиг точки размещения на ось воздуховода по горизонтали
+    objective.point = objective.point + objective.direction * horizontal_offset
+
     # Вычисление вертикального смещения клика от оси линейного элемента
     vertical_offset = get_offset(objective.curve,
                                    objective.point, objective.direction, use_horizontal_projection=False)
 
-    # Сдвиг точки размещения на ось воздуховода по вертикали и горизонтали
-    objective.point = objective.point + XYZ.BasisZ * vertical_offset + objective.direction * horizontal_offset
+    # Сдвиг точки размещения на ось воздуховода по вертикали
+    objective.point = objective.point + XYZ.BasisZ * vertical_offset
 
     # Создание экземпляра
     objective.family_symbol.Activate()
@@ -671,7 +691,6 @@ def script_execute(plugin_logger):
     reference = get_click_reference()
 
     objective = Objective(doc.GetElement(reference), reference.GlobalPoint)
-
 
     with revit.Transaction("Добавление отверстия"):
         # Размещение и поворот
