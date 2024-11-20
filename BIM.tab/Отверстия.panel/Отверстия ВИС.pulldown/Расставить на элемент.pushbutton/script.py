@@ -29,10 +29,8 @@ from Autodesk.Revit.DB import *
 from Autodesk.Revit.UI import TaskDialog
 from Autodesk.Revit.UI.Selection import ObjectType
 from Autodesk.Revit.UI.Selection import ISelectionFilter
-
 from Autodesk.Revit.DB import BuiltInCategory, ElementFilter, LogicalOrFilter, ElementCategoryFilter, ElementMulticategoryFilter
 from Autodesk.Revit.Exceptions import OperationCanceledException
-
 from System.Collections.Generic import List
 from System import Guid
 from pyrevit import forms
@@ -168,7 +166,6 @@ def find_family_symbol(family_name):
         forms.alert("Семейства отверстий не найдены", "Ошибка", exitscript=True)
 
     return family_symbol
-
 
 def check_family():
     family_names = ["ОбщМд_Отв_Отверстие_Прямоугольное_В стене", "ОбщМд_Отв_Отверстие_Круглое_В стене"]
@@ -606,15 +603,12 @@ config_category_round_duct_name = "Воздуховоды (круглое сеч
 config_category_rectangle_duct_name = "Воздуховоды (прямоугольное сечение)"
 config_category_trays_name = "Лотки"
 config_category_conduit_name = "Короба"
-
 shared_currency_absolute_offset_name = "ADSK_Отверстие_ОтметкаОтНуля"
 shared_currency_from_level_offset_name = "ADSK_Отверстие_ОтметкаОтЭтажа"
 shared_currency_level_offset_name = "ADSK_Отверстие_ОтметкаЭтажа"
-
 shared_absolute_offset_name = "ADSK_Отверстие_Отметка от нуля"
 shared_from_level_offset_name = "ADSK_Отверстие_Отметка от этажа"
 shared_level_offset_name = "ADSK_Отверстие_Отметка этажа"
-
 shared_height_param_name = "ADSK_Размер_Высота"
 shared_width_param_name = "ADSK_Размер_Ширина"
 shared_diameter_param_name = "ADSK_Размер_Диаметр"
