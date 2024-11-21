@@ -462,9 +462,9 @@ def get_plugin_config(curve):
     curve_size = UnitUtils.ConvertToInternalUnits(max(curve_width, curve_height), UnitTypeId.Millimeters)
 
     version = uiapp.VersionNumber
+    documents_path = os.path.join(os.path.expanduser("~"), 'Documents')
 
-    path_settings_file_path = os.path.join(os.environ['USERPROFILE'],
-                                         'Documents',
+    path_settings_file_path = os.path.join(documents_path,
                                          'dosymep',
                                          str(version),
                                          'RevitOpeningPlacement',
@@ -476,8 +476,7 @@ def get_plugin_config(curve):
         configuration_file_path = data.get("OpeningConfigPath")
 
     else:
-        configuration_file_path = os.path.join(os.environ['USERPROFILE'],
-                                             'Documents',
+        configuration_file_path = os.path.join(documents_path,
                                              'dosymep',
                                              str(version),
                                              'RevitOpeningPlacement',
