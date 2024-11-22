@@ -21,7 +21,7 @@ tooltip:
 assembly: RevitMirroredElements.dll
 command_class: RevitMirroredElementsCommand
 
-author:
+author: KGubin
 context:
   - doc-project
   - active-plan-view
