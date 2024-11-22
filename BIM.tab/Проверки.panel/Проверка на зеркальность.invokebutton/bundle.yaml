@@ -7,27 +7,27 @@ tooltip:
     Проверка на зеркальность.
     
     1. Открыть документ и запустить плагин.
-
     2. Выбрать элемент или категории из которых получим объекты для проверки на зеркальность.
     
     3. Выбрать тип отображения отзеркаленных элементов, на активном виде или временном.
-
     4. Нажать "Выполнить"
   en_us: >-
     Mirror Check.
     
     1. Open the document and launch the plugin.
-
     2. Select an element or categories from which objects for the mirror check will be obtained.
-
     3. Choose the display type for mirrored elements: on the active view or temporary.
-
     4. Click "Execute".
-
 assembly: RevitMirroredElements.dll
 command_class: RevitMirroredElementsCommand
 
-author: KGubin
+author:
+context:
+  - doc-project
+  - active-plan-view
+  - active-3d-view
+  - active-section-view
+
 
 help_url: "https://kb.a101.ru/pages/viewpage.action?pageId=67830002"
 
