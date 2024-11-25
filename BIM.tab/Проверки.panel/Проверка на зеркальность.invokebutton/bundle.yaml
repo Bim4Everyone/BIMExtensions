@@ -22,15 +22,6 @@ assembly: RevitMirroredElements.dll
 command_class: RevitMirroredElementsCommand
 
 author: KGubin
-context:
-  - doc-project
-  - any:
-    - active-3d-view
-    - active-plan-view
-    - active-section-view
-    - active-elevation-view
-
-
 
 help_url: "https://kb.a101.ru/pages/viewpage.action?pageId=67830002"
 
