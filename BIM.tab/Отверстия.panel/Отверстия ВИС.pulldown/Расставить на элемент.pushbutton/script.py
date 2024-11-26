@@ -18,6 +18,7 @@ clr.AddReference("RevitAPI")
 clr.AddReference("RevitAPIUI")
 clr.AddReference("dosymep.Revit.dll")
 clr.AddReference("dosymep.Bim4Everyone.dll")
+
 import dosymep
 clr.ImportExtensions(dosymep.Revit)
 clr.ImportExtensions(dosymep.Bim4Everyone)
@@ -29,12 +30,11 @@ from Autodesk.Revit.DB import *
 from Autodesk.Revit.UI import TaskDialog
 from Autodesk.Revit.UI.Selection import ObjectType
 from Autodesk.Revit.UI.Selection import ISelectionFilter
-
 from Autodesk.Revit.DB import BuiltInCategory, ElementFilter, LogicalOrFilter, ElementCategoryFilter, ElementMulticategoryFilter
 from Autodesk.Revit.Exceptions import OperationCanceledException
-
 from System.Collections.Generic import List
 from System import Guid
+from System import Environment
 from pyrevit import forms
 from pyrevit import revit
 from pyrevit import HOST_APP
@@ -169,7 +169,6 @@ def find_family_symbol(family_name):
 
     return family_symbol
 
-
 def check_family():
     family_names = ["ОбщМд_Отв_Отверстие_Прямоугольное_В стене", "ОбщМд_Отв_Отверстие_Круглое_В стене"]
 
@@ -226,65 +225,24 @@ def get_connector_coordinates(element):
 
     return start_xyz, end_xyz
 
-# Получаем горизонтальное или вертикальное смещение точки от оси линейного элемента
-def get_offset(element, point, direction, use_horizontal_projection):
-    # Получаем координаты точки
-    point_x = point.X
-    point_y = point.Y
-    point_z = point.Z
-
+# Получаем точку контакта нормали от точки клика и оси линейного элемента
+def get_contact_point(element, point):
+    # Получаем координаты начальной и конечной точек линейного элемента
     start_xyz, end_xyz = get_connector_coordinates(element)
 
-    if use_horizontal_projection:
-        # Вычисляем длину нормали от точки до прямой в плоскости X-Y
-        numerator = abs((end_xyz.X - start_xyz.X) * (start_xyz.Y - point_y)
-                        - (start_xyz.X - point_x) * (end_xyz.Y - start_xyz.Y))
-        denominator = math.sqrt((end_xyz.X - start_xyz.X) ** 2 + (end_xyz.Y - start_xyz.Y) ** 2)
-    else:
-        # Вычисляем длину нормали от точки до прямой в плоскости X-Z
-        numerator = abs((end_xyz.X - start_xyz.X) * (start_xyz.Z - point_z)
-                        - (start_xyz.X - point_x) * (end_xyz.Z - start_xyz.Z))
-        denominator = math.sqrt((end_xyz.X - start_xyz.X) ** 2 + (end_xyz.Z - start_xyz.Z) ** 2)
+    # Вектор направления прямой
+    line_vector = end_xyz - start_xyz
 
-    if denominator == 0:
-        return 0  # Если длина прямой равна нулю, возвращаем 0
+    # Вектор от начальной точки прямой до точки
+    point_vector = point - start_xyz
 
-    distance = numerator / denominator
+    # Проекция вектора на вектор направления прямой
+    projection = point_vector.DotProduct(line_vector) / line_vector.DotProduct(line_vector)
 
-    # Вычисление vertical_offset
-    vertical_offset = 0
-    horizontal_offset = 0
+    # Координаты точки соприкосновения
+    contact_point = start_xyz + line_vector * projection
 
-    # Проверочная точка для выявления, проходит ли ось через нее
-    if use_horizontal_projection:
-        target = point + XYZ.BasisZ * vertical_offset + direction * distance
-    else:
-        target = point + XYZ.BasisZ  * distance + direction * horizontal_offset
-
-    # Проверка, проходит ли линия через точку target
-    if use_horizontal_projection:
-        if is_point_on_line(start_xyz.X, start_xyz.Y, end_xyz.X, end_xyz.Y, target.X, target.Y):
-            return distance
-        else:
-            return distance * -1
-    else:
-        if is_point_on_line(start_xyz.X, start_xyz.Z, end_xyz.X, end_xyz.Z, target.X, target.Z):
-            return distance
-        else:
-            return distance * -1
-
-# True если точка на линии, False если нет
-def is_point_on_line(start_x, start_y, end_x, end_y, target_x, target_y, epsilon=0.1):
-    # Проверка, лежит ли точка на прямой с учетом погрешности
-    if abs((end_y - start_y) * (target_x - start_x) - (end_x - start_x) * (target_y - start_y)) > epsilon:
-        return False
-
-    # Проверка, лежит ли точка в пределах отрезка с учетом погрешности
-    if (min(start_x, end_x) - epsilon <= target_x <= max(start_x, end_x) + epsilon and
-        min(start_y, end_y) - epsilon <= target_y <= max(start_y, end_y) + epsilon):
-        return True
-
-    return False
+    return contact_point
 
 # Возвращает параметр или None
 def get_parameter_if_exists(element, param_name):
@@ -466,9 +424,6 @@ def set_offset_values_to_shared_params(instance, curve_level):
     instance.SetParamValue(shared_currency_level_offset_name,
                            level_offset)
 
-
-
-
 #Возвращает уровень линейного элемента
 def get_curve_level(curve):
     all_levels = FilteredElementCollector(doc).OfClass(Level).ToElements()
@@ -509,22 +464,34 @@ def get_plugin_config(curve):
     curve_size = UnitUtils.ConvertToInternalUnits(max(curve_width, curve_height), UnitTypeId.Millimeters)
 
     version = uiapp.VersionNumber
+    documents_path = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments)
 
-    file_path = os.path.join(os.environ['USERPROFILE'],
-                                         'Documents',
+    path_settings_file_path = os.path.join(documents_path,
                                          'dosymep',
                                          str(version),
                                          'RevitOpeningPlacement',
-                                         'OpeningConfig.json')
+                                         'MepConfigPath.json')
+    if os.path.isfile(path_settings_file_path):
+        with codecs.open(path_settings_file_path, 'r', encoding='utf-8') as data_file:
+            data = json.load(data_file)
 
-    if os.path.isfile(file_path):
+        configuration_file_path = data.get("OpeningConfigPath")
+
+    else:
+        configuration_file_path = os.path.join(documents_path,
+                                             'dosymep',
+                                             str(version),
+                                             'RevitOpeningPlacement',
+                                             'OpeningConfig.json')
+
+    if os.path.isfile(configuration_file_path):
         category_names = [config_category_pipe_name,
                           config_category_round_duct_name,
                           config_category_rectangle_duct_name,
                           config_category_trays_name,
                           config_category_conduit_name]
 
-        category_configs = get_category_configs(file_path, category_names)
+        category_configs = get_category_configs(configuration_file_path, category_names)
         for config in category_configs:
             if category_name == config.category_name and config.from_value <= curve_size <= config.to_value:
                 if config.opening_type_name == config_round_type_name:
@@ -571,16 +538,8 @@ def setup_opening_instance(objective):
 
 # Функция для размещения семейства в заданных координатах и разворота вдоль оси линейного элемента
 def place_family_at_coordinates(objective):
-    # Вычисление горизонтального смещения клика от оси линейного элемента
-    horizontal_offset = get_offset(objective.curve,
-                                   objective.point, objective.direction, use_horizontal_projection=True)
-
-    # Вычисление вертикального смещения клика от оси линейного элемента
-    vertical_offset = get_offset(objective.curve,
-                                   objective.point, objective.direction, use_horizontal_projection=False)
-
-    # Сдвиг точки размещения на ось воздуховода по вертикали и горизонтали
-    objective.point = objective.point + XYZ.BasisZ * vertical_offset + objective.direction * horizontal_offset
+    # Сдвиг точки размещения на ось воздуховода по вертикали
+    objective.point = get_contact_point(objective.curve, objective.point)
 
     # Создание экземпляра
     objective.family_symbol.Activate()
@@ -645,15 +604,12 @@ config_category_round_duct_name = "Воздуховоды (круглое сеч
 config_category_rectangle_duct_name = "Воздуховоды (прямоугольное сечение)"
 config_category_trays_name = "Лотки"
 config_category_conduit_name = "Короба"
-
 shared_currency_absolute_offset_name = "ADSK_Отверстие_ОтметкаОтНуля"
 shared_currency_from_level_offset_name = "ADSK_Отверстие_ОтметкаОтЭтажа"
 shared_currency_level_offset_name = "ADSK_Отверстие_ОтметкаЭтажа"
-
 shared_absolute_offset_name = "ADSK_Отверстие_Отметка от нуля"
 shared_from_level_offset_name = "ADSK_Отверстие_Отметка от этажа"
 shared_level_offset_name = "ADSK_Отверстие_Отметка этажа"
-
 shared_height_param_name = "ADSK_Размер_Высота"
 shared_width_param_name = "ADSK_Размер_Ширина"
 shared_diameter_param_name = "ADSK_Размер_Диаметр"
@@ -671,7 +627,6 @@ def script_execute(plugin_logger):
     reference = get_click_reference()
 
     objective = Objective(doc.GetElement(reference), reference.GlobalPoint)
-
 
     with revit.Transaction("Добавление отверстия"):
         # Размещение и поворот
