@@ -18,6 +18,7 @@ clr.AddReference("RevitAPI")
 clr.AddReference("RevitAPIUI")
 clr.AddReference("dosymep.Revit.dll")
 clr.AddReference("dosymep.Bim4Everyone.dll")
+clr.AddReference('System')
 import dosymep
 clr.ImportExtensions(dosymep.Revit)
 clr.ImportExtensions(dosymep.Bim4Everyone)
@@ -33,6 +34,7 @@ from Autodesk.Revit.DB import BuiltInCategory, ElementFilter, LogicalOrFilter, E
 from Autodesk.Revit.Exceptions import OperationCanceledException
 from System.Collections.Generic import List
 from System import Guid
+from System import Environment
 from pyrevit import forms
 from pyrevit import revit
 from pyrevit import HOST_APP
@@ -462,7 +464,7 @@ def get_plugin_config(curve):
     curve_size = UnitUtils.ConvertToInternalUnits(max(curve_width, curve_height), UnitTypeId.Millimeters)
 
     version = uiapp.VersionNumber
-    documents_path = os.path.join(os.path.expanduser("~"), 'Documents')
+    documents_path = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments)
 
     path_settings_file_path = os.path.join(documents_path,
                                          'dosymep',
