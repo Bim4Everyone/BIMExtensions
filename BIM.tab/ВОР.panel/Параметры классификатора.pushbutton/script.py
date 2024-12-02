@@ -63,7 +63,22 @@ class RevitMaterial:
     def __init__(self, keynote, material, work):
         self.keynote = keynote  # ключевая заметка материала из Revit
         self.material = material  # материал из Revit
+        self.material_description = self.get_material_description()  # описание материала
         self.work = work  # работа, параметры которой нужно назначить
+
+    def get_material_description(self):
+        """
+        Возвращает строку для заполнения параметра Материал: Описание
+        Данная строка содержится в имени материала между первым и вторым нижним подчеркиванием
+        Пример: "г02.04.01.04_Бетон_Выше 0_Устройство монолитных ж/б пилонов" -> "Бетон"
+        """
+        mark = '_'
+        material_name = self.material.Name
+        if material_name.count(mark) < 2:
+            return ''
+        mark_first_index = material_name.find(mark)
+        mark_second_index = material_name.find(mark, mark_first_index + 1)
+        return material_name[mark_first_index + 1:mark_second_index]
 
 
 def read_from_excel(path):
@@ -127,6 +142,7 @@ def set_classifier_parameters(revit_materials):
             for revit_material in revit_materials:
                 edited = False
                 material = revit_material.material
+                material_description = revit_material.material_description
                 work = revit_material.work
 
                 edited = set_param(
@@ -148,6 +164,11 @@ def set_classifier_parameters(revit_materials):
                 edited = set_param(
                     material.GetParam(calculation_type_parameter),
                     calculation_type,
+                    edited)
+
+                edited = set_param(
+                    material.GetParam(BuiltInParameter.ALL_MODEL_DESCRIPTION),
+                    material_description,
                     edited)
 
                 if edited:
