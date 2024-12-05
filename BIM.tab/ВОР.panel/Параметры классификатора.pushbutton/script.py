@@ -83,8 +83,6 @@ class RevitMaterial:
 
 def read_from_excel(path):
     excel = Excel.ApplicationClass()
-    excel.Visible = True
-    excel.DisplayAlerts = False
     try:
         workbook = excel.Workbooks.Open(path)
         ws_1 = workbook.Worksheets(1)
@@ -114,7 +112,6 @@ def read_from_excel(path):
         alert("При чтении Excel-файла Классификатора произошла ошибка", exitscript=True)
     finally:
         excel.ActiveWorkbook.Close(False)
-        excel.Application.Quit()
         Marshal.ReleaseComObject(ws_1)
         Marshal.ReleaseComObject(workbook)
         Marshal.ReleaseComObject(excel)
