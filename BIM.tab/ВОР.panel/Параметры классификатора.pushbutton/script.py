@@ -83,8 +83,6 @@ class RevitMaterial:
 
 def read_from_excel(path):
     excel = Excel.ApplicationClass()
-    excel.Visible = False
-    excel.DisplayAlerts = False
     try:
         workbook = excel.Workbooks.Open(path)
         ws_1 = workbook.Worksheets(1)
@@ -98,13 +96,19 @@ def read_from_excel(path):
         title_of_work = ""
         unit_of_measurement = ""
         for i in range(2, row_end_1 + 1):
+            code = ws_1.Cells(i, 1).Text
             unit_of_measurement = ws_1.Cells(i, 3).Text
 
-            if not unit_of_measurement:
+            '''
+            Проверка на '.' осуществляется с целью отбора верхнеуровневой главы
+            1 уровень - код: г02.04, имя: Конструкции выше отм. +/-0,000
+            2 уровень - код: г02.04.01, имя: Монолитные ж/б конструкции выше отм. +/-0,000
+            3 уровень (работа) - код: г02.04.01.01, имя: Устройство монолитных ж/б стен
+            '''
+            if not unit_of_measurement and code.count('.') == 1:
                 chapter = ws_1.Cells(i, 2).Text
                 continue
             else:
-                code = ws_1.Cells(i, 1).Text
                 title_of_work = ws_1.Cells(i, 2).Text
                 work = Work(code, chapter, title_of_work, unit_of_measurement)
                 dict_for_data[code] = work
