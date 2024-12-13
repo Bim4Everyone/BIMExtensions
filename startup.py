@@ -13,8 +13,7 @@ update_on_startup_var = 'B4E_STARTUP_UPDATE'
 
 def update_extensions():
     revit_count = coreutils.get_revit_instance_count()
-    temp_dir_exist = os.path.isdir(os.path.join(tempfile.gettempdir(), "Bim4Everyone", "dosymep"))
-    if revit_count == 1 and not temp_dir_exist and not check_update_on_startup():
+    if revit_count == 1 and not check_update_on_startup():
         set_check_update_on_startup(True)
         for repo_info in updater.get_all_extension_repos():
             try:
