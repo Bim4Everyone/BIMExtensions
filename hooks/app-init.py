@@ -4,8 +4,6 @@ import LibGit2Sharp as libgit
 from System.Collections.Generic import Dictionary
 
 from pyrevit.versionmgr import updater
-from pyrevit.coreutils import envvars
-from pyrevit.userconfig import user_config
 from dosymep_libs.simple_services import *
 
 logger = get_logger_service()
@@ -31,25 +29,16 @@ def log_trace(message):
 
 def check_updates():
     status_update = None
-    if user_config.auto_update \
-            and not check_update_inprogress():
-        set_autoupdate_inprogress(True)
-        for repo_info in updater.get_all_extension_repos():
-            try:
-                if updater.has_pending_updates(repo_info):
-                    logger.Warning("Репозиторий не был обновлен: \"{@RepoInfo}\"", to_dictionary(repo_info))
-            except Exception:
-                status_update = True
-                logger.Warning("Ошибка обновления расширения: \"{@RepoInfo}\"", to_dictionary(repo_info))
-        set_autoupdate_inprogress(False)
+    for repo_info in updater.get_all_extension_repos():
+        try:
+            if updater.has_pending_updates(repo_info):
+                logger.Warning("Репозиторий не был обновлен: \"{@RepoInfo}\"", to_dictionary(repo_info))
+        except Exception:
+            status_update = True
+            logger.Warning("Ошибка обновления расширения: \"{@RepoInfo}\"", to_dictionary(repo_info))
 
     return status_update
 
-def check_update_inprogress():
-    return envvars.get_pyrevit_env_var(envvars.AUTOUPDATING_ENVVAR)
-
-def set_autoupdate_inprogress(state):
-    envvars.set_pyrevit_env_var(envvars.AUTOUPDATING_ENVVAR, state)
 
 if check_updates():
     log_trace("Инициализация платформы прошла с ошибкой")
