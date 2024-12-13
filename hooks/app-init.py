@@ -43,7 +43,7 @@ def check_updates():
 if check_updates():
     log_trace("Инициализация платформы прошла с ошибкой")
     show_notification_service("Bim4Everyone",
-                              "Инициализация платформы прошла с ошибкой, пожалуйста переустановите платформу.")
+                              "Инициализация платформы прошла с ошибкой, пожалуйста, перезапустите Revit.")
 else:
     log_trace("Инициализация платформы прошла успешно")
     show_notification_service("Bim4Everyone",

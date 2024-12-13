@@ -8,6 +8,7 @@ from pyrevit import forms
 
 
 from dosymep_libs.bim4everyone import *
+import dosymep_libs
 
 __cleanengine__ = True
 
@@ -19,11 +20,8 @@ def script_execute(plugin_logger):
         forms.alert('Вы уверены что хотите обновить?',
                           yes=True, no=True, exitscript=True)
 
-    # пытаемся обновится
-    path = os.path.abspath(__file__)
-    repo_path = libgit.libgit.Repository.Discover(path)
-    repo_info = libgit.get_repo(repo_path)
-    updater.update_repo(repo_info)
+    # пытаемся обновиться
+    dosymep_libs.update_extension(__file__)
 
 
 script_execute()
