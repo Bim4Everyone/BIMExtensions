@@ -8,7 +8,7 @@ tooltip:
     
     
     Для запуска плагина необходимо, чтобы на листах в импортируем Excel файле полностью отсутствовало 
-    какое-либо форматирование ячеек вне области импорта (где нет текста). 
+    какое-либо форматирование ячеек вне области импорта (импортируются все ячейки с каким-либо содержимым). 
     Вне области импорта не должно быть например, объединенных ячеек или схлопнутых столбцов/строк.
     
     1. Открыть документ и запустить плагин.
@@ -23,8 +23,8 @@ tooltip:
     
     
     Before you start the plugin, make sure that sheets of the imported Excel file must be completely free of 
-    any cell formation outside the import area (where there is no text). The outer import areas must not be, 
-    for example, merged cells or collapsed columns/rows.
+    any cell formation outside the import area (all cells with any content are imported). 
+    The outer import areas must not be, for example, merged cells or collapsed columns/rows.
     
     1. Open document and start the plugin.
     
