@@ -6,6 +6,11 @@ tooltip:
   ru: >- 
     Импортирует листы из выбранного файла Excel в спецификации Revit.
     
+    
+    Для запуска плагина необходимо, чтобы на листах в импортируем Excel файле полностью отсутствовало 
+    какое-либо форматирование ячеек вне области импорта (где нет текста). 
+    Вне области импорта не должно быть например, объединенных ячеек или схлопнутых столбцов/строк.
+    
     1. Открыть документ и запустить плагин.
     
     2. Выберите категорию для спецификации.
@@ -15,6 +20,11 @@ tooltip:
     4. Нажать "Открыть".
   en_us: >- 
     Plugin imports worksheets from selected Excel file into Revit schedules.
+    
+    
+    Before you start the plugin, make sure that sheets of the imported Excel file must be completely free of 
+    any cell formation outside the import area (where there is no text). The outer import areas must not be, 
+    for example, merged cells or collapsed columns/rows.
     
     1. Open document and start the plugin.
     
