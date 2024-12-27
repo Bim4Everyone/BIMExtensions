@@ -206,15 +206,15 @@ def get_connector_coordinates(element):
     start_point = None
     end_point = None
 
-    if connectors.Size != 2:
-        forms.alert("Число коннекторов у элемента не равно 2", "Ошибка", exitscript=True)
-
     for connector in connectors:
-        if start_point is None:
-            start_point = connector.Origin
-        else:
-            end_point = connector.Origin
-            break
+        # К линейному элементу может быть подключено произвольное количество врезок, каждая из которых попадет
+        # в список коннекторов линейного элемента. Проверяем чтоб айди владельца был айди рабочего элемента
+        if connector.Owner.Id == element.Id:
+            if start_point is None:
+                start_point = connector.Origin
+            else:
+                end_point = connector.Origin
+                break
 
     if start_point is None or end_point is None:
         forms.alert("Не удалось получить координаты коннекторов.", "Ошибка", exitscript=True)
