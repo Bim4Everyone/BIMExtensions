@@ -29,7 +29,8 @@ def __selfinit__(script_cmp, ui_button_cmp, __rvt__):
 
     if HOST_APP.language == LanguageType.Russian:
         user_config.user_locale = 'ru'
-    else:
+
+    if HOST_APP.language == LanguageType.English_USA:
         user_config.user_locale = 'en_us'
 
 
