@@ -28,6 +28,9 @@ tooltip:
 
     4. Click OK.
 
+assembly: RevitRefreshLinks.dll
+command_class: RevitUpdateLinksCommand
+
 author: vlastroG
 context: doc-project
 help_url: "https://kb.a101.ru/pages/viewpage.action?pageId=67830004"
