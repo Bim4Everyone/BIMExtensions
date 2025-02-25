@@ -1,0 +1,39 @@
+title:
+  ru: Обновить связи
+  en_us: Update links
+
+tooltip:
+  ru: >-
+    Обновляет выбранные связи на основе файлов из выбранных папок. Можно выбрать локальную папку и папку на RS.
+
+
+    1. Запустить плагин
+    
+    2. Выбрать локальную папку и/или папку из RS со связями для добавления. 
+    Можно выбрать родительскую папку и все вложенные автоматически обработаются.
+    
+    3. Выбрать связи для обновления.
+    
+    4. Нажать ОК.
+  en_us: >-
+    Updates selected links based on files in selected folders. You can select a local folder and a folder on RS.
+
+
+    1. Run the plugin
+
+    2. Select a local folder and/or a folder from RS with links to add.
+    You can select a parent folder and all subfolders will be automatically processed.
+
+    3. Select links to update.
+
+    4. Click OK.
+
+assembly: RevitRefreshLinks.dll
+command_class: RevitUpdateLinksCommand
+
+author: vlastroG
+context: doc-project
+help_url: "https://kb.a101.ru/pages/viewpage.action?pageId=67830004"
+
+min_revit_version: 2022
+max_revit_version: 2024
