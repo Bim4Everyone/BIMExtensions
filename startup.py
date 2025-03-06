@@ -67,6 +67,18 @@ clr.AddReference('DevExpress.Data.Desktop.v21.2.dll')
 
 clr.AddReference('DevExpress.Dialogs.v21.2.Core.dll')
 
+try:
+    clr.AddReference('Wpf.Ui.dll')
+
+    clr.AddReference('dosymep.WpfCore.dll')
+    clr.AddReference('dosymep.WpfCore.Ninject.dll')
+
+    clr.AddReference('dosymep.WpfUI.Core.dll')
+    clr.AddReference('dosymep.WpfUI.Core.Ninject.dll')
+except:
+    # на случай, если библиотеки не успеют обновиться у юзера
+    pass
+
 from pyrevit import HOST_APP
 from pyrevit.userconfig import user_config
 
