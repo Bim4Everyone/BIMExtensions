@@ -25,7 +25,7 @@ command_class: RevitMarkingElementsCommand
 
 author: KGubin
 
-help_url: "https://kb.a101.ru/pages/viewpage.action?pageId=145329115"
+help_url: "https://kb.a101.ru/pages/viewpage.action?pageId=157124273"
 
 min_revit_version: 2022
 max_revit_version: 2024
