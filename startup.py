@@ -69,6 +69,7 @@ clr.AddReference('DevExpress.Dialogs.v21.2.Core.dll')
 
 try:
     clr.AddReference('Wpf.Ui.dll')
+    clr.AddReference('Wpf.Ui.Abstractions.dll')
 
     clr.AddReference('dosymep.WpfCore.dll')
     clr.AddReference('dosymep.WpfCore.Ninject.dll')
