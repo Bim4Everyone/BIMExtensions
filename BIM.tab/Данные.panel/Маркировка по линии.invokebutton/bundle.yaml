@@ -1,0 +1,31 @@
+title:
+  ru: Маркировка по линии
+  en_us: Marking to line
+
+tooltip:
+  ru: >- 
+    Маркировка элементов по линии.
+    
+    1. Открыть документ.
+    2. Выделить линиями объекты для нумерации.
+    3. Запустить плагин.
+    4. Задать настройки нумерации.
+    5. Нажать кнопку "Выполнить"
+  en_us: >-
+    Marking the elements to line.
+
+     1. Open the document.
+     2. Select objects for numbering with lines.
+     3. Launch the plugin.
+     4. Set the numbering settings.
+     5. Click the "Execute" button
+
+assembly: RevitMarkingElements.dll
+command_class: RevitMarkingElementsCommand
+
+author: KGubin
+
+help_url: "https://kb.a101.ru/pages/viewpage.action?pageId=157124273"
+
+min_revit_version: 2022
+max_revit_version: 2024
