@@ -1,0 +1,22 @@
+title:
+  ru: РН связей
+  en_us: РН связей
+
+tooltip:
+  ru: >- 
+    Проверка корректности имен РН и связанных файлов
+    
+    1. Открыть документ и запустить плагин.
+
+  en_us: >- 
+    1. Open the document and launch the plugin.
+
+assembly: RevitCorrectNamingCheck.dll
+command_class: RevitCorrectNamingCheckCommand
+
+author: KGubin
+
+help_url: "https://kb.a101.ru/pages/viewpage.action?pageId=67830004"
+
+min_revit_version: 2022
+max_revit_version: 2024
