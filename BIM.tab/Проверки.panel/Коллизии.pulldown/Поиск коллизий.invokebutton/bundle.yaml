@@ -10,7 +10,7 @@ assembly: RevitClashDetective.dll
 command_class: DetectiveClashesCommand
 
 author: budaevaler
-help_url: "https://kb.a101.ru/pages/viewpage.action?pageId=82614476"
+help_url: "https://kb.a101.ru/pages/viewpage.action?pageId=157125082"
 
 min_revit_version: 2020
 max_revit_version: 2024
