@@ -1,0 +1,27 @@
+title:
+  ru: Редактировать RSN.ini
+  en_us: Edit RSN.ini
+
+tooltip:
+  ru: >-
+    Редактировать файл RSN.ini.
+
+    1. Открыть документ и запустить плагин.
+    2. Расположить ревит сервера в нужном порядке или запустить автонастройку.
+    3. Нажать "Выполнить"
+
+  en_us: >-
+    Edit the RSN.ini file.
+    1. Open the document and run the plugin.
+    2. Arrange the server's revit in the desired order or start auto-tuning.
+    3. Click "Run"
+
+assembly: RevitRsnManager.dll
+command_class: RevitRsnEditCommand
+
+authors:
+  - KGubin
+help_url:
+
+min_revit_version: 2022
+max_revit_version: 2024

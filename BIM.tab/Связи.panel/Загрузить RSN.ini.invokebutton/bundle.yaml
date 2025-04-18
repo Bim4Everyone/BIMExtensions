@@ -1,0 +1,21 @@
+title:
+  ru: Загрузить RSN.ini
+  en_us: Load RSN.ini
+
+tooltip:
+  ru: >-
+    Загрузить файл RSN.ini
+    1. Открыть документ и запустить плагин.
+  en_us: >-
+    Load RSN.ini file
+    1. Open the document and run the plugin.
+
+assembly: RevitRsnManager.dll
+command_class: RevitRsnLoadCommand
+
+authors:
+  - KGubin
+help_url:
+
+min_revit_version: 2022
+max_revit_version: 2024
