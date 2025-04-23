@@ -6,10 +6,13 @@ tooltip:
   ru: >-
     Загрузить файл RSN.ini
     1. Открыть документ и запустить плагин.
+    2. При наличии файла конфигурации, изменяет файл RSN.ini для оптимизации работы Revit
+    3. При отсутствии файла конфигурации, открывает окно для создания файла конфигурации
   en_us: >-
     Load RSN.ini file
     1. Open the document and run the plugin.
-
+    2. If configured file, modifies the RSN.ini file to optimize Revit operation.
+    3. If there is no configuration file, opens a window to create a configuration file.
 assembly: RevitRsnManager.dll
 command_class: RevitRsnLoadCommand
 

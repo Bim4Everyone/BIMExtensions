@@ -13,7 +13,7 @@ tooltip:
   en_us: >-
     Edit the RSN.ini file.
     1. Open the document and run the plugin.
-    2. Arrange the server's revit in the desired order or start auto-tuning.
+    2. Arrange the Revit Server in the desired order or start auto-tuning.
     3. Click "Run"
 
 assembly: RevitRsnManager.dll
