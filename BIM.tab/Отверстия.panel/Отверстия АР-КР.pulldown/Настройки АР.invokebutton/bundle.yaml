@@ -1,14 +1,14 @@
 title:
-  ru: Настройки КР
-  en_us: Settings KR
+  ru: Настройки АР
+  en_us: Settings AR
 
 tooltip:
   ru: >-
-    Настройки расстановки отверстий КР.
+    Настройки расстановки отверстий АР.
     
     1. Открыть документ и запустить плагин.
 
-    2. Задать настройки расстановки отверстий КР по заданиям.
+    2. Задать настройки расстановки отверстий АР по заданиям.
 
     3. Нажать "ОК"
   en_us: >-
@@ -16,12 +16,12 @@ tooltip:
     
     1. Open document and start the plugin.
     
-    2. Set the settings for the placement of KR openings according to the tasks.
+    2. Set the settings for the placement of AR openings according to the tasks.
     
     3. Press "OK".
 
 assembly: RevitOpeningPlacement.dll
-command_class: SetOpeningRealsKrPlacementConfigCmd
+command_class: SetOpeningRealsArPlacementConfigCmd
 
 author: vlastroG
 help_url: "https://kb.a101.ru/pages/viewpage.action?pageId=110562449"
