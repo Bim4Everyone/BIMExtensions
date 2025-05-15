@@ -1,9 +1,6 @@
 #! /usr/bin/env python
 # -*- coding: utf-8 -*-
 
-__title__ = "Расставить на элемент"
-__doc__ = "Размещает отверстие на линейный элемент"
-
 
 import clr
 import datetime
