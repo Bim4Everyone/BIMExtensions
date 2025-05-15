@@ -541,6 +541,7 @@ def get_plugin_config(curve, is_vertical):
 
     return indent, family_name, step
 
+# Вращает элемент, если угол не равен 0
 def rotate_element(objective):
     if objective.angle == 0:
         return
