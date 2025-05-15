@@ -70,29 +70,6 @@ class CustomSelectionFilter(ISelectionFilter):
         if element.Category.IsId(BuiltInCategory.OST_DuctCurves):
             return element.DuctType.Shape == ConnectorProfileType.Oval
 
-    def IsVertical(self, element):
-        start_xyz, end_xyz = get_connector_coordinates(element)
-
-        # Вычисляем разности координат
-        delta_x = round(end_xyz.X, 3) - round(start_xyz.X, 3)
-        delta_y = round(end_xyz.Y, 3) - round(start_xyz.Y, 3)
-        delta_z = round(end_xyz.Z, 3) - round(start_xyz.Z, 3)
-        epsilon = 0.01 # Соответствует смещению в 3мм
-
-        # Если линия вертикальна (delta_x < epsilon и delta_y < epsilon), возвращаем True
-        if abs(delta_x) < epsilon and abs(delta_y) < epsilon:
-            return True
-
-        if element.Category.IsId(BuiltInCategory.OST_PipeCurves):
-            slope = element.GetParamValue(BuiltInParameter.RBS_PIPE_SLOPE)
-            if slope > 0.06:
-                return True
-        else:
-            if abs(delta_z) > epsilon:
-                return True
-
-        return False
-
 # Определяем класс для хранения данных из конфига отверстий
 class CategoryConfig:
     def __init__(self, category_name, from_value, to_value, offset_value, opening_type_name, step):
