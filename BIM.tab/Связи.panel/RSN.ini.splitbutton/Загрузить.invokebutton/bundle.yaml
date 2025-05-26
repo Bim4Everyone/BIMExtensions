@@ -2,6 +2,8 @@ title:
   ru: Загрузить RSN.ini
   en_us: Load RSN.ini
 
+context: zero-doc
+
 tooltip:
   ru: >-
     Загрузить файл RSN.ini
