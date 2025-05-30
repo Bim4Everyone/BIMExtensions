@@ -1,0 +1,30 @@
+title:
+  ru: Скрыть РН связей
+  en_us: Hide WS Linked Files
+
+tooltip:
+  ru: >- 
+    Скрыть\Отобразить РН в связанных файлов
+    
+    1. Открыть документ и запустить плагин.
+    2. Выбрать РН которые необходимо Скрыть\Отобразить
+    3. Нажать на кнопку с иконкой глаза справа от название РН для единичного скрытия\отображения
+    4. Нажать на кнопку "Скрыть" в верхней части плагина для массового скрытия РН
+    
+  en_us: >- 
+    Hide\Display WS in linked files
+    
+    1. Open the document and launch the plugin.
+    2. Select the PH that you want to Hide\Display
+    3. Click on the button with the eye icon to the right of the PH name for a single hiding/display
+    4. Click on the "Hide" button at the top of the plugin to massively hide the PH
+    
+assembly: RevitHideWorkset.dll
+command_class: RevitHideWorksetCommand
+
+author: KGubin
+
+help_url: "https://kb.a101.ru/pages/viewpage.action?pageId=67830004"
+
+min_revit_version: 2022
+max_revit_version: 2024
