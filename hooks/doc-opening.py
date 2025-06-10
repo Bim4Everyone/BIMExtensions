@@ -5,8 +5,8 @@ import datetime
 
 from pyrevit import EXEC_PARAMS
 from pyrevit.coreutils import envvars
+from pyrevit.userconfig import user_config
 
-from dosymep_libs.simple_services import *
 
 TIME_PROPERTY = "time_sec"
 PATH_NAME_PROPERTY = "path_name"
@@ -26,4 +26,8 @@ def opening_document():
     envvars.set_pyrevit_env_var(OPEN_DOC_TIME, json.dumps(data))
 
 
-opening_document()
+try:
+    if user_config.log_trace.enable_open_doc_time:
+        opening_document()
+except:
+    pass

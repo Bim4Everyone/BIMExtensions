@@ -1,10 +1,12 @@
 # -*- coding: utf-8 -*-
 
 import json
+from collections import OrderedDict
 from datetime import datetime
 
 from pyrevit import EXEC_PARAMS
 from pyrevit.coreutils import envvars
+from pyrevit.userconfig import user_config
 
 from Autodesk.Revit.DB import *
 from Autodesk.Revit.DB.Events import *
@@ -36,7 +38,7 @@ def synced_document():
 
     json_value = envvars.get_pyrevit_env_var(SYNC_DOC_TIME)
     try:
-        data = json.loads(json_value)
+        data = json.loads(str(json_value))
 
         if args.Status != RevitAPIEventStatus.Succeeded:
             return
@@ -50,4 +52,8 @@ def synced_document():
         envvars.set_pyrevit_env_var(SYNC_DOC_TIME, None)
 
 
-synced_document()
+try:
+    if user_config.log_trace.enable_sync_doc_time:
+        synced_document()
+except:
+    pass

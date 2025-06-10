@@ -5,10 +5,10 @@ from datetime import datetime
 
 from pyrevit import EXEC_PARAMS
 from pyrevit.coreutils import envvars
+from pyrevit.userconfig import user_config
 
 from Autodesk.Revit.DB import *
 from Autodesk.Revit.DB.Events import *
-from System.Collections.Generic import Dictionary
 
 from dosymep_libs.simple_services import *
 
@@ -36,7 +36,7 @@ def opened_document():
 
     json_value = envvars.get_pyrevit_env_var(OPEN_DOC_TIME)
     try:
-        data = json.loads(json_value)
+        data = json.loads(str(json_value))
 
         if args.Status != RevitAPIEventStatus.Succeeded:
             return
@@ -50,4 +50,8 @@ def opened_document():
         envvars.set_pyrevit_env_var(OPEN_DOC_TIME, None)
 
 
-opened_document()
+try:
+    if user_config.log_trace.enable_open_doc_time:
+        opened_document()
+except:
+    pass
