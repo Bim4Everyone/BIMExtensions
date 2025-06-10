@@ -27,9 +27,6 @@ def __selfinit__(script_cmp, ui_button_cmp, __rvt__):
     user_config.auto_update = False
     user_config.check_updates = False
 
-    user_config.log_trace.enable_open_doc_time = True
-    user_config.log_trace.enable_sync_doc_time = True
-
     if HOST_APP.language == LanguageType.Russian:
         user_config.user_locale = 'ru'
 
