@@ -22,16 +22,18 @@ from dosymep.Bim4Everyone import *
 
 from dosymep_libs.bim4everyone import *
 
+
 def __selfinit__(script_cmp, ui_button_cmp, __rvt__):
     user_config.auto_update = False
     user_config.check_updates = False
-    user_config.save_changes()
 
     if HOST_APP.language == LanguageType.Russian:
         user_config.user_locale = 'ru'
 
     if HOST_APP.language == LanguageType.English_USA:
         user_config.user_locale = 'en_us'
+
+    user_config.save_changes()
 
 
 @log_plugin(EXEC_PARAMS.command_name)
