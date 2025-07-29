@@ -1,0 +1,24 @@
+title:
+  ru: Настройки
+  en_us: Settings
+
+tooltip:
+  ru: >- 
+    Настройки плагина по работе с коллизиями.
+  
+  
+    1. Открыть документ и запустить плагин.
+  en_us: >- 
+    Plugin settings for working with collisions.
+  
+  
+    1. Open document and start the plugin.
+
+assembly: RevitClashDetective.dll
+command_class: SetSettingsCommand
+
+author: vlastroG
+help_url: "https://kb.a101.ru/pages/viewpage.action?pageId=157125082"
+
+min_revit_version: 2020
+max_revit_version: 2024
