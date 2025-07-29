@@ -3,8 +3,28 @@ title:
   en_us: "Export\ntotals"
 
 tooltip:
-  ru: Экспортирует объемы ВИС из заданных файлов в Excel.
-  en_us: Exports MEP data from selected documents to Excel.
+  ru: >-
+    Экспортирует объемы ВИС из заданных файлов в Excel.
+
+
+    1. Запустите плагин.
+
+    2. Добавьте rvt файлы для получения объемов.
+
+    3. Нажмите "ОК".
+
+    4. Выберите место сохранения Excel файла с данными.
+  en_us: >-
+    Exports MEP data from selected documents to Excel.
+
+
+    1. Run the plugin.
+    
+    2. Add rvt files to get volumes.
+    
+    3. Click "OK".
+    
+    4. Select the location to save the Excel file with data.
 
 assembly: RevitMepTotals.dll
 command_class: RevitMepTotalsCommand
