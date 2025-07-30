@@ -288,7 +288,8 @@ def script_execute(plugin_logger):
     view = __revit__.ActiveUIDocument.ActiveGraphicalView
     active_view = doc.ActiveView
 
-    opened_views = [x.ViewId for x in uidoc.GetOpenUIViews()]
+
+     = [x.ViewId for x in uidoc.GetOpenUIViews()]
 
     checked_view = None
     if active_view.ViewType == ViewType.Schedule:
