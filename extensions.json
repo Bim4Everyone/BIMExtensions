@@ -103,7 +103,7 @@
       "default_enabled": "False",
       "type": "extension",
       "rocket_mode_compatible": "False",
-      "name": "04.EOM-SS",
+      "name": "05.EOM-SS",
       "description": "ЕОМ и СС",
       "author": "dosymep",
       "author_profile": "https://github.com/dosymep",
