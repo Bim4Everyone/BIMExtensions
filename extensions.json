@@ -98,6 +98,20 @@
       "image": "",
       "dependencies": [ "BIM4Everyone" ]
     },
+    {
+      "builtin": "False",
+      "default_enabled": "False",
+      "type": "extension",
+      "rocket_mode_compatible": "False",
+      "name": "04.EOM-SS",
+      "description": "ЕОМ и СС",
+      "author": "dosymep",
+      "author_profile": "https://github.com/dosymep",
+      "url": "https://github.com/Bim4Everyone/EOMSSExtensions",
+      "website": "https://github.com/Bim4Everyone/EOMSSExtensions",
+      "image": "",
+      "dependencies": [ "BIM4Everyone" ]
+    },
 	{
       "builtin": "False",
       "default_enabled": "False",
