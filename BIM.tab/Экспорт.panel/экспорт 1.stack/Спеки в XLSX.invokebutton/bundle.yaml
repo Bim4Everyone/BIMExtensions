@@ -1,0 +1,32 @@
+title:
+  ru: Спеки в XLSX
+  en_us: Schedules to XLSX
+
+tooltip:
+  ru: >-
+    Экспортирует выбранные спецификации в формат XLSX.
+    
+    1. Запустите плагин.
+
+    2. Выберите необходимые спецификации. 
+    Спецификации можно сохранить в один файл Excel на разных листах или в несколько файлов.
+
+    3. Нажмите "ОК" и в открывшемся окне выберите папку для сохранения.
+  en_us: >-
+    Exports selected schedules to XLSX format.
+    
+    1. Start the plugin.
+
+    2. Select schedules. 
+    You can save schedules as one Excel file on different sheets or create a few files.
+
+    3. Press "OK" and select the folder in the opened window.
+
+assembly: RevitExportSpecToExcel.dll
+command_class: RevitExportSpecToExcelCommand
+
+author: sssenya
+help_url: "https://kb.a101.ru/pages/viewpage.action?pageId=67830006"
+
+min_revit_version: 2022
+max_revit_version: 2024
