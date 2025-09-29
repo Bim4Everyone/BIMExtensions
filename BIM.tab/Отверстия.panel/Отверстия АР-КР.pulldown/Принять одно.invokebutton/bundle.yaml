@@ -70,7 +70,7 @@ assembly: RevitOpeningPlacement.dll
 command_class: PlaceOneOpeningRealByOneTaskCmd
 
 author: vlastroG
-help_url: "https://kb.a101.ru/pages/viewpage.action?pageId=110562449"
+help_url: "https://kb.a101.ru/pages/viewpage.action?pageId=167838934"
 
 min_revit_version: 2020
 max_revit_version: 2024
