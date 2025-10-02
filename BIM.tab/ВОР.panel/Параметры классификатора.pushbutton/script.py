@@ -40,8 +40,6 @@ calculation_type_dict = {
     "м³": 3,
     "шт.": 4}
 
-default_excel_path = "W:\Проектный институт\Проектные Группы\Типовые ТЗ\BIM-стандарт A101\Классификатор видов работ.xlsx"
-
 report_no_work_code = []
 report_classifier_code_not_found = []
 report_edited = []
@@ -184,15 +182,13 @@ def set_classifier_parameters(revit_materials):
 
 
 def get_excel_path():
-    excel_path = default_excel_path
-    if not os.path.exists(excel_path):
-        excel_path = pick_file(
-            files_filter="excel files (*.xlsx)|*.xlsx",
-            init_dir="c:\\",
-            restore_dir=True,
-            multi_file=False,
-            unc_paths=False,
-            title="Выберите excel-файл Классификатора")
+    excel_path = pick_file(
+        files_filter="excel files (*.xlsx)|*.xlsx",
+        init_dir="c:\\",
+        restore_dir=True,
+        multi_file=False,
+        unc_paths=False,
+        title="Выберите excel-файл Классификатора")
 
     if not excel_path:
         output = script.output.get_output()
@@ -250,7 +246,7 @@ def script_execute(plugin_logger):
     print("Здравствуйте! Данный плагин предназначен для записи в параметры материалов "
           + "информации из Классификатора видов работ.")
 
-    print("Собираю материалы у элементы на активном виде...")
+    print("Собираю материалы у элементов на активном виде...")
     materials = get_materials()
     print("Найдено материалов: " + str(len(materials)))
 
