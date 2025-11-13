@@ -1,0 +1,54 @@
+title:
+  ru: Заполнить параметры СМР
+  en_us: Set SMR coordinates
+
+tooltip:
+  ru: >-
+    Скрипт автоматически заполняет параметры для экземпляров семейств, исходя из заранее построенных объёмных элементов
+    координационного или любого связанного файла (возможно также в текущем файле).
+    Параметры блока, секции и этажа заполняются на основе пересечений с объемными элементами, 
+    созданными в специальном координационном или любом связанном файле (возможно также в текущем файле).   
+ 
+    
+    1. Запустите скрипт.
+
+    2. Выберите файл с созданными объемными элементами.
+
+    3. Выберите тип объемных элементов в списке.
+    
+    4. Выберите параметры для заполнения.
+
+    5. Выберите категории элементов.
+    
+    6. При необходимости настройте поиск.
+    
+    7. Нажмите "Заполнить".
+
+
+  en_us: >-
+    The script automatically fills in parameters for family instances based on pre-created volumetric elements 
+    from a coordination or any linked file (optionally also from the current file).
+    The block, section, and floor parameters are populated based on intersections with volumetric elements created
+    in a dedicated coordination file or any linked file (optionally also in the current file).
+
+    1. Run the script.
+
+    2. Select the file containing the volumetric elements.
+
+    3. Choose the type of volumetric elements from the list.
+
+    4. Select the parameters to be filled.
+
+    5. Choose the element categories.
+
+    6. Configure the search settings if necessary.
+
+    7. Click "Set".
+
+assembly: RevitSetCoordParams.dll
+command_class: RevitSetCoordParamsCommand
+
+author: KozlovPS
+
+min_revit_version: 2022
+max_revit_version: 2024
