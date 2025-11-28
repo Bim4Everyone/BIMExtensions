@@ -1,0 +1,27 @@
+title:
+  ru: "Проверка\nпараметров"
+  en_us: "Params\nchecker"
+
+tooltip:
+  ru: >- 
+    Проверка параметров
+    
+    
+    1. Открыть документ и запустить плагин.
+    2. Настроить проверки параметров.
+    3. Запустить обработку.
+  en_us: >- 
+    Params checker
+    
+    
+    1. Open the document and run the plugin.
+    2. Configure parameter checks.
+    3. Run processing.
+
+assembly: RevitParamsChecker.dll
+command_class: RevitParamsCheckerCommand
+
+author: vlastroG
+
+min_revit_version: 2022
+max_revit_version: 2024
