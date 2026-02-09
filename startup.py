@@ -53,9 +53,13 @@ import clr
 clr.AddReference('dosymep.Revit.dll')
 clr.AddReference('dosymep.Bim4Everyone.dll')
 
-clr.AddReference('Bim4Everyone.RevitFiltration.dll')
-clr.AddReference('Bim4Everyone.RevitFiltration.Controls.dll')
-clr.AddReference('Bim4Everyone.RevitFiltration.Ninject.dll')
+try:
+    clr.AddReference('Bim4Everyone.RevitFiltration.dll')
+    clr.AddReference('Bim4Everyone.RevitFiltration.Controls.dll')
+    clr.AddReference('Bim4Everyone.RevitFiltration.Ninject.dll')
+except:
+    # на случай, если библиотеки не успеют обновиться у юзера
+    pass
 
 clr.AddReference('dosymep.Xpf.Core.dll')
 clr.AddReference('dosymep.SimpleServices.dll')
