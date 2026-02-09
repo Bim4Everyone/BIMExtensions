@@ -53,6 +53,10 @@ import clr
 clr.AddReference('dosymep.Revit.dll')
 clr.AddReference('dosymep.Bim4Everyone.dll')
 
+clr.AddReference('Bim4Everyone.RevitFiltration.dll')
+clr.AddReference('Bim4Everyone.RevitFiltration.Controls.dll')
+clr.AddReference('Bim4Everyone.RevitFiltration.Ninject.dll')
+
 clr.AddReference('dosymep.Xpf.Core.dll')
 clr.AddReference('dosymep.SimpleServices.dll')
 
