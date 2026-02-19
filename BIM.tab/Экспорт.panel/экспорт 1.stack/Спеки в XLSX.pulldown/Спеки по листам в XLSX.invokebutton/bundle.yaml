@@ -1,0 +1,36 @@
+title:
+  ru: Пакетный экспорт спек в XLSX
+  en_us: Пакетный экспорт спек в XLSX
+
+tooltip:
+  ru: >-
+    Экспортирует спецификации из всех листов заданных файлов в Excel.
+
+
+    1. Запустите плагин.
+
+    2. Добавьте rvt файлы для получения объемов.
+
+    3. Нажмите "ОК".
+
+    4. Выберите папку для сохранения данных.
+  en_us: >-
+    Exports schedules from sheets from selected documents to Excel.
+
+
+    1. Run the plugin.
+    
+    2. Add rvt files to get volumes.
+    
+    3. Click "OK".
+    
+    4. Select the folder to save data.
+
+assembly: RevitBatchSpecExport.dll
+command_class: RevitBatchSpecExportCommand
+
+author: vlastroG
+context: zero-doc
+
+min_revit_version: 2022
+max_revit_version: 2024
