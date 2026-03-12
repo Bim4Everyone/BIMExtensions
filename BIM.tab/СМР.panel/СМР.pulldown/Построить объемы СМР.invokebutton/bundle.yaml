@@ -1,0 +1,82 @@
+title:
+  ru: Построить объемы СМР
+  en_us: Build SMR Volumes
+
+tooltip:
+  ru: >-
+    Скрипт автоматически строит объемные элементы по заранее построенным зонам с заполненными параметрами. Зоны строятся
+    на каждую секцию или блок, только на одном этаже. Объемные элементы строятся от верха плиты до верха плиты, от самой
+    нижней (фундамент), до самой верхней (кровля), методом разбития зона на квадраты и экструдированием с последующим 
+    объединением. Параметры, заполненные в зонах, автоматически переносятся в объемные элементы. Параметр этажа 
+    вычисляется автоматически, исходя из уровня, на котором располагается плита перекрытия. Скрипт может обрабатывать 
+    наклонные, криволинейные и плоские плиты перекрытия. При плоской плите строится цельный объемный элемент, при 
+    наклонных и криволинейных плитах - элемент поделенный на фрагменты (квадраты экструдированные от плиты до плиты).
+    Также возможно строить простые объемные элементы без автоматического определения плит перекрытий, по заранее 
+    заполненным параметрам низа и верха и контура зоны.
+
+    1. Запустите скрипт.
+
+    2. Выберите тип зоны.
+
+    3. Выберите параметры для заполнения.
+
+    Далее настройки только для алгоритма на основе перекрытий.
+
+    4. Выберите режим работы алгоритма (автоматический выбор по перекрытию, либо ручной режим цельного или поделенного 
+    элемента на фрагменты)
+
+    5. Выберите файлы, где расположены плиты перекрытий.
+
+    6. Выберите типоразмеры плит перекрытий.
+
+    7. Выберите уровни плит перекрытий
+
+    8. Выберите длину стороны квадрата (чем меньше сторона, чем больше точность, но ниже производительность).
+
+    9. Выберите угол поворота квадрата (для повернутых секций).
+
+    10. Нажмите "Построить".
+  
+  
+
+  en_us: >-
+    The script automatically generates volumetric elements based on pre-created zones with filled-in parameters. Zones 
+    are created for each section or block, on only one floor. Volumetric elements are generated from slab top to slab 
+    top — from the lowest (foundation) to the highest (roof) — by subdividing the zone into squares, extruding them, 
+    and then merging the results. Parameters filled in within the zones are automatically transferred to the volumetric 
+    elements. The floor parameter is calculated automatically based on the level where the floor slab is located. The 
+    script can process sloped, curved, and flat floor slabs. For flat slabs, a single solid volumetric element is 
+    created; for sloped or curved slabs, the element is divided into fragments (squares extruded from slab to slab).
+    It is also possible to create simple volumetric elements without automatic slab detection, using predefined bottom 
+    and top parameters and the zone boundary.
+
+    1. Run the script.
+
+    2. Select the zone type.
+
+    3. Select the parameters to populate.
+
+    The following settings apply only to the slab-based algorithm:
+
+    4. Choose the algorithm operation mode (automatic detection by slabs, or manual mode with either a solid element or 
+    a fragmented element).
+
+    5. Select the files containing the floor slabs.
+
+    6. Select the floor slab types.
+
+    7. Select the slab levels.
+
+    8. Specify the square side length (smaller values increase accuracy but reduce performance).
+
+    9. Specify the square rotation angle (for rotated sections).
+
+    10. Click “Build”
+
+assembly: RevitBuildCoordVolumes.dll
+command_class: RevitBuildCoordVolumesCommand
+
+author: KozlovPS
+
+min_revit_version: 2022
+max_revit_version: 2024
