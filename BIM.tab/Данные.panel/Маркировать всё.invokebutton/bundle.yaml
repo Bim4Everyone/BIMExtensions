@@ -8,8 +8,8 @@ tooltip:
   en_us: >- 
     Please Write Description
 
-assembly: RevitTagAllCategories.dll
-command_class: RevitTagAllCategoriesCommand
+assembly: RevitMarkAllDocuments.dll
+command_class: RevitMarkAllDocumentsCommand
 
 author: sssenya
 
