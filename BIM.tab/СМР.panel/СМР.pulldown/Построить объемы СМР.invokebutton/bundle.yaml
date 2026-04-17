@@ -77,6 +77,7 @@ assembly: RevitBuildCoordVolumes.dll
 command_class: RevitBuildCoordVolumesCommand
 
 author: KozlovPS
+help_url: "https://kb.a101.ru/pages/viewpage.action?pageId=67844245"
 
 min_revit_version: 2022
 max_revit_version: 2024
