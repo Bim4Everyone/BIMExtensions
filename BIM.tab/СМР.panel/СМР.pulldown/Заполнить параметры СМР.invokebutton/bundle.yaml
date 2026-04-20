@@ -8,21 +8,25 @@ tooltip:
     координационного или любого связанного файла (возможно также в текущем файле).
     Параметры блока, секции и этажа заполняются на основе пересечений с объемными элементами, 
     созданными в специальном координационном или любом связанном файле (возможно также в текущем файле).   
- 
+    
     
     1. Запустите скрипт.
-
+    
     2. Выберите файл с созданными объемными элементами.
-
-    3. Выберите тип объемных элементов в списке.
     
-    4. Выберите параметры для заполнения.
-
-    5. Выберите категории элементов.
+    3. Выберите типы объемных элементов в списке.
     
-    6. При необходимости настройте поиск.
+    4. Выберите позицию, относительно которой будет произведен поиск элемента.
     
-    7. Нажмите "Заполнить".
+    5. Выберите режим обработки вложенных элементов.
+    
+    6. Выберите параметры для заполнения.
+    
+    7. Выберите категории элементов.
+    
+    8. При необходимости настройте поиск.
+    
+    9. Нажмите "Заполнить".
 
 
   en_us: >-
@@ -32,23 +36,28 @@ tooltip:
     in a dedicated coordination file or any linked file (optionally also in the current file).
 
     1. Run the script.
-
-    2. Select the file containing the volumetric elements.
-
-    3. Choose the type of volumetric elements from the list.
-
-    4. Select the parameters to be filled.
-
-    5. Choose the element categories.
-
-    6. Configure the search settings if necessary.
-
-    7. Click "Set".
+    
+    2. Select the file containing the created volume elements.
+    
+    3. Select the volume element types from the list.
+    
+    4. Select the reference position relative to which the element search will be performed.
+    
+    5. elect the processing mode for nested elements.
+    
+    6. Select the parameters to be filled.
+    
+    7. Select the element categories.
+    
+    8. Configure the search settings if necessary.
+    
+    9. Click “Fill”.
 
 assembly: RevitSetCoordParams.dll
 command_class: RevitSetCoordParamsCommand
 
 author: KozlovPS
+help_url: "https://kb.a101.ru/pages/viewpage.action?pageId=67844245"
 
 min_revit_version: 2022
 max_revit_version: 2024
