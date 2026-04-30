@@ -4,9 +4,18 @@ title:
 
 tooltip:
   ru: >- 
-    Please Write Description
-  en_us: >- 
-    Please Write Description
+    Плагин для маркировки элементов на основе файла конфигурации json. 
+    Файл конфигурации создаётся с помощью скрипта "Настроить и маркировать".
+    
+    
+    Запустите скрипт и выберите файл. Откроется окно с предварительной информацией о маркировке.
+    Для запуска нажмите "ОК".
+  en_us: >-
+    A plugin for marking elements based on a JSON configuration file.
+    The configuration file is created using the "Configure and mark" script.
+
+    Run the script and select a file. A window with preliminary marking information will open.
+    Click "OK" to start.
 
 assembly: RevitMarkAllDocuments.dll
 command_class: RevitMarkAllDocsByConfigCommand

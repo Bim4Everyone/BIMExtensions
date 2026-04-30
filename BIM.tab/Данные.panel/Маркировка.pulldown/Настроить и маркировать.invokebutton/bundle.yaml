@@ -4,9 +4,31 @@ title:
 
 tooltip:
   ru: >- 
-    Please Write Description
-  en_us: >- 
-    Please Write Description
+    Плагин для маркировки элементов выбранной категории. Заполняет значения параметров у семейств.
+    
+    1. Запустите плагин и выберите категорию. 
+    Можно маркировать экземпляры категории или типоразмеры, для этого надо поставить галочку внизу.
+    
+    2. В открывшемся окне надо настроить файлы для маркировки, задать фильтр, сортировку и настройки значения марки.
+    
+    3. Если были выбраны связи в списке файлов, то скрипт предложит сохранить json с конфигурацией маркировки. 
+    Этот json надо открыть отдельно с связанном файле с помощью скрипта "Загрузить и маркировать".
+    
+    4. Если был выбран текущий файл, то откроется окно с предварительным списком маркируемых элементов в текущем файле. 
+    Для начала маркировки нажмите "ОК".
+  en_us: >-
+    A plugin for tagging elements of a selected category. It populates parameter values in families.
+    
+    1. Run the plugin and select a category.
+    You can tag either category instances or types by checking the option at the bottom.
+    
+    2. In the window that opens, configure the tagging files, and set up filtering, sorting, and tag value settings.
+    
+    3. If linked files were selected in the file list, the script will prompt you to save a JSON configuration file for tagging.
+    This JSON should be opened separately in the linked file using the "Load and Tag" script.
+    
+    4. If the current file was selected, a window with a preliminary list of elements to be tagged in the current file will open.
+    Click "OK" to start tagging.
 
 assembly: RevitMarkAllDocuments.dll
 command_class: RevitMarkAllDocumentsCommand
