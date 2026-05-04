@@ -1,0 +1,26 @@
+title:
+  ru: "Загрузить и маркировать"
+  en_us: "Load and mark"
+
+tooltip:
+  ru: >- 
+    Плагин для маркировки элементов на основе файла конфигурации json. 
+    Файл конфигурации создаётся с помощью скрипта "Настроить и маркировать".
+    
+    
+    Запустите скрипт и выберите файл. Откроется окно с предварительной информацией о маркировке.
+    Для запуска нажмите "ОК".
+  en_us: >-
+    A plugin for marking elements based on a JSON configuration file.
+    The configuration file is created using the "Configure and mark" script.
+
+    Run the script and select a file. A window with preliminary marking information will open.
+    Click "OK" to start.
+
+assembly: RevitMarkAllDocuments.dll
+command_class: RevitMarkAllDocsByConfigCommand
+
+author: sssenya
+
+min_revit_version: 2022
+max_revit_version: 2024
