@@ -14,7 +14,7 @@ tooltip:
     The plugin will fill in material parameters according to the selected classifier file.
 
 assembly: RevitClassifierParameters.dll
-command_class: RevitClassifierParametersCommand
+command_class: RevitArParameterClassifierCommand
 
 author: DivinN
 help_url: "https://kb.a101.ru/pages/viewpage.action?pageId=216630392"
