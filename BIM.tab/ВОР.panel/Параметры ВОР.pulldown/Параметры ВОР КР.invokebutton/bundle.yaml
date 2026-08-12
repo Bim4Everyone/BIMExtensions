@@ -1,0 +1,23 @@
+title:
+  ru: "Параметры\nВОР КР"
+  en_us: "Classifier\nparameters KR"
+
+tooltip:
+  ru: >-
+    Плагин предназначен для автоматизации процесса заполнения параметров ВОР в Revit. 
+    
+    Плагин заполнит параметры материалов в соответствии с выбранным файлом классификатора.
+
+  en_us: >- 
+    This plugin is designed to automate the process of filling in bill of quantities parameters in Revit. 
+    
+    The plugin will fill in material parameters according to the selected classifier file.
+
+assembly: RevitClassifierParameters.dll
+command_class: RevitKrParameterClassifierCommand
+
+author: DivinN
+help_url: "https://kb.a101.ru/pages/viewpage.action?pageId=216630396"
+
+min_revit_version: 2022
+max_revit_version: 2024
