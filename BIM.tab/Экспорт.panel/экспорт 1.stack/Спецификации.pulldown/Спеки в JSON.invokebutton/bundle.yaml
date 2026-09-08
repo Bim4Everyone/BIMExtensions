@@ -1,0 +1,30 @@
+title:
+  ru: Спеки в JSON
+  en_us: Schedules to JSON
+
+tooltip:
+  ru: >- 
+    Плагин предназначен для быстрого экспорта спецификаций в формат JSON.
+    
+    1. Запустить плагин;
+    
+    2. Выбрать спецификации и настроить их назначение;
+    
+    3. Нажать ОК.
+
+  en_us: >- 
+    This plugin is designed to quickly export specifications into JSON format.
+    
+    1. Run the plugin;
+    
+    2. Select specifications and configure their destinations;
+    
+    3. Click OK.
+
+assembly: RevitExportSpecToJson.dll
+command_class: RevitExportSpecToJsonCommand
+
+author: dosymep
+
+min_revit_version: 2022
+max_revit_version: 2024
