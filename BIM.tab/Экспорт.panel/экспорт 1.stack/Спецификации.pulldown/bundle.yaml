@@ -1,0 +1,9 @@
+title:
+  ru: Спецификации
+  en_us: Schedules
+
+layout:
+  - Спеки в XLSX
+  - Спеки по листам в XLSX
+  - ---
+  - Спеки в JSON
